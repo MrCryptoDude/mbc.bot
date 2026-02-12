@@ -1,0 +1,33 @@
+{
+  "name": "mbc-bot",
+  "version": "1.0.0",
+  "description": "MEME•BACKED•CURRENCY — AI Dungeon Master Twitter Bot",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node src/index.ts",
+    "post-now": "ts-node src/index.ts post-now",
+    "status": "ts-node src/index.ts status",
+    "reset": "ts-node src/index.ts reset"
+  },
+  "keywords": [
+    "twitter",
+    "bot",
+    "dnd",
+    "ai",
+    "dungeon-master"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@types/node": "^25.2.3",
+    "@types/node-cron": "^3.0.11",
+    "dotenv": "^17.2.4",
+    "node-cron": "^4.2.1",
+    "openai": "^6.21.0",
+    "ts-node": "^10.9.2",
+    "twitter-api-v2": "^1.29.0",
+    "typescript": "^5.9.3",
+    "winston": "^3.19.0"
+  }
+}
