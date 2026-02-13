@@ -53,6 +53,8 @@ export interface AILoreResponse {
   loreText: string;
   videoPrompt: string;
   callToAction: string;
+  pollOptionA: string;
+  pollOptionB: string;
   internalNotes: string;
 }
 

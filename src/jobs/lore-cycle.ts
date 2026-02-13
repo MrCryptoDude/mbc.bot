@@ -28,11 +28,13 @@ export async function runLoreCycle(): Promise<void> {
     // Step 4: Generate media (video or fallback image)
     const media = await generateMedia(aiResponse.videoPrompt);
 
-    // Step 5: Post to Twitter
+    // Step 5: Post to Twitter (with poll)
+    const pollOptions: [string, string] = [aiResponse.pollOptionA, aiResponse.pollOptionB];
     const { loreTweetId, ctaTweetId } = await postLoreThread(
       aiResponse.loreText,
-      `🗳️ ${aiResponse.callToAction}`,
-      media?.localPath
+      aiResponse.callToAction,
+      media?.localPath,
+      pollOptions
     );
 
     if (!loreTweetId) {

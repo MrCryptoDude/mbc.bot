@@ -236,10 +236,24 @@ LORE:
 [Your story post — 800-1800 characters. Write a rich mini-chapter with dialogue, action, atmosphere. Open with 1 emoji. No hashtags.]
 
 VIDEO_PROMPT:
-[Cinematic scene for AI video generation. Be EXTREMELY specific: exact character descriptions (Pepe is a green anthropomorphic frog in medieval armor, Doge is a Shiba Inu in paladin gear), camera movement, lighting, setting details, action happening, mood. Style: epic fantasy cinematic, like a Lord of the Rings scene but with meme characters rendered in realistic CGI. 150-200 words.]
+[Cinematic scene for AI video generation with NARRATION. The video MUST include a wise, dramatic British narrator voice (think a nature documentary narrator telling an epic fantasy tale) reading a short narration line that captures the scene's essence.
+
+Format the prompt like: "A narrator with a deep, wise British voice says: '[narration line]'. The scene shows [detailed visual description]."
+
+Visual style: Pixar/Disney-quality 3D animation with rich colors, expressive characters, dramatic lighting, and cinematic camera work. Characters should look like high-quality animated movie characters.
+- Pepe: A green anthropomorphic frog with large expressive eyes, wearing rustic medieval leather armor with gold trim
+- Doge: A heroic Shiba Inu in gleaming paladin plate armor with a round shield
+- Wojak: A pale, thin human mage in tattered dark robes, perpetually worried expression
+Be specific about: camera movement, lighting, setting, character actions, expressions. 150-200 words.]
 
 CALL_TO_ACTION:
-[A dilemma with two options. Reference specific characters and stakes. Under 250 characters.]
+[A dilemma with two clear options for the audience to vote on. Under 250 characters.]
+
+POLL_OPTION_A:
+[First choice — max 25 characters, short and punchy like a button label]
+
+POLL_OPTION_B:
+[Second choice — max 25 characters, short and punchy like a button label]
 
 NOTES:
 [Where is the story heading? What seeds are planted? What should happen in the next 3-5 chapters?]`;
@@ -251,7 +265,7 @@ NOTES:
 
 function parseLoreResponse(text: string): AILoreResponse {
   const sections: Record<string, string> = {};
-  const sectionNames = ["LORE", "VIDEO_PROMPT", "CALL_TO_ACTION", "NOTES"];
+  const sectionNames = ["LORE", "VIDEO_PROMPT", "CALL_TO_ACTION", "POLL_OPTION_A", "POLL_OPTION_B", "NOTES"];
 
   let currentSection = "";
   for (const line of text.split("\n")) {
@@ -275,6 +289,8 @@ function parseLoreResponse(text: string): AILoreResponse {
     loreText: loreText.slice(0, 2000),
     videoPrompt: (sections["VIDEO_PROMPT"] || "").trim(),
     callToAction: (sections["CALL_TO_ACTION"] || "").trim().slice(0, 280),
+    pollOptionA: (sections["POLL_OPTION_A"] || "Option A").trim().slice(0, 25),
+    pollOptionB: (sections["POLL_OPTION_B"] || "Option B").trim().slice(0, 25),
     internalNotes: (sections["NOTES"] || "").trim(),
   };
 }

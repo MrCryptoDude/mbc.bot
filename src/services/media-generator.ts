@@ -25,10 +25,10 @@ async function generateVideoSora(prompt: string): Promise<string | null> {
         "Authorization": `Bearer ${config.openai.apiKey}`,
       },
       body: JSON.stringify({
-        model: "sora-2",
-        prompt: `${prompt}. Style: dark medieval fantasy, cinematic lighting, dramatic atmosphere, desaturated tones with gold highlights`,
+        model: "sora-2-pro",
+        prompt: `${prompt}. Style: Pixar/Disney 3D animation, rich vibrant colors, expressive characters, dramatic cinematic lighting, epic fantasy atmosphere`,
         seconds: "4",
-        size: "1280x720",
+        size: "1792x1024",
       }),
     });
 

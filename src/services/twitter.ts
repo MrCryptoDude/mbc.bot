@@ -18,7 +18,7 @@ const readOnlyClient = new TwitterApi(config.twitter.bearerToken);
 // ─── Split text into thread-sized chunks (max 280 chars each) ───
 
 function splitIntoThread(text: string): string[] {
-  const MAX_CHARS = 275; // Leave room for thread numbering
+  const MAX_CHARS = 275;
   const chunks: string[] = [];
 
   // First try splitting on double newlines (paragraph breaks)
@@ -27,19 +27,14 @@ function splitIntoThread(text: string): string[] {
   let currentChunk = "";
 
   for (const paragraph of paragraphs) {
-    // If a single paragraph fits in remaining space, add it
     if ((currentChunk + "\n\n" + paragraph).trim().length <= MAX_CHARS) {
       currentChunk = currentChunk ? currentChunk + "\n\n" + paragraph : paragraph;
-    }
-    // If the paragraph itself is too long, split by sentences
-    else if (paragraph.length > MAX_CHARS) {
-      // Save current chunk first
+    } else if (paragraph.length > MAX_CHARS) {
       if (currentChunk.trim()) {
         chunks.push(currentChunk.trim());
         currentChunk = "";
       }
 
-      // Split long paragraph by sentences
       const sentences = paragraph.match(/[^.!?]+[.!?]+[\s]*/g) || [paragraph];
       for (const sentence of sentences) {
         if ((currentChunk + " " + sentence).trim().length <= MAX_CHARS) {
@@ -48,7 +43,6 @@ function splitIntoThread(text: string): string[] {
           if (currentChunk.trim()) {
             chunks.push(currentChunk.trim());
           }
-          // If a single sentence is still too long, hard split
           if (sentence.trim().length > MAX_CHARS) {
             const words = sentence.trim().split(/\s+/);
             currentChunk = "";
@@ -65,9 +59,7 @@ function splitIntoThread(text: string): string[] {
           }
         }
       }
-    }
-    // Paragraph doesn't fit but is normal size — start new chunk
-    else {
+    } else {
       if (currentChunk.trim()) {
         chunks.push(currentChunk.trim());
       }
@@ -75,12 +67,10 @@ function splitIntoThread(text: string): string[] {
     }
   }
 
-  // Don't forget the last chunk
   if (currentChunk.trim()) {
     chunks.push(currentChunk.trim());
   }
 
-  // If we somehow got nothing, return the original text split hard
   if (chunks.length === 0) {
     chunks.push(text.slice(0, MAX_CHARS));
   }
@@ -88,9 +78,13 @@ function splitIntoThread(text: string): string[] {
   return chunks;
 }
 
-// ─── Post a tweet with optional media ───
+// ─── Post a tweet with optional media and poll ───
 
-export async function postTweet(text: string, mediaPath?: string): Promise<string | null> {
+export async function postTweet(
+  text: string,
+  mediaPath?: string,
+  pollOptions?: [string, string]
+): Promise<string | null> {
   try {
     let mediaId: string | undefined;
 
@@ -99,20 +93,42 @@ export async function postTweet(text: string, mediaPath?: string): Promise<strin
       mediaId = await uploadMedia(mediaPath);
     }
 
-    let result;
+    const tweetPayload: any = { text };
+
     if (mediaId) {
-      result = await client.v2.tweet({
-        text,
-        media: { media_ids: [mediaId] as [string] },
-      });
-    } else {
-      result = await client.v2.tweet(text);
+      tweetPayload.media = { media_ids: [mediaId] as [string] };
     }
+
+    // Note: Twitter doesn't allow polls + media on the same tweet
+    // So polls go on a separate reply (handled in postLoreThread)
+
+    const result = await client.v2.tweet(tweetPayload);
     const tweetId = result.data.id;
     logger.info(`Posted tweet: ${tweetId}`, { chars: text.length, hasMedia: !!mediaId });
     return tweetId;
   } catch (err) {
     logger.error("Failed to post tweet", { error: String(err) });
+    return null;
+  }
+}
+
+// ─── Post a tweet with a poll (no media allowed) ───
+
+export async function postPollTweet(text: string, options: [string, string], replyToId: string): Promise<string | null> {
+  try {
+    const result = await client.v2.tweet({
+      text,
+      poll: {
+        options,
+        duration_minutes: 150, // Match vote window
+      },
+      reply: { in_reply_to_tweet_id: replyToId },
+    });
+    const tweetId = result.data.id;
+    logger.info(`Posted poll tweet: ${tweetId}`, { options, replyTo: replyToId });
+    return tweetId;
+  } catch (err) {
+    logger.error("Failed to post poll tweet", { error: String(err) });
     return null;
   }
 }
@@ -134,14 +150,14 @@ export async function replyToTweet(text: string, replyToId: string): Promise<str
   }
 }
 
-// ─── Post a full lore thread (multiple tweets + CTA) ───
+// ─── Post a full lore thread (tweets + poll CTA) ───
 
 export async function postLoreThread(
   loreText: string,
   callToAction: string,
-  mediaPath?: string
+  mediaPath?: string,
+  pollOptions?: [string, string]
 ): Promise<{ loreTweetId: string | null; ctaTweetId: string | null }> {
-  // Split lore into thread chunks
   const chunks = splitIntoThread(loreText);
   logger.info(`Splitting lore into ${chunks.length}-tweet thread`);
 
@@ -153,14 +169,12 @@ export async function postLoreThread(
     const chunk = chunks[i]!;
 
     if (isFirst) {
-      // First tweet gets the media (video/image)
       firstTweetId = await postTweet(chunk, mediaPath);
       if (!firstTweetId) {
         return { loreTweetId: null, ctaTweetId: null };
       }
       lastTweetId = firstTweetId;
     } else {
-      // Subsequent tweets are replies in the thread
       const replyId = await replyToTweet(chunk, lastTweetId!);
       if (!replyId) {
         logger.warn(`Thread broken at tweet ${i + 1}/${chunks.length}`);
@@ -169,20 +183,32 @@ export async function postLoreThread(
       lastTweetId = replyId;
     }
 
-    // Small delay between tweets to avoid rate limits
     if (i < chunks.length - 1) {
       await new Promise((r) => setTimeout(r, 1500));
     }
   }
 
-  // Post CTA as final reply
+  // Post CTA with poll as final reply
   let ctaTweetId: string | null = null;
   if (lastTweetId && callToAction) {
     await new Promise((r) => setTimeout(r, 1500));
-    ctaTweetId = await replyToTweet(`\u{1F5F3}\uFE0F ${callToAction}`, lastTweetId);
+
+    if (pollOptions && pollOptions.length === 2) {
+      // Post as a poll tweet
+      ctaTweetId = await postPollTweet(
+        `\u{1F5F3}\uFE0F ${callToAction}`,
+        pollOptions,
+        lastTweetId
+      );
+    }
+
+    // If poll failed or no options, fall back to regular reply
+    if (!ctaTweetId) {
+      ctaTweetId = await replyToTweet(`\u{1F5F3}\uFE0F ${callToAction}`, lastTweetId);
+    }
   }
 
-  logger.info(`Thread posted: ${chunks.length} tweets + CTA`, { firstTweetId });
+  logger.info(`Thread posted: ${chunks.length} tweets + CTA`, { firstTweetId, hasPoll: !!pollOptions });
   return { loreTweetId: firstTweetId, ctaTweetId };
 }
 
