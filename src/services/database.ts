@@ -37,28 +37,38 @@ function writeJSON<T>(filepath: string, data: T): void {
 // ─── Default world state ───
 
 const DEFAULT_WORLD: WorldState = {
-  era: "The Age of Fractured Crowns",
-  tone: "dark fantasy with moments of dark humor, medieval setting, gritty and grounded",
+  era: "Post-Halvening — The Age of Broken Chains",
+  tone: "epic fantasy adventure meets crypto meme culture — Lord of the Rings meets crypto Twitter, funny but with real stakes",
   factions: [
-    { name: "The Gilded Mint", description: "A cabal of merchant-sorcerers who believe currency itself holds magical power. They mint coins imbued with binding enchantments.", status: "neutral" },
-    { name: "The Hollow Crown", description: "Remnants of the old kingdom, now a decentralized resistance. They fight to restore the monarchy through guerrilla warfare and ancient pacts.", status: "neutral" },
-    { name: "The Dross Collective", description: "A ragtag union of miners, smiths, and counterfeiters who reject all monetary systems. They trade only in favors and blood oaths.", status: "neutral" },
-    { name: "The Ledger Wraiths", description: "Undead accountants from a fallen empire, cursed to eternally audit the living. They appear when debts go unpaid.", status: "hostile" },
+    { name: "The Bull Tribe", description: "Warrior nation led by Chad. They thrive in prosperity and charge headfirst into everything. Allies when the market is up.", status: "neutral" },
+    { name: "The Bear Kingdom", description: "Frozen wasteland ruled by the Bear King. Commands FUD Wraiths. Wants to freeze Chainrealm in eternal bear market.", status: "hostile" },
+    { name: "The Bogdanoff Network", description: "Shadow manipulators who pump and dump reality itself. The true puppet masters behind the chaos.", status: "hostile" },
+    { name: "The Diamond Hands Monks", description: "Ancient warrior-monks on Mount HODL who never surrender. Potential allies if the party proves worthy.", status: "neutral" },
   ],
   locations: [
-    { name: "Coinspire", description: "A sprawling city built atop ancient vaults, where every transaction is a spell. The central marketplace is a maelstrom of enchanted commerce.", status: "safe" },
-    { name: "The Debtlands", description: "A wasteland created when the old empire tried to mint infinite currency. Reality itself became inflated and unstable.", status: "dangerous" },
-    { name: "Fort Dividend", description: "A fortress controlled by the Gilded Mint, where the most powerful enchanted coins are forged in volcanic foundries.", status: "unexplored" },
-    { name: "The Underbarter", description: "A subterranean black market beneath Coinspire where the Dross Collective trades in secrets and forbidden artifacts.", status: "safe" },
+    { name: "Kekistan Marshlands", description: "Pepe's peaceful homeland. Simple frog folk farming rare crops. Now threatened.", status: "safe" },
+    { name: "Moonhaven", description: "Doge's ruined kingdom. Once glorious, now haunted by FUD Wraiths since the Moon Queen vanished.", status: "dangerous" },
+    { name: "The Bullrun Plains", description: "Chad's prosperous territory. Golden grasslands, endless energy, volatile weather.", status: "safe" },
+    { name: "The Bearlands", description: "Frozen wasteland where hope dies. Domain of the Bear King.", status: "dangerous" },
+    { name: "Rug Pull Bazaar", description: "A marketplace where nothing is real. Run by the shapeshifter Rug Pull.", status: "dangerous" },
+    { name: "Mount HODL", description: "Sacred mountain. Home of the Diamond Hands Monks.", status: "unexplored" },
+    { name: "Satoshi's Forge", description: "Mythical place where the first block was minted. The party's ultimate destination.", status: "unexplored" },
   ],
   characters: [
-    { name: "Aurelia Halfpenny", role: "Master Minter of the Gilded Mint", status: "alive", allegiance: "The Gilded Mint" },
-    { name: "Ser Corroded", role: "A rusted knight who claims to be the last heir of the Hollow Crown", status: "alive", allegiance: "The Hollow Crown" },
-    { name: "Tally", role: "A street urchin who can smell enchanted currency from a mile away", status: "alive", allegiance: "None" },
+    { name: "Pepe", role: "Reluctant hero. Humble frog farmer bonded to the Golden Wallet. Wields the Rare Blade.", status: "alive", allegiance: "The Party" },
+    { name: "Doge", role: "Loyal Shiba Inu paladin. Speaks in broken wisdom. Carries the Shield of HODL. Seeks his lost Moon Queen.", status: "alive", allegiance: "The Party" },
+    { name: "Wojak", role: "Emotional mage. Sadness powers his magic. Accidentally the strongest sorcerer alive.", status: "alive", allegiance: "The Party" },
+    { name: "Chad", role: "Barbarian King of the Bull Tribe. Speaks in ALL CAPS energy. Potential ally or rival.", status: "alive", allegiance: "Bull Tribe" },
+    { name: "The Bogdanoff Twins", role: "Shadow villains. Can dump the value/life from anything. Watch through the All-Seeing Candlestick.", status: "alive", allegiance: "Bogdanoff Network" },
+    { name: "The Bear King", role: "Lord of eternal winter. Patient, terrifying. Waits for hope to die.", status: "alive", allegiance: "Bear Kingdom" },
+    { name: "Rug Pull", role: "Shapeshifting trickster demon. Appears as what you desire most, then vanishes with everything.", status: "alive", allegiance: "None" },
+    { name: "Moon Queen", role: "Doge's lost ruler. Promised to take everyone to the moon. Disappeared during the Halvening.", status: "missing", allegiance: "Unknown" },
   ],
   activeEvents: [
-    "A new type of coin has appeared in Coinspire that grants its holder persuasive powers — but at what cost?",
-    "The Ledger Wraiths have been spotted moving toward the city in unusual numbers.",
+    "The Great Halvening has split the flow of magic, plunging Chainrealm into chaos.",
+    "A Golden Wallet has appeared in Kekistan — bonded to an unlikely hero.",
+    "The Bogdanoff Twins are searching for the wallet. Their agents are everywhere.",
+    "The Bear King's frozen frontier creeps southward each day.",
   ],
 };
 
