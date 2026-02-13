@@ -4,6 +4,7 @@ import fs from "fs";
 import path from "path";
 
 const MEDIA_DIR = path.join(config.bot.dataDir, "media");
+const IMAGE_API_URL = "https://api.openai.com/v1/images/generations";
 
 function ensureMediaDir(): void {
   if (!fs.existsSync(MEDIA_DIR)) {
@@ -12,6 +13,47 @@ function ensureMediaDir(): void {
 }
 
 // ─── Generate manga panel image via DALL-E 3 ───
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function requestImage(prompt: string): Promise<{ imageUrl: string | null; revisedPrompt?: string; errorText?: string; status: number }> {
+  const requestBody = {
+    model: "dall-e-3",
+    prompt,
+    n: 1,
+    size: "1792x1024",
+    quality: "standard",
+  };
+
+  logger.info("Calling DALL-E 3 API...", { model: requestBody.model, size: requestBody.size, quality: requestBody.quality });
+
+  const response = await fetch(IMAGE_API_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${config.openai.apiKey}`,
+    },
+    body: JSON.stringify(requestBody),
+  });
+
+  logger.info(`DALL-E response status: ${response.status} ${response.statusText}`);
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    return { imageUrl: null, errorText, status: response.status };
+  }
+
+  const data = (await response.json()) as { data?: { url?: string; revised_prompt?: string }[] };
+  logger.info("DALL-E response received", { hasData: !!data?.data, count: data?.data?.length });
+
+  return {
+    imageUrl: data?.data?.[0]?.url || null,
+    revisedPrompt: data?.data?.[0]?.revised_prompt,
+    status: response.status,
+  };
+}
 
 async function generateMangaPanel(panelPrompt: string): Promise<string | null> {
   logger.info("═══ Starting DALL-E manga panel generation ═══");
@@ -43,46 +85,48 @@ ART DIRECTION:
 
     logger.info(`Full DALL-E prompt length: ${fullPrompt.length} chars`);
 
-    const requestBody = {
-      model: "dall-e-3",
-      prompt: fullPrompt,
-      n: 1,
-      size: "1792x1024",
-      quality: "hd",
-    };
+    let imageUrl: string | null = null;
+    let revisedPrompt: string | undefined;
+    let lastErrorText = "";
 
-    logger.info("Calling DALL-E 3 API...", { model: requestBody.model, size: requestBody.size, quality: requestBody.quality });
+    for (let attempt = 1; attempt <= 3; attempt += 1) {
+      const result = await requestImage(fullPrompt);
+      imageUrl = result.imageUrl;
+      revisedPrompt = result.revisedPrompt;
+      lastErrorText = result.errorText || "";
 
-    const response = await fetch("https://api.openai.com/v1/images/generations", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${config.openai.apiKey}`,
-      },
-      body: JSON.stringify(requestBody),
-    });
+      if (imageUrl) {
+        break;
+      }
 
-    logger.info(`DALL-E response status: ${response.status} ${response.statusText}`);
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      logger.error("DALL-E API FAILED", { status: response.status, statusText: response.statusText, error: errorText });
-      return null;
+      const retryable = result.status >= 500 || result.status === 429;
+      if (retryable && attempt < 3) {
+        const backoffMs = 1200 * attempt;
+        logger.warn("DALL-E transient error; retrying", { attempt, status: result.status, backoffMs });
+        await sleep(backoffMs);
+        continue;
+      }
+      break;
     }
 
-    const data = (await response.json()) as { data?: { url?: string; revised_prompt?: string }[] };
-    logger.info("DALL-E response received", { hasData: !!data?.data, count: data?.data?.length });
-
-    const imageUrl = data?.data?.[0]?.url;
-    const revisedPrompt = data?.data?.[0]?.revised_prompt;
-
-    if (revisedPrompt) {
-      logger.info(`DALL-E revised prompt: ${revisedPrompt.slice(0, 200)}...`);
+    if (!imageUrl && lastErrorText.includes("content_policy_violation")) {
+      const safeFallbackPrompt =
+        "Landscape manga page in a fantasy city. Three original heroes coordinate during a crisis. " +
+        "Readable speech bubbles: \"We move now!\" \"Stay together!\" \"No fear.\" Dynamic action lines.";
+      logger.warn("DALL-E policy rejection detected. Retrying with safe fallback prompt.");
+      const safeResult = await requestImage(safeFallbackPrompt);
+      imageUrl = safeResult.imageUrl;
+      revisedPrompt = safeResult.revisedPrompt;
+      lastErrorText = safeResult.errorText || lastErrorText;
     }
 
     if (!imageUrl) {
-      logger.error("No image URL in DALL-E response", { fullResponse: JSON.stringify(data).slice(0, 500) });
+      logger.error("DALL-E API FAILED", { error: lastErrorText.slice(0, 1000) });
       return null;
+    }
+
+    if (revisedPrompt) {
+      logger.info(`DALL-E revised prompt: ${revisedPrompt.slice(0, 200)}...`);
     }
 
     logger.info(`DALL-E image URL received, downloading...`);

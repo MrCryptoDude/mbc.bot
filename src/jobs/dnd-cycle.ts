@@ -40,12 +40,22 @@ export function shouldAcceptContinuation(session: DndSession, mention: MentionEv
 }
 
 function parsePremise(text: string): { premise: string; mode: "solo" | "community" } | null {
-  const cleaned = text.replace(new RegExp(`@${BOT_HANDLE}`, "ig"), " ").trim();
-  if (!cleaned) {
+  // Strict command format for starting new sessions:
+  // Solo: @MEMEBACKEDCURR <description>
+  // Community: @MEMEBACKEDCURR COMMUNITY <description>
+  const match = text.trim().match(/^@MEMEBACKEDCURR\s+(.+)$/i);
+  if (!match) {
     return null;
   }
-  const mode = cleaned.toUpperCase().includes("COMMUNITY") ? "community" : "solo";
-  const premise = cleaned.replace(/COMMUNITY/ig, "").trim();
+
+  const commandBody = match[1].trim();
+  if (!commandBody) {
+    return null;
+  }
+
+  const communityMatch = commandBody.match(/^COMMUNITY\s+(.+)$/i);
+  const mode = communityMatch ? "community" : "solo";
+  const premise = (communityMatch ? communityMatch[1] : commandBody).trim();
   if (!premise) {
     return null;
   }
@@ -57,6 +67,16 @@ export function createDnDModeRunner(deps: DndModeDeps = defaultDeps) {
     const meta = sessionState.getMeta();
     const mentions = await deps.fetchMentions(meta.lastMentionId);
     if (mentions.length === 0) {
+      return;
+    }
+
+    // Launch baseline: when no cursor exists yet, record latest mention and skip history.
+    if (!meta.lastMentionId) {
+      const newestMentionId = mentions[mentions.length - 1]?.tweetId || null;
+      if (newestMentionId) {
+        sessionState.updateMeta({ lastMentionId: newestMentionId });
+        logger.info("DnD Mode baseline initialized; historical mentions skipped", { lastMentionId: newestMentionId });
+      }
       return;
     }
 
@@ -97,9 +117,6 @@ async function processMention(mention: MentionEvent, deps: DndModeDeps): Promise
 }
 
 async function maybeCreateSession(mention: MentionEvent, deps: DndModeDeps): Promise<void> {
-  if (!mention.text.toUpperCase().includes(`@${BOT_HANDLE}`)) {
-    return;
-  }
   if (sessionState.getByRootTweetId(mention.tweetId)) {
     return;
   }

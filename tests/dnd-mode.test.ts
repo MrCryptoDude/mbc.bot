@@ -26,6 +26,7 @@ test("DnD Mode creates session and only requester can continue in solo mode", as
 
   const { createDnDModeRunner } = await import("../src/jobs/dnd-cycle");
   const { sessionState } = await import("../src/services/session-state");
+  sessionState.updateMeta({ lastMentionId: "0" });
 
   const generatedInputs: Array<string | null> = [];
   let call = 0;
@@ -90,6 +91,8 @@ test("DnD Mode community continuation uses highest-liked reply", async () => {
   setBaseEnv(dataDir);
 
   const { createDnDModeRunner } = await import("../src/jobs/dnd-cycle");
+  const { sessionState } = await import("../src/services/session-state");
+  sessionState.updateMeta({ lastMentionId: "0" });
 
   const generatedInputs: Array<string | null> = [];
   let call = 0;
@@ -134,4 +137,97 @@ test("DnD Mode community continuation uses highest-liked reply", async () => {
 
   await run();
   assert.equal(generatedInputs[1], "top community choice");
+});
+
+test("DnD Mode first run sets baseline and skips historical mentions", async () => {
+  const dataDir = path.resolve("data/test-dnd-baseline");
+  cleanup(dataDir);
+  setBaseEnv(dataDir);
+
+  const { createDnDModeRunner } = await import("../src/jobs/dnd-cycle");
+  const { sessionState } = await import("../src/services/session-state");
+  sessionState.updateMeta({ lastMentionId: null });
+
+  let generatedCount = 0;
+  const run = createDnDModeRunner({
+    fetchMentions: async () => [
+      {
+        tweetId: "100",
+        text: "@MEMEBACKEDCURR old mention",
+        authorId: "u1",
+        authorHandle: "u1",
+        inReplyToTweetId: null,
+        likeCount: 0,
+      },
+      {
+        tweetId: "101",
+        text: "@MEMEBACKEDCURR another old mention",
+        authorId: "u1",
+        authorHandle: "u1",
+        inReplyToTweetId: null,
+        likeCount: 0,
+      },
+    ],
+    fetchTopComments: async () => [],
+    generateEpisode: async () => {
+      generatedCount += 1;
+      return {
+        loreText: "desc",
+        tweetTitle: "title",
+        mangaPrompt: "img",
+        callToAction: "",
+        pollOptions: ["A", "B", "C"],
+        internalNotes: "",
+      };
+    },
+    generateImage: async () => null,
+    postEpisode: async () => "bot",
+  });
+
+  await run();
+  const meta = sessionState.getMeta();
+  assert.equal(meta.lastMentionId, "101");
+  assert.equal(generatedCount, 0);
+});
+
+test("DnD Mode ignores mentions that do not start with the bot command", async () => {
+  const dataDir = path.resolve("data/test-dnd-strict-start");
+  cleanup(dataDir);
+  setBaseEnv(dataDir);
+
+  const { createDnDModeRunner } = await import("../src/jobs/dnd-cycle");
+  const { sessionState } = await import("../src/services/session-state");
+  sessionState.updateMeta({ lastMentionId: "0" });
+
+  let generatedCount = 0;
+  const run = createDnDModeRunner({
+    fetchMentions: async () => [
+      {
+        tweetId: "201",
+        text: "hey @MEMEBACKEDCURR start a story",
+        authorId: "u1",
+        authorHandle: "u1",
+        inReplyToTweetId: null,
+        likeCount: 0,
+      },
+    ],
+    fetchTopComments: async () => [],
+    generateEpisode: async () => {
+      generatedCount += 1;
+      return {
+        loreText: "desc",
+        tweetTitle: "title",
+        mangaPrompt: "img",
+        callToAction: "",
+        pollOptions: ["A", "B", "C"],
+        internalNotes: "",
+      };
+    },
+    generateImage: async () => null,
+    postEpisode: async () => "bot",
+  });
+
+  await run();
+  assert.equal(generatedCount, 0);
+  assert.equal(sessionState.getByRootTweetId("201"), null);
 });
