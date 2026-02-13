@@ -11,81 +11,83 @@ function ensureMediaDir(): void {
   }
 }
 
-// ─── Kling AI Video Generation ───
+// ─── OpenAI Sora Video Generation (REST API) ───
 
-async function generateVideoKling(prompt: string): Promise<string | null> {
-  if (!config.kling.apiKey) {
-    logger.warn("Kling API key not configured, skipping video generation");
-    return null;
-  }
-
+async function generateVideoSora(prompt: string): Promise<string | null> {
   try {
-    logger.info("Requesting video from Kling AI...");
+    logger.info("Requesting video from OpenAI Sora...");
 
-    // Step 1: Submit generation request
-    const createResponse = await fetch("https://api.klingai.com/v1/videos/text2video", {
+    // Step 1: Submit video generation job
+    const createResponse = await fetch("https://api.openai.com/v1/videos", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${config.kling.apiKey}`,
+        "Authorization": `Bearer ${config.openai.apiKey}`,
       },
       body: JSON.stringify({
-        prompt: `${prompt} Style: dark medieval fantasy, cinematic lighting, 4K quality, dramatic atmosphere`,
-        negative_prompt: "modern, contemporary, cartoon, anime, bright colors, cheerful",
-        duration: 5,
-        aspect_ratio: "16:9",
+        model: "sora-2",
+        prompt: `${prompt}. Style: dark medieval fantasy, cinematic lighting, dramatic atmosphere, desaturated tones with gold highlights`,
+        seconds: 5,
+        size: "1280x720",
       }),
     });
 
     if (!createResponse.ok) {
       const errorText = await createResponse.text();
-      logger.error("Kling API create failed", { status: createResponse.status, error: errorText });
+      logger.error("Sora API create failed", { status: createResponse.status, error: errorText });
       return null;
     }
 
-    const createData = (await createResponse.json()) as { data?: { task_id?: string } };
-    const taskId = createData?.data?.task_id;
-    if (!taskId) {
-      logger.error("No task_id in Kling response", { response: createData });
+    const createData = (await createResponse.json()) as { id?: string; status?: string };
+    const videoId = createData?.id;
+    if (!videoId) {
+      logger.error("No video ID in Sora response", { response: createData });
       return null;
     }
 
-    // Step 2: Poll for completion (max 5 minutes)
-    logger.info(`Kling task ${taskId} submitted, polling for completion...`);
-    const maxAttempts = 30;
+    // Step 2: Poll for completion (max 10 minutes)
+    logger.info(`Sora job ${videoId} submitted, polling for completion...`);
+    const maxAttempts = 60;
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
       await sleep(10000); // 10 second intervals
 
-      const statusResponse = await fetch(`https://api.klingai.com/v1/videos/text2video/${taskId}`, {
-        headers: { "Authorization": `Bearer ${config.kling.apiKey}` },
+      const statusResponse = await fetch(`https://api.openai.com/v1/videos/${videoId}`, {
+        headers: { "Authorization": `Bearer ${config.openai.apiKey}` },
       });
 
       if (!statusResponse.ok) continue;
 
-      const statusData = (await statusResponse.json()) as {
-        data?: { task_status?: string; task_result?: { videos?: { url?: string }[] } };
-      };
+      const statusData = (await statusResponse.json()) as { id: string; status: string };
 
-      const status = statusData?.data?.task_status;
-      if (status === "succeed") {
-        const videoUrl = statusData?.data?.task_result?.videos?.[0]?.url;
-        if (videoUrl) {
-          // Download video
-          const localPath = await downloadFile(videoUrl, `video_${taskId}.mp4`);
-          logger.info(`Video generated and downloaded: ${localPath}`);
-          return localPath;
+      if (statusData.status === "completed") {
+        // Step 3: Download the video
+        const contentResponse = await fetch(`https://api.openai.com/v1/videos/${videoId}/content`, {
+          headers: { "Authorization": `Bearer ${config.openai.apiKey}` },
+        });
+
+        if (!contentResponse.ok) {
+          logger.error("Sora video download failed", { status: contentResponse.status });
+          return null;
         }
-      } else if (status === "failed") {
-        logger.error("Kling video generation failed", { taskId });
+
+        const buffer = Buffer.from(await contentResponse.arrayBuffer());
+        ensureMediaDir();
+        const localPath = path.join(MEDIA_DIR, `video_${videoId}.mp4`);
+        fs.writeFileSync(localPath, buffer);
+
+        logger.info(`Sora video generated and downloaded: ${localPath}`);
+        return localPath;
+      } else if (statusData.status === "failed") {
+        logger.error("Sora video generation failed", { videoId });
         return null;
       }
-      // else still processing, continue polling
+      // queued or in_progress — keep polling
     }
 
-    logger.warn(`Kling video generation timed out after ${maxAttempts * 10}s`, { taskId });
+    logger.warn(`Sora video generation timed out`, { videoId });
     return null;
   } catch (err) {
-    logger.error("Kling video generation error", { error: String(err) });
+    logger.error("Sora video generation error", { error: String(err) });
     return null;
   }
 }
@@ -93,11 +95,6 @@ async function generateVideoKling(prompt: string): Promise<string | null> {
 // ─── DALL-E Image Fallback ───
 
 async function generateImageDallE(prompt: string): Promise<string | null> {
-  if (!config.openai.apiKey) {
-    logger.warn("OpenAI API key not configured, skipping image generation");
-    return null;
-  }
-
   try {
     logger.info("Generating fallback image via DALL-E 3...");
 
@@ -148,14 +145,14 @@ export interface MediaResult {
 export async function generateMedia(videoPrompt: string): Promise<MediaResult | null> {
   ensureMediaDir();
 
-  // Try video first
-  const videoPath = await generateVideoKling(videoPrompt);
+  // Try Sora video first
+  const videoPath = await generateVideoSora(videoPrompt);
   if (videoPath) {
     return { localPath: videoPath, type: "video" };
   }
 
-  // Fallback to image
-  logger.info("Video generation failed/unavailable, falling back to image...");
+  // Fallback to DALL-E image
+  logger.info("Video generation failed/unavailable, falling back to DALL-E image...");
   const imagePath = await generateImageDallE(videoPrompt);
   if (imagePath) {
     return { localPath: imagePath, type: "image" };

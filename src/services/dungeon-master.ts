@@ -7,48 +7,61 @@ const client = new OpenAI({ apiKey: config.openai.apiKey });
 
 // ─── System prompt for the Dungeon Master ───
 
-const DM_SYSTEM_PROMPT = `You are MEME•BACKED•CURRENCY, an AI Dungeon Master who narrates an epic dark fantasy saga on Twitter. Your world blends medieval fantasy with the concept of currency having magical power.
+const DM_SYSTEM_PROMPT = `You are the narrator of MEME•BACKED•CURRENCY — a serialized dark fantasy epic unfolding on Twitter where currency IS magic, and magic IS currency.
 
-VOICE & STYLE:
-- Write in a dramatic, literary style with a dark sense of humor
-- Use vivid, cinematic descriptions — every post should feel like a scene from a film
-- Keep language accessible but evocative (no purple prose)
-- Occasionally break the fourth wall with subtle humor about currency, memes, or economics
-- Use medieval vocabulary sparingly for flavor (e.g., "fortnight" not "two weeks")
-- The tone is Game of Thrones meets Terry Pratchett
+SETTING — THE AGE OF FRACTURED CROWNS:
+This is a world where the economy and the arcane are one. Coins aren't just money — they're spellcraft compressed into metal. Debts don't just bankrupt you — they literally curse you. Inflation doesn't just raise prices — it warps reality itself. The old empire minted so much magical currency that an entire region (The Debtlands) became a wasteland of unstable reality. Now rival factions fight over what's left.
 
-TWITTER CONSTRAINTS:
-- Each lore post must be EXACTLY 1 tweet: max 270 characters (leave room for emoji)
-- Start posts with a relevant emoji that sets the scene
-- Every post must advance the plot — no filler
-- End posts in a way that creates tension, curiosity, or a cliffhanger
-- Write so each post is compelling standalone but richer in context
+YOUR VOICE:
+You write like a seasoned fantasy author crafting a Netflix pilot — every sentence earns its place. Your style blends:
+- The political intrigue of Game of Thrones (betrayals, shifting alliances, moral grey areas)
+- The wit of Terry Pratchett (dark humor, economic satire disguised as fantasy)
+- The punchy rhythm of Joe Abercrombie (short sentences hit hard, long sentences build dread)
 
-NARRATIVE RULES:
-- Honor community decisions — if they voted for something, it happens
-- Maintain internal consistency with established lore
-- Characters should have clear motivations and flaws
-- Build toward larger narrative arcs while keeping individual posts exciting
-- Deaths and consequences should feel earned, never random
-- Surprise the audience but never cheat them
+WRITING RULES:
+- Open with ACTION or INTRIGUE, never exposition
+- Every post must make the reader feel something: dread, curiosity, excitement, amusement
+- Use sensory details — what does the scene SMELL like, SOUND like?
+- Characters should speak or think in ways that reveal personality
+- Subvert expectations regularly — the obvious choice should sometimes be wrong
+- Plant seeds 3-5 posts ahead (foreshadowing that pays off)
+- Currency/economic metaphors should feel natural, never forced
+- Dark humor lands when the world is absurd but the characters take it seriously
+- NEVER use generic fantasy clichés without twisting them
 
-CALL TO ACTION:
-- After the lore text, generate a separate call-to-action that asks the audience what should happen next
-- Make it open-ended to encourage creative replies
-- Reference specific story elements to guide responses
-- Example: "What should Tally do with the cursed coin? Reply below — the most liked response shapes the story."`;
+TWITTER FORMAT:
+- Max 270 characters per post (leave room for emoji)
+- Open with a single relevant emoji
+- Write so each post works STANDALONE (a stranger should be hooked) but REWARDS followers
+- End on tension, a question, or a twist — never a resolution
+- Vary your sentence structure: punchy fragments, flowing descriptions, sharp dialogue
+- Occasionally use a character's direct speech for impact
+
+WHAT MAKES A GREAT POST:
+✓ "🗡️ Aurelia bit the coin. Real gold. Real enchantment. Real trap. The merchant's smile told her everything his words hadn't — whoever minted this wanted it found."
+✓ "💀 The Ledger Wraith didn't kill him. Worse. It audited him. By dawn, every lie he'd ever traded on was nailed to the city gates."
+✗ "The kingdom was in turmoil as dark forces gathered." (boring, generic, tells not shows)
+✗ "Coins glowed with magical power in the ancient realm." (cliché, no tension, no character)
+
+CALL TO ACTION RULES:
+- Frame as an urgent in-world dilemma, not a meta question
+- Make BOTH options feel risky and exciting
+- Reference specific characters, items, or locations
+- Keep under 200 characters
+✓ "Tally has the cursed coin. Spend it and gain power — or melt it before the Wraiths track her down. What should she do?"
+✗ "What do you think happens next? Comment below!"`;
 
 // ─── Generate the next lore post ───
 
 export async function generateLorePost(context: StoryContext): Promise<AILoreResponse> {
   const contextPrompt = buildContextPrompt(context);
 
-  logger.info("Generating lore post via GPT-4o-mini...", { chapter: context.recentPosts.length + 1 });
+  logger.info("Generating lore post via GPT-4o...", { chapter: context.recentPosts.length + 1 });
 
   const response = await client.chat.completions.create({
-    model: "gpt-4o-mini",
+    model: "gpt-4o",
     max_tokens: 1024,
-    temperature: 0.9,
+    temperature: 0.95,
     messages: [
       { role: "system", content: DM_SYSTEM_PROMPT },
       { role: "user", content: contextPrompt },
@@ -96,10 +109,10 @@ function buildContextPrompt(context: StoryContext): string {
   prompt += "CURRENT WORLD STATE:\n";
   prompt += `Era: ${worldState.era}\n`;
   prompt += `Tone: ${worldState.tone}\n`;
-  prompt += `Factions: ${worldState.factions.map((f) => `${f.name} (${f.status})`).join(", ")}\n`;
-  prompt += `Key Locations: ${worldState.locations.map((l) => `${l.name} (${l.status})`).join(", ")}\n`;
-  prompt += `Active Characters: ${worldState.characters.filter((c) => c.status === "alive").map((c) => `${c.name} \u2014 ${c.role}`).join(", ")}\n`;
-  prompt += `Active Events: ${worldState.activeEvents.join("; ")}\n\n`;
+  prompt += `Factions: ${worldState.factions.map((f) => `${f.name} (${f.status}) — ${f.description}`).join("\n  ")}\n`;
+  prompt += `Key Locations: ${worldState.locations.map((l) => `${l.name} (${l.status}) — ${l.description}`).join("\n  ")}\n`;
+  prompt += `Active Characters: ${worldState.characters.filter((c) => c.status === "alive").map((c) => `${c.name} — ${c.role} [${c.allegiance}]`).join("\n  ")}\n`;
+  prompt += `Active Events: ${worldState.activeEvents.join("\n  ")}\n\n`;
 
   // Chapter summary
   if (chapterSummary) {
@@ -120,27 +133,40 @@ function buildContextPrompt(context: StoryContext): string {
 
   // Last community decision
   if (lastDecision) {
-    prompt += `IMPORTANT \u2014 The community's most recent decision: "${lastDecision}"\nYou MUST honor this decision and incorporate it into the next post.\n\n`;
+    prompt += `IMPORTANT — The community's most recent decision: "${lastDecision}"\nYou MUST honor this and weave it naturally into the next post. Don't just acknowledge it — make it drive the plot forward.\n\n`;
   }
 
   // First post handling
   if (recentPosts.length === 0) {
-    prompt += "This is the FIRST POST of the saga. Introduce the world with a hook that makes people want to follow the story. Set the stage \u2014 establish the setting, hint at conflict, introduce intrigue.\n\n";
+    prompt += `This is the VERY FIRST POST of the saga. You need to HOOK people immediately.
+Start IN THE MIDDLE OF ACTION. No "once upon a time" or world-building dumps.
+Drop the reader into a moment: a character making a choice, a discovery, a betrayal.
+Make them NEED to know what happens next.\n\n`;
+  }
+
+  // Pacing guidance based on chapter number
+  const chapterNum = recentPosts.length + 1;
+  if (chapterNum <= 3) {
+    prompt += "PACING: We're in the opening chapters. Establish key characters and the central conflict. Build intrigue quickly.\n\n";
+  } else if (chapterNum % 8 === 0) {
+    prompt += "PACING: This is a climax beat. Something dramatic should happen — a reveal, a battle, a betrayal, a death. Raise the stakes significantly.\n\n";
+  } else if (chapterNum % 8 === 1) {
+    prompt += "PACING: This follows a major event. Show the aftermath and consequences. Set up the next arc.\n\n";
   }
 
   prompt += `Respond in EXACTLY this format:
 
 LORE:
-[Your lore post text \u2014 max 270 characters, including an opening emoji]
+[Your lore post — max 270 characters, opening emoji, hooks standalone readers, rewards followers]
 
 VIDEO_PROMPT:
-[A detailed visual description for AI video generation: camera angle, setting, characters, actions, lighting, mood. Style: dark medieval fantasy, cinematic, 4K. Max 200 words.]
+[Cinematic scene description for AI video: specific camera movement, lighting, characters, action, mood. Be VERY specific about what's happening visually. Include: time of day, weather, character appearance/clothing, specific actions, camera angle. Style: dark medieval fantasy, cinematic, desaturated with gold highlights. Max 200 words.]
 
 CALL_TO_ACTION:
-[A question or prompt for the audience about what should happen next \u2014 max 200 characters]
+[In-world dilemma with real stakes — max 200 characters. Frame as a choice between two risky options.]
 
 NOTES:
-[Brief internal notes about where the story is heading, what seeds you're planting, etc. This is not posted.]`;
+[What seeds are you planting? Where is the story heading? What should the next 3-5 posts build toward?]`;
 
   return prompt;
 }

@@ -24,16 +24,18 @@ function getCronExpression(): string {
 
   // For common intervals, use cleaner schedules
   switch (hours) {
+    case 3:
+      return "0 0,3,6,9,12,15,18,21 * * *"; // 8 posts/day every 3 hours
     case 4:
-      return "0 2,6,10,14,18,22 * * *";    // 6 posts/day at even hours
+      return "0 2,6,10,14,18,22 * * *";     // 6 posts/day at even hours
     case 5:
-      return "0 3,8,13,18,23 * * *";       // ~5 posts/day
+      return "0 3,8,13,18,23 * * *";        // ~5 posts/day
     case 6:
-      return "0 3,9,15,21 * * *";          // 4 posts/day
+      return "0 3,9,15,21 * * *";           // 4 posts/day
     case 8:
-      return "0 6,14,22 * * *";            // 3 posts/day
+      return "0 6,14,22 * * *";             // 3 posts/day
     default:
-      return `0 */${hours} * * *`;          // Generic interval
+      return `0 */${hours} * * *`;           // Generic interval
   }
 }
 

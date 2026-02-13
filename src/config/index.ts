@@ -18,12 +18,9 @@ export const config = {
   openai: {
     apiKey: required("OPENAI_API_KEY"),
   },
-  kling: {
-    apiKey: process.env.KLING_API_KEY || "",
-  },
   bot: {
-    postIntervalHours: parseInt(process.env.POST_INTERVAL_HOURS || "6"),
-    voteWindowMinutes: parseInt(process.env.VOTE_WINDOW_MINUTES || "300"),
+    postIntervalHours: parseInt(process.env.POST_INTERVAL_HOURS || "3"),
+    voteWindowMinutes: parseInt(process.env.VOTE_WINDOW_MINUTES || "150"),
     username: process.env.BOT_USERNAME || "MEMEBACKEDCURR",
     dataDir: process.env.DATA_DIR || "./data",
     logLevel: process.env.LOG_LEVEL || "info",
