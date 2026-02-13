@@ -3,5 +3,4 @@ dist
 data
 .env
 *.log
-Dockerfile
-Dockerfile.bak
+.git

@@ -8,8 +8,10 @@
     "start": "node dist/index.js",
     "dev": "ts-node src/index.ts",
     "post-now": "ts-node src/index.ts post-now",
+    "dnd-now": "ts-node src/index.ts dnd-now",
     "status": "ts-node src/index.ts status",
-    "reset": "ts-node src/index.ts reset"
+    "reset": "ts-node src/index.ts reset",
+    "test": "node --test -r ts-node/register tests/**/*.test.ts"
   },
   "keywords": [
     "twitter",

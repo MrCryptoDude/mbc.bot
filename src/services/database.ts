@@ -8,6 +8,8 @@ const DATA_DIR = config.bot.dataDir;
 const POSTS_FILE = path.join(DATA_DIR, "lore_posts.json");
 const WORLD_FILE = path.join(DATA_DIR, "world_state.json");
 const SUMMARY_FILE = path.join(DATA_DIR, "chapter_summary.json");
+const DND_SESSIONS_FILE = path.join(DATA_DIR, "dnd_sessions.json");
+const DND_META_FILE = path.join(DATA_DIR, "dnd_meta.json");
 
 // ─── Initialize data directory and files ───
 
@@ -92,7 +94,13 @@ export const db = {
 
   addPost(post: Omit<LorePost, "id">): LorePost {
     const posts = this.getPosts();
-    const newPost: LorePost = { ...post, id: posts.length + 1 };
+    const newPost: LorePost = {
+      pollTweetId: null,
+      pollOptions: null,
+      winningOption: null,
+      ...post,
+      id: posts.length + 1,
+    };
     posts.push(newPost);
     writeJSON(POSTS_FILE, posts);
     logger.info(`Saved lore post #${newPost.id}`, { chapter: newPost.chapterNumber });
@@ -137,6 +145,8 @@ export const db = {
     if (fs.existsSync(POSTS_FILE)) fs.unlinkSync(POSTS_FILE);
     if (fs.existsSync(WORLD_FILE)) fs.unlinkSync(WORLD_FILE);
     if (fs.existsSync(SUMMARY_FILE)) fs.unlinkSync(SUMMARY_FILE);
+    if (fs.existsSync(DND_SESSIONS_FILE)) fs.unlinkSync(DND_SESSIONS_FILE);
+    if (fs.existsSync(DND_META_FILE)) fs.unlinkSync(DND_META_FILE);
     logger.info("Database reset");
   },
 };

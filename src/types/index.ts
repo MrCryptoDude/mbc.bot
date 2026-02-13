@@ -3,10 +3,13 @@
 export interface LorePost {
   id: number;
   content: string;
-  videoPrompt: string;
+  mangaPrompt: string;
   mediaUrl: string | null;
-  mediaType: "video" | "image";
+  mediaType: "image";
   tweetId: string | null;
+  pollTweetId?: string | null;
+  pollOptions?: [string, string, string] | null;
+  winningOption?: string | null;
   chapterNumber: number;
   votingMode: "comment";
   winningComment: string | null;
@@ -51,16 +54,54 @@ export interface StoryContext {
 
 export interface AILoreResponse {
   loreText: string;
-  videoPrompt: string;
+  tweetTitle: string;
+  mangaPrompt: string;
   callToAction: string;
-  pollOptionA: string;
-  pollOptionB: string;
+  pollOptions: string[];
   internalNotes: string;
 }
 
 export interface TopComment {
   text: string;
   authorHandle: string;
+  authorId?: string;
   likeCount: number;
   tweetId: string;
+}
+
+export interface EpisodeOutput {
+  title: string;
+  description: string;
+  choices: [string, string, string];
+  imagePrompt: string;
+}
+
+export interface MentionEvent {
+  tweetId: string;
+  text: string;
+  authorId: string;
+  authorHandle: string;
+  inReplyToTweetId: string | null;
+  likeCount: number;
+}
+
+export interface DndTurn {
+  sourceTweetId: string;
+  sourceAuthorId: string;
+  sourceText: string;
+  generatedTweetId: string;
+  generatedAt: string;
+}
+
+export interface DndSession {
+  rootTweetId: string;
+  requesterId: string;
+  requesterHandle: string;
+  premise: string;
+  mode: "solo" | "community";
+  createdAt: string;
+  updatedAt: string;
+  episodeCount: number;
+  awaitingReplyToTweetId: string;
+  turns: DndTurn[];
 }

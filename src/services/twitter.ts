@@ -1,10 +1,8 @@
 import { TwitterApi } from "twitter-api-v2";
 import { config } from "../config";
-import { TopComment } from "../types";
+import { MentionEvent, TopComment } from "../types";
 import { logger } from "../utils/logger";
 import fs from "fs";
-
-// ─── Initialize Twitter client ───
 
 const client = new TwitterApi({
   appKey: config.twitter.apiKey,
@@ -15,209 +13,94 @@ const client = new TwitterApi({
 
 const readOnlyClient = new TwitterApi(config.twitter.bearerToken);
 
-// ─── Split text into thread-sized chunks (max 280 chars each) ───
-
-function splitIntoThread(text: string): string[] {
-  const MAX_CHARS = 275;
-  const chunks: string[] = [];
-
-  // First try splitting on double newlines (paragraph breaks)
-  const paragraphs = text.split(/\n\n+/).filter((p) => p.trim().length > 0);
-
-  let currentChunk = "";
-
-  for (const paragraph of paragraphs) {
-    if ((currentChunk + "\n\n" + paragraph).trim().length <= MAX_CHARS) {
-      currentChunk = currentChunk ? currentChunk + "\n\n" + paragraph : paragraph;
-    } else if (paragraph.length > MAX_CHARS) {
-      if (currentChunk.trim()) {
-        chunks.push(currentChunk.trim());
-        currentChunk = "";
-      }
-
-      const sentences = paragraph.match(/[^.!?]+[.!?]+[\s]*/g) || [paragraph];
-      for (const sentence of sentences) {
-        if ((currentChunk + " " + sentence).trim().length <= MAX_CHARS) {
-          currentChunk = currentChunk ? currentChunk + " " + sentence.trim() : sentence.trim();
-        } else {
-          if (currentChunk.trim()) {
-            chunks.push(currentChunk.trim());
-          }
-          if (sentence.trim().length > MAX_CHARS) {
-            const words = sentence.trim().split(/\s+/);
-            currentChunk = "";
-            for (const word of words) {
-              if ((currentChunk + " " + word).length <= MAX_CHARS) {
-                currentChunk = currentChunk ? currentChunk + " " + word : word;
-              } else {
-                if (currentChunk) chunks.push(currentChunk);
-                currentChunk = word;
-              }
-            }
-          } else {
-            currentChunk = sentence.trim();
-          }
-        }
-      }
-    } else {
-      if (currentChunk.trim()) {
-        chunks.push(currentChunk.trim());
-      }
-      currentChunk = paragraph;
-    }
-  }
-
-  if (currentChunk.trim()) {
-    chunks.push(currentChunk.trim());
-  }
-
-  if (chunks.length === 0) {
-    chunks.push(text.slice(0, MAX_CHARS));
-  }
-
-  return chunks;
-}
-
-// ─── Post a tweet with optional media and poll ───
-
-export async function postTweet(
-  text: string,
-  mediaPath?: string,
-  pollOptions?: [string, string]
-): Promise<string | null> {
+export async function postTweet(text: string, mediaPath?: string, replyToTweetId?: string): Promise<string | null> {
   try {
     let mediaId: string | undefined;
 
     if (mediaPath && fs.existsSync(mediaPath)) {
-      logger.info(`Uploading media: ${mediaPath}`);
       mediaId = await uploadMedia(mediaPath);
     }
 
-    const tweetPayload: any = { text };
-
+    const payload: any = { text };
     if (mediaId) {
-      tweetPayload.media = { media_ids: [mediaId] as [string] };
+      payload.media = { media_ids: [mediaId] as [string] };
+    }
+    if (replyToTweetId) {
+      payload.reply = { in_reply_to_tweet_id: replyToTweetId };
     }
 
-    // Note: Twitter doesn't allow polls + media on the same tweet
-    // So polls go on a separate reply (handled in postLoreThread)
-
-    const result = await client.v2.tweet(tweetPayload);
-    const tweetId = result.data.id;
-    logger.info(`Posted tweet: ${tweetId}`, { chars: text.length, hasMedia: !!mediaId });
-    return tweetId;
+    const result = await client.v2.tweet(payload);
+    return result.data.id;
   } catch (err) {
     logger.error("Failed to post tweet", { error: String(err) });
     return null;
   }
 }
 
-// ─── Post a tweet with a poll (no media allowed) ───
-
-export async function postPollTweet(text: string, options: [string, string], replyToId: string): Promise<string | null> {
-  try {
-    const result = await client.v2.tweet({
-      text,
-      poll: {
-        options,
-        duration_minutes: 150, // Match vote window
-      },
-      reply: { in_reply_to_tweet_id: replyToId },
-    });
-    const tweetId = result.data.id;
-    logger.info(`Posted poll tweet: ${tweetId}`, { options, replyTo: replyToId });
-    return tweetId;
-  } catch (err) {
-    logger.error("Failed to post poll tweet", { error: String(err) });
-    return null;
-  }
-}
-
-// ─── Reply to a tweet ───
-
-export async function replyToTweet(text: string, replyToId: string): Promise<string | null> {
-  try {
-    const result = await client.v2.tweet({
-      text,
-      reply: { in_reply_to_tweet_id: replyToId },
-    });
-    const tweetId = result.data.id;
-    logger.info(`Posted reply: ${tweetId}`, { replyTo: replyToId });
-    return tweetId;
-  } catch (err) {
-    logger.error("Failed to reply to tweet", { error: String(err), replyTo: replyToId });
-    return null;
-  }
-}
-
-// ─── Post a full lore thread (tweets + poll CTA) ───
-
-export async function postLoreThread(
-  loreText: string,
-  callToAction: string,
+export async function postEpisodeTweet(
+  title: string,
+  description: string,
+  choices: [string, string, string],
   mediaPath?: string,
-  pollOptions?: [string, string]
-): Promise<{ loreTweetId: string | null; ctaTweetId: string | null }> {
-  const chunks = splitIntoThread(loreText);
-  logger.info(`Splitting lore into ${chunks.length}-tweet thread`);
-
-  let firstTweetId: string | null = null;
-  let lastTweetId: string | null = null;
-
-  for (let i = 0; i < chunks.length; i++) {
-    const isFirst = i === 0;
-    const chunk = chunks[i]!;
-
-    if (isFirst) {
-      firstTweetId = await postTweet(chunk, mediaPath);
-      if (!firstTweetId) {
-        return { loreTweetId: null, ctaTweetId: null };
-      }
-      lastTweetId = firstTweetId;
-    } else {
-      const replyId = await replyToTweet(chunk, lastTweetId!);
-      if (!replyId) {
-        logger.warn(`Thread broken at tweet ${i + 1}/${chunks.length}`);
-        break;
-      }
-      lastTweetId = replyId;
-    }
-
-    if (i < chunks.length - 1) {
-      await new Promise((r) => setTimeout(r, 1500));
-    }
+  replyToTweetId?: string
+): Promise<string | null> {
+  const shortDescription = description.slice(0, 160);
+  let text = `${title}\n\n${shortDescription}`;
+  const choicesText = `\n\nA) ${choices[0]}\nB) ${choices[1]}\nC) ${choices[2]}`;
+  if ((text + choicesText).length <= 280) {
+    text = `${text}${choicesText}`;
+  } else if (text.length > 280) {
+    text = `${title}\n\n${description.slice(0, Math.max(0, 280 - title.length - 6))}...`;
   }
-
-  // Post CTA with poll as final reply
-  let ctaTweetId: string | null = null;
-  if (lastTweetId && callToAction) {
-    await new Promise((r) => setTimeout(r, 1500));
-
-    if (pollOptions && pollOptions.length === 2) {
-      // Post as a poll tweet
-      ctaTweetId = await postPollTweet(
-        `\u{1F5F3}\uFE0F ${callToAction}`,
-        pollOptions,
-        lastTweetId
-      );
-    }
-
-    // If poll failed or no options, fall back to regular reply
-    if (!ctaTweetId) {
-      ctaTweetId = await replyToTweet(`\u{1F5F3}\uFE0F ${callToAction}`, lastTweetId);
-    }
-  }
-
-  logger.info(`Thread posted: ${chunks.length} tweets + CTA`, { firstTweetId, hasPoll: !!pollOptions });
-  return { loreTweetId: firstTweetId, ctaTweetId };
+  return postTweet(text, mediaPath, replyToTweetId);
 }
 
-// ─── Get top comments on a tweet (by like count) ───
+export async function postEpisodePoll(parentTweetId: string, options: [string, string, string]): Promise<string | null> {
+  try {
+    const result = await client.v2.tweet({
+      text: "Vote for the next episode path:",
+      reply: { in_reply_to_tweet_id: parentTweetId },
+      poll: {
+        options: options.map((o) => o.slice(0, 25)),
+        duration_minutes: Math.max(5, config.bot.voteWindowMinutes),
+      },
+    });
+    return result.data.id;
+  } catch (err) {
+    logger.error("Failed to post poll", { error: String(err), parentTweetId });
+    return null;
+  }
+}
+
+export async function getPollWinner(
+  pollTweetId: string
+): Promise<{ winningOptionText: string | null; winningIndex: number | null }> {
+  try {
+    const result = await readOnlyClient.v2.singleTweet(pollTweetId, {
+      expansions: ["attachments.poll_ids"],
+      "poll.fields": ["id", "options", "voting_status"],
+    });
+
+    const polls = (result as any)?.includes?.polls as Array<{ options: Array<{ position: number; label: string; votes: number }> }> | undefined;
+    const poll = polls?.[0];
+    if (!poll || !poll.options || poll.options.length === 0) {
+      return { winningOptionText: null, winningIndex: null };
+    }
+
+    const winner = [...poll.options].sort((a, b) => (b.votes || 0) - (a.votes || 0))[0];
+    return {
+      winningOptionText: winner?.label || null,
+      winningIndex: winner ? winner.position - 1 : null,
+    };
+  } catch (err) {
+    logger.error("Failed to fetch poll winner", { error: String(err), pollTweetId });
+    return { winningOptionText: null, winningIndex: null };
+  }
+}
 
 export async function getTopComments(tweetId: string, limit: number = 5): Promise<TopComment[]> {
   try {
     const query = `conversation_id:${tweetId} is:reply -from:${config.bot.username}`;
-
     const result = await readOnlyClient.v2.search(query, {
       "tweet.fields": ["public_metrics", "author_id", "created_at"],
       "user.fields": ["username"],
@@ -227,61 +110,74 @@ export async function getTopComments(tweetId: string, limit: number = 5): Promis
 
     const tweets = result.data?.data || [];
     const users = result.data?.includes?.users || [];
-
     const userMap = new Map<string, string>();
     for (const user of users) {
       userMap.set(user.id, user.username);
     }
 
-    const comments: TopComment[] = tweets
+    return tweets
       .map((tweet) => ({
         text: tweet.text,
         authorHandle: userMap.get(tweet.author_id || "") || "unknown",
+        authorId: tweet.author_id || "",
         likeCount: tweet.public_metrics?.like_count || 0,
         tweetId: tweet.id,
       }))
       .sort((a, b) => b.likeCount - a.likeCount)
       .slice(0, limit);
-
-    logger.info(`Retrieved ${comments.length} comments for tweet ${tweetId}`, {
-      topLikes: comments[0]?.likeCount || 0,
-    });
-
-    return comments;
   } catch (err) {
     logger.error("Failed to get comments", { error: String(err), tweetId });
     return [];
   }
 }
 
-// ─── Upload media (image or video) ───
+export async function getMentions(sinceId?: string | null): Promise<MentionEvent[]> {
+  try {
+    const me = await client.v2.me();
+    const result = await client.v2.userMentionTimeline(me.data.id, {
+      since_id: sinceId || undefined,
+      expansions: ["author_id", "referenced_tweets.id"],
+      "tweet.fields": ["author_id", "public_metrics", "referenced_tweets"],
+      "user.fields": ["username"],
+      max_results: 50,
+    });
+
+    const tweets = result.data?.data || [];
+    const users = result.data?.includes?.users || [];
+    const userMap = new Map<string, string>();
+    for (const user of users) {
+      userMap.set(user.id, user.username);
+    }
+
+    return tweets
+      .map((tweet) => {
+        const replyRef = tweet.referenced_tweets?.find((r) => r.type === "replied_to");
+        return {
+          tweetId: tweet.id,
+          text: tweet.text,
+          authorId: tweet.author_id || "",
+          authorHandle: userMap.get(tweet.author_id || "") || "unknown",
+          inReplyToTweetId: replyRef?.id || null,
+          likeCount: tweet.public_metrics?.like_count || 0,
+        } as MentionEvent;
+      })
+      .sort((a, b) => Number(a.tweetId) - Number(b.tweetId));
+  } catch (err) {
+    logger.error("Failed to get mentions", { error: String(err) });
+    return [];
+  }
+}
 
 async function uploadMedia(filePath: string): Promise<string | undefined> {
   try {
-    const isVideo = filePath.endsWith(".mp4") || filePath.endsWith(".mov");
-
-    if (isVideo) {
-      const mediaId = await client.v1.uploadMedia(filePath, {
-        mimeType: "video/mp4",
-        target: "tweet",
-        longVideo: false,
-      });
-      logger.info(`Video uploaded: ${mediaId}`);
-      return mediaId;
-    } else {
-      const mediaId = await client.v1.uploadMedia(filePath, {
-        mimeType: filePath.endsWith(".png") ? "image/png" : "image/jpeg",
-      });
-      logger.info(`Image uploaded: ${mediaId}`);
-      return mediaId;
-    }
+    return await client.v1.uploadMedia(filePath, {
+      mimeType: filePath.endsWith(".png") ? "image/png" : "image/jpeg",
+    });
   } catch (err) {
     logger.error("Media upload failed", { error: String(err), filePath });
     return undefined;
   }
 }
-
-// ─── Get own user ID (for filtering) ───
 
 export async function getBotUserId(): Promise<string | null> {
   try {
