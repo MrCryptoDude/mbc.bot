@@ -106,7 +106,7 @@ async function generateImageDallE(prompt: string): Promise<string | null> {
       },
       body: JSON.stringify({
         model: "dall-e-3",
-        prompt: `Dark medieval fantasy art: ${prompt}. Style: cinematic, dramatic lighting, painterly, muted earth tones with gold accents, 4K quality.`,
+        prompt: `Pixar/Disney 3D animation style: ${prompt}. Style: vibrant colors, expressive characters with large eyes, dramatic cinematic lighting, epic fantasy atmosphere, high-quality 3D render like a Disney movie frame.`,
         n: 1,
         size: "1792x1024",
         quality: "standard",
@@ -145,14 +145,8 @@ export interface MediaResult {
 export async function generateMedia(videoPrompt: string): Promise<MediaResult | null> {
   ensureMediaDir();
 
-  // Try Sora video first
-  const videoPath = await generateVideoSora(videoPrompt);
-  if (videoPath) {
-    return { localPath: videoPath, type: "video" };
-  }
-
-  // Fallback to DALL-E image
-  logger.info("Video generation failed/unavailable, falling back to DALL-E image...");
+  // Use DALL-E images (cost-effective at ~$0.04 per image)
+  // Sora API videos cost $1-2 each — skip unless budget allows
   const imagePath = await generateImageDallE(videoPrompt);
   if (imagePath) {
     return { localPath: imagePath, type: "image" };

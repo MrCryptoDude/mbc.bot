@@ -139,10 +139,10 @@ BAD: "Pepe the frog went on an adventure in crypto land. He met Doge and they be
 export async function generateLorePost(context: StoryContext): Promise<AILoreResponse> {
   const contextPrompt = buildContextPrompt(context);
 
-  logger.info("Generating lore post via GPT-4o...", { chapter: context.recentPosts.length + 1 });
+  logger.info("Generating lore post via GPT-4o-mini...", { chapter: context.recentPosts.length + 1 });
 
   const response = await client.chat.completions.create({
-    model: "gpt-4o",
+    model: "gpt-4o-mini",
     max_tokens: 2048,
     temperature: 0.92,
     messages: [
