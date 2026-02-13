@@ -27,7 +27,7 @@ async function generateVideoSora(prompt: string): Promise<string | null> {
       body: JSON.stringify({
         model: "sora-2",
         prompt: `${prompt}. Style: dark medieval fantasy, cinematic lighting, dramatic atmosphere, desaturated tones with gold highlights`,
-        seconds: 5,
+        seconds: "4",
         size: "1280x720",
       }),
     });
