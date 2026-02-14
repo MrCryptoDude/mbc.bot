@@ -21,7 +21,12 @@ CHOICE_B:
 CHOICE_C:
 [choice C, <=25 chars]
 IMAGE_PROMPT:
-[anime image prompt for one scene composition; explicitly include 2-3 speech bubble lines to render]
+[Use this exact sub-format:
+SCENE: [one concise manga page direction, 1-2 sentences]
+BUBBLE_1: [SPEAKER] "[short natural English line, 2-8 words, story-relevant]"
+BUBBLE_2: [SPEAKER] "[short natural English line, 2-8 words, story-relevant]"
+BUBBLE_3: [SPEAKER] "[short natural English line, 2-8 words, story-relevant]"
+]
 `;
 
 function buildStoryModePrompt(context: StoryContext): string {
@@ -39,7 +44,9 @@ function buildStoryModePrompt(context: StoryContext): string {
     context.lastDecision ? `Last winning community decision: ${context.lastDecision}` : "No prior decision.",
     `Requirements: keep stakes high, concise but vivid, and provide choices that branch the story.`,
     `DESCRIPTION must stay very short (max 220 chars).`,
-    `IMAGE_PROMPT must specify readable speech bubbles with exact short dialogue text.`,
+    `IMAGE_PROMPT must follow the SCENE + BUBBLE_n format exactly.`,
+    `Bubbles must be natural English and directly reflect this chapter's conflict, character intent, or consequence.`,
+    `No gibberish, no random symbols, no placeholder text.`,
   ].join("\n\n");
 }
 
@@ -52,32 +59,49 @@ function buildDnDModePrompt(premise: string, history: string[], decision: string
     decision ? `Selected continuation input: ${decision}` : "No selected continuation yet.",
     `Keep it coherent and leave a clear branching point.`,
     `DESCRIPTION must stay very short (max 220 chars).`,
-    `IMAGE_PROMPT must specify readable speech bubbles with exact short dialogue text.`,
+    `IMAGE_PROMPT must follow the SCENE + BUBBLE_n format exactly.`,
+    `Bubbles must be natural English and directly reflect the selected continuation input.`,
+    `No gibberish, no random symbols, no placeholder text.`,
   ].join("\n\n");
 }
 
 async function generateStructuredEpisode(userPrompt: string): Promise<AILoreResponse> {
-  const response = await client.chat.completions.create({
-    model: "gpt-4o-mini",
-    max_tokens: 1500,
-    temperature: 0.9,
-    messages: [
-      { role: "system", content: BASE_SYSTEM_PROMPT },
-      { role: "user", content: userPrompt },
-    ],
-  });
+  let retryHint = "";
+  let lastError: string | null = null;
 
-  const raw = response.choices[0]?.message?.content || "";
-  const parsed = parseAndValidateEpisode(raw);
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    const response = await client.chat.completions.create({
+      model: "gpt-4o-mini",
+      max_tokens: 1500,
+      temperature: 0.9,
+      messages: [
+        { role: "system", content: BASE_SYSTEM_PROMPT },
+        { role: "user", content: `${userPrompt}${retryHint}` },
+      ],
+    });
 
-  return {
-    loreText: parsed.description,
-    tweetTitle: parsed.title,
-    mangaPrompt: parsed.imagePrompt,
-    callToAction: "What should happen next?",
-    pollOptions: [parsed.choiceA, parsed.choiceB, parsed.choiceC],
-    internalNotes: "",
-  };
+    const raw = response.choices[0]?.message?.content || "";
+    try {
+      const parsed = parseAndValidateEpisode(raw);
+      return {
+        loreText: parsed.description,
+        tweetTitle: parsed.title,
+        mangaPrompt: parsed.imagePrompt,
+        callToAction: "What should happen next?",
+        pollOptions: [parsed.choiceA, parsed.choiceB, parsed.choiceC],
+        internalNotes: "",
+      };
+    } catch (err) {
+      lastError = String(err);
+      logger.warn("Episode format validation failed; retrying generation", { attempt, error: lastError });
+      retryHint =
+        `\n\nYour previous output failed validation. Regenerate and strictly follow schema.\n` +
+        `Validation error: ${lastError}\n` +
+        `Reminder: IMAGE_PROMPT must include SCENE plus BUBBLE_1..BUBBLE_3 with natural, story-relevant English dialogue.`;
+    }
+  }
+
+  throw new Error(`Failed to generate valid episode after retries: ${lastError || "unknown error"}`);
 }
 
 export async function generateLorePost(context: StoryContext): Promise<AILoreResponse> {
