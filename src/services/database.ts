@@ -1,13 +1,14 @@
 import fs from "fs";
 import path from "path";
 import { config } from "../config";
-import { LorePost, WorldState } from "../types";
+import { LorePost, StoryProgression, WorldState } from "../types";
 import { logger } from "../utils/logger";
 
 const DATA_DIR = config.bot.dataDir;
 const POSTS_FILE = path.join(DATA_DIR, "lore_posts.json");
 const WORLD_FILE = path.join(DATA_DIR, "world_state.json");
 const SUMMARY_FILE = path.join(DATA_DIR, "chapter_summary.json");
+const STORY_PROGRESSION_FILE = path.join(DATA_DIR, "story_progression.json");
 const DND_SESSIONS_FILE = path.join(DATA_DIR, "dnd_sessions.json");
 const DND_META_FILE = path.join(DATA_DIR, "dnd_meta.json");
 
@@ -34,6 +35,29 @@ function readJSON<T>(filepath: string, fallback: T): T {
 function writeJSON<T>(filepath: string, data: T): void {
   ensureDataDir();
   fs.writeFileSync(filepath, JSON.stringify(data, null, 2), "utf-8");
+}
+
+function inferProgressionFromPosts(posts: LorePost[]): StoryProgression {
+  const lastPost = posts[posts.length - 1];
+  if (!lastPost) {
+    return { ...DEFAULT_STORY_PROGRESSION };
+  }
+
+  const chapterNumber = lastPost.chapterNumber ?? 1;
+  const episodeNumber = lastPost.episodeNumber ?? 1;
+  const pageNumber = (lastPost.pageNumber ?? posts.length) + 1;
+  const pageInEpisode = (lastPost.pageInEpisode ?? 1) + 1;
+  const episodeInChapter = lastPost.episodeInChapter ?? 1;
+
+  return {
+    chapterNumber,
+    episodeNumber,
+    pageNumber,
+    pageInEpisode,
+    episodeInChapter,
+    targetPagesInEpisode: 12,
+    targetEpisodesInChapter: 6,
+  };
 }
 
 // ─── Default world state ───
@@ -74,12 +98,30 @@ const DEFAULT_WORLD: WorldState = {
   ],
 };
 
+const DEFAULT_STORY_PROGRESSION: StoryProgression = {
+  chapterNumber: 1,
+  episodeNumber: 1,
+  pageNumber: 1,
+  pageInEpisode: 1,
+  episodeInChapter: 1,
+  targetPagesInEpisode: 12,
+  targetEpisodesInChapter: 6,
+};
+
 // ─── Database operations ───
 
 export const db = {
   // Lore posts
   getPosts(): LorePost[] {
-    return readJSON<LorePost[]>(POSTS_FILE, []);
+    const posts = readJSON<LorePost[]>(POSTS_FILE, []);
+    return posts.map((post, index) => ({
+      ...post,
+      pageNumber: post.pageNumber ?? index + 1,
+      episodeNumber: post.episodeNumber ?? 1,
+      pageInEpisode: post.pageInEpisode ?? 1,
+      episodeInChapter: post.episodeInChapter ?? 1,
+      votingMode: post.votingMode ?? "poll",
+    }));
   },
 
   getRecentPosts(count: number = 5): LorePost[] {
@@ -103,7 +145,11 @@ export const db = {
     };
     posts.push(newPost);
     writeJSON(POSTS_FILE, posts);
-    logger.info(`Saved lore post #${newPost.id}`, { chapter: newPost.chapterNumber });
+    logger.info(`Saved lore post #${newPost.id}`, {
+      chapter: newPost.chapterNumber,
+      episode: newPost.episodeNumber,
+      page: newPost.pageNumber,
+    });
     return newPost;
   },
 
@@ -118,6 +164,19 @@ export const db = {
   getNextChapterNumber(): number {
     const posts = this.getPosts();
     return posts.length > 0 ? posts[posts.length - 1]!.chapterNumber + 1 : 1;
+  },
+
+  getStoryProgression(): StoryProgression {
+    if (fs.existsSync(STORY_PROGRESSION_FILE)) {
+      return readJSON<StoryProgression>(STORY_PROGRESSION_FILE, DEFAULT_STORY_PROGRESSION);
+    }
+    const inferred = inferProgressionFromPosts(this.getPosts());
+    this.updateStoryProgression(inferred);
+    return inferred;
+  },
+
+  updateStoryProgression(progression: StoryProgression): void {
+    writeJSON(STORY_PROGRESSION_FILE, progression);
   },
 
   // World state
@@ -145,6 +204,7 @@ export const db = {
     if (fs.existsSync(POSTS_FILE)) fs.unlinkSync(POSTS_FILE);
     if (fs.existsSync(WORLD_FILE)) fs.unlinkSync(WORLD_FILE);
     if (fs.existsSync(SUMMARY_FILE)) fs.unlinkSync(SUMMARY_FILE);
+    if (fs.existsSync(STORY_PROGRESSION_FILE)) fs.unlinkSync(STORY_PROGRESSION_FILE);
     if (fs.existsSync(DND_SESSIONS_FILE)) fs.unlinkSync(DND_SESSIONS_FILE);
     if (fs.existsSync(DND_META_FILE)) fs.unlinkSync(DND_META_FILE);
     logger.info("Database reset");

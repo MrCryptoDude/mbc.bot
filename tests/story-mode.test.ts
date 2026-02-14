@@ -32,6 +32,7 @@ test("Story Mode posts episode and creates poll metadata", async () => {
   db.reset();
   const run = createStoryModeRunner({
     resolvePollWinner: async () => ({ winningOptionText: null }),
+    decideArcLengths: async () => ({ targetPagesInEpisode: 12, targetEpisodesInChapter: 6 }),
     generateEpisode: async () => ({
       loreText: "Episode description",
       tweetTitle: "Episode 1",
@@ -72,8 +73,12 @@ test("Story Mode resolves previous poll and passes winner into next context", as
     pollTweetId: "old-poll",
     pollOptions: ["Left", "Right", "Wait"],
     winningOption: null,
+    pageNumber: 1,
+    episodeNumber: 1,
+    pageInEpisode: 1,
+    episodeInChapter: 1,
     chapterNumber: 1,
-    votingMode: "comment",
+    votingMode: "poll",
     winningComment: null,
     createdAt: new Date().toISOString(),
     resolvedAt: null,
@@ -82,6 +87,7 @@ test("Story Mode resolves previous poll and passes winner into next context", as
   let seenDecision: string | null = null;
   const run = createStoryModeRunner({
     resolvePollWinner: async () => ({ winningOptionText: "Right" }),
+    decideArcLengths: async () => ({ targetPagesInEpisode: 12, targetEpisodesInChapter: 6 }),
     generateEpisode: async (ctx) => {
       seenDecision = ctx.lastDecision;
       return {
@@ -103,5 +109,6 @@ test("Story Mode resolves previous poll and passes winner into next context", as
   const posts = db.getPosts();
   assert.equal(posts[0]?.winningOption, "Right");
   assert.equal(seenDecision, "Right");
-  assert.equal(posts[1]?.chapterNumber, 2);
+  assert.equal(posts[1]?.chapterNumber, 1);
+  assert.equal(posts[1]?.pageNumber, 2);
 });

@@ -13,6 +13,10 @@ const client = new TwitterApi({
 
 const readOnlyClient = new TwitterApi(config.twitter.bearerToken);
 
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 export async function postTweet(text: string, mediaPath?: string, replyToTweetId?: string): Promise<string | null> {
   try {
     let mediaId: string | undefined;
@@ -56,20 +60,32 @@ export async function postEpisodeTweet(
 }
 
 export async function postEpisodePoll(parentTweetId: string, options: [string, string, string]): Promise<string | null> {
-  try {
-    const result = await client.v2.tweet({
-      text: "Vote for the next episode path:",
-      reply: { in_reply_to_tweet_id: parentTweetId },
-      poll: {
-        options: options.map((o) => o.slice(0, 25)),
-        duration_minutes: Math.max(5, config.bot.voteWindowMinutes),
-      },
-    });
-    return result.data.id;
-  } catch (err) {
-    logger.error("Failed to post poll", { error: String(err), parentTweetId });
-    return null;
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    try {
+      const result = await client.v2.tweet({
+        text: "Vote for the next page path:",
+        reply: { in_reply_to_tweet_id: parentTweetId },
+        poll: {
+          options: options.map((o) => o.slice(0, 25)),
+          duration_minutes: Math.max(5, config.bot.voteWindowMinutes),
+        },
+      });
+      return result.data.id;
+    } catch (err) {
+      const errorText = String(err);
+      const isRateLimit = errorText.includes("429");
+      if (isRateLimit && attempt < 3) {
+        const backoffMs = 2000 * attempt;
+        logger.warn("Poll post rate-limited; retrying", { attempt, backoffMs, parentTweetId });
+        await sleep(backoffMs);
+        continue;
+      }
+      logger.error("Failed to post poll", { error: errorText, parentTweetId });
+      return null;
+    }
   }
+
+  return null;
 }
 
 export async function getPollWinner(

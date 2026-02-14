@@ -10,11 +10,25 @@ export interface LorePost {
   pollTweetId?: string | null;
   pollOptions?: [string, string, string] | null;
   winningOption?: string | null;
+  pageNumber: number;
+  episodeNumber: number;
+  pageInEpisode: number;
+  episodeInChapter: number;
   chapterNumber: number;
-  votingMode: "comment";
+  votingMode: "poll" | "comment";
   winningComment: string | null;
   createdAt: string;
   resolvedAt: string | null;
+}
+
+export interface StoryProgression {
+  chapterNumber: number;
+  episodeNumber: number;
+  pageNumber: number;
+  pageInEpisode: number;
+  episodeInChapter: number;
+  targetPagesInEpisode: number;
+  targetEpisodesInChapter: number;
 }
 
 export interface WorldState {
@@ -50,6 +64,7 @@ export interface StoryContext {
   worldState: WorldState;
   chapterSummary: string;
   lastDecision: string | null;
+  progression: StoryProgression;
 }
 
 export interface AILoreResponse {

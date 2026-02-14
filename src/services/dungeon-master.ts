@@ -30,22 +30,41 @@ BUBBLE_3: [SPEAKER] "[short natural English line, 2-8 words, story-relevant]"
 `;
 
 function buildStoryModePrompt(context: StoryContext): string {
-  const lastChapter = context.recentPosts[context.recentPosts.length - 1];
-  const nextChapter = lastChapter ? lastChapter.chapterNumber + 1 : 1;
+  const {
+    chapterNumber,
+    episodeNumber,
+    pageNumber,
+    pageInEpisode,
+    episodeInChapter,
+    targetPagesInEpisode,
+    targetEpisodesInChapter,
+  } = context.progression;
+  const atEpisodeFinale = pageInEpisode === targetPagesInEpisode;
+  const atChapterFinale = atEpisodeFinale && episodeInChapter === targetEpisodesInChapter;
   const recent = context.recentPosts
     .slice(-5)
-    .map((post) => `Chapter ${post.chapterNumber}: ${post.content.slice(0, 400)}`)
+    .map(
+      (post) =>
+        `Chapter ${post.chapterNumber}, Episode ${post.episodeNumber}, Page ${post.pageNumber}: ${post.content.slice(0, 300)}`
+    )
     .join("\n");
 
   return [
-    `Generate chapter ${nextChapter} for the main timeline.`,
+    `Generate ONE manga page for the main timeline.`,
+    `Current location in story: Chapter ${chapterNumber}, Episode ${episodeNumber}, Page ${pageNumber}.`,
+    `Current arc position: Episode page ${pageInEpisode}/${targetPagesInEpisode}, Chapter episode ${episodeInChapter}/${targetEpisodesInChapter}.`,
+    atChapterFinale
+      ? `This page is a CHAPTER FINALE page. Resolve major chapter conflict and set up next chapter hook.`
+      : atEpisodeFinale
+      ? `This page is an EPISODE FINALE page. Land a strong episode-ending beat and a clear hook.`
+      : `This is a MID-EPISODE page. Advance conflict with clear momentum.`,
     context.chapterSummary ? `Story summary:\n${context.chapterSummary}` : "No story summary yet.",
-    recent ? `Recent chapters:\n${recent}` : "No previous chapters yet.",
+    recent ? `Recent pages:\n${recent}` : "No previous pages yet.",
     context.lastDecision ? `Last winning community decision: ${context.lastDecision}` : "No prior decision.",
-    `Requirements: keep stakes high, concise but vivid, and provide choices that branch the story.`,
+    `Requirements: keep stakes high, concise but vivid, and provide 3 choices that branch the NEXT PAGE.`,
     `DESCRIPTION must stay very short (max 220 chars).`,
     `IMAGE_PROMPT must follow the SCENE + BUBBLE_n format exactly.`,
-    `Bubbles must be natural English and directly reflect this chapter's conflict, character intent, or consequence.`,
+    `Bubbles must be natural English and directly reflect this page's conflict and choices.`,
     `No gibberish, no random symbols, no placeholder text.`,
   ].join("\n\n");
 }
@@ -105,7 +124,11 @@ async function generateStructuredEpisode(userPrompt: string): Promise<AILoreResp
 }
 
 export async function generateLorePost(context: StoryContext): Promise<AILoreResponse> {
-  logger.info("Generating Story Mode episode", { chapter: context.recentPosts.length + 1 });
+  logger.info("Generating Story Mode page", {
+    chapter: context.progression.chapterNumber,
+    episode: context.progression.episodeNumber,
+    page: context.progression.pageNumber,
+  });
   return generateStructuredEpisode(buildStoryModePrompt(context));
 }
 
@@ -138,4 +161,57 @@ export async function generateChapterSummary(posts: { content: string; winningCo
   });
 
   return response.choices[0]?.message?.content || "";
+}
+
+export async function decideArcLengths(input: {
+  chapterNumber: number;
+  episodeNumber: number;
+  recentPageSummaries: string[];
+  chapterSummary: string;
+}): Promise<{ targetPagesInEpisode: number; targetEpisodesInChapter: number }> {
+  const response = await client.chat.completions.create({
+    model: "gpt-4o-mini",
+    temperature: 0.4,
+    max_tokens: 180,
+    messages: [
+      {
+        role: "system",
+        content:
+          "You decide pacing for a serialized manga. Return strict JSON only with keys: " +
+          '{"targetPagesInEpisode": number, "targetEpisodesInChapter": number}. ' +
+          "Constraints: targetPagesInEpisode must be 10-30. targetEpisodesInChapter must be 5-10.",
+      },
+      {
+        role: "user",
+        content: [
+          `Current chapter: ${input.chapterNumber}`,
+          `Current episode: ${input.episodeNumber}`,
+          input.chapterSummary ? `Chapter summary: ${input.chapterSummary}` : "No chapter summary yet.",
+          input.recentPageSummaries.length > 0
+            ? `Recent pages:\n${input.recentPageSummaries.join("\n")}`
+            : "No recent pages yet.",
+          "Pick tighter lengths for high-intensity arcs, longer lengths for exploration/political setup.",
+        ].join("\n\n"),
+      },
+    ],
+  });
+
+  const raw = response.choices[0]?.message?.content || "";
+  const match = raw.match(/\{[\s\S]*\}/);
+  if (!match) {
+    return { targetPagesInEpisode: 14, targetEpisodesInChapter: 6 };
+  }
+
+  try {
+    const parsed = JSON.parse(match[0]) as {
+      targetPagesInEpisode?: number;
+      targetEpisodesInChapter?: number;
+    };
+    return {
+      targetPagesInEpisode: Math.max(10, Math.min(30, parsed.targetPagesInEpisode ?? 14)),
+      targetEpisodesInChapter: Math.max(5, Math.min(10, parsed.targetEpisodesInChapter ?? 6)),
+    };
+  } catch {
+    return { targetPagesInEpisode: 14, targetEpisodesInChapter: 6 };
+  }
 }

@@ -51,9 +51,18 @@ if (command === "post-now") {
 } else if (command === "status") {
   const posts = db.getPosts();
   const lastPost = db.getLastPost();
+  const progression = db.getStoryProgression();
   console.log(`Total posts: ${posts.length}`);
+  console.log(
+    `Next page: Chapter ${progression.chapterNumber}, Episode ${progression.episodeNumber}, Page ${progression.pageNumber}`
+  );
+  console.log(
+    `Current targets: ${progression.targetPagesInEpisode} pages/episode, ${progression.targetEpisodesInChapter} episodes/chapter`
+  );
   if (lastPost) {
-    console.log(`Last chapter: ${lastPost.chapterNumber}`);
+    console.log(
+      `Last post: Chapter ${lastPost.chapterNumber}, Episode ${lastPost.episodeNumber}, Page ${lastPost.pageNumber}`
+    );
     console.log(`Last tweet: ${lastPost.tweetId || "none"}`);
     console.log(`Last poll tweet: ${lastPost.pollTweetId || "none"}`);
     console.log(`Winning option: ${lastPost.winningOption || "none"}`);
