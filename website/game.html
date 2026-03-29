@@ -89,6 +89,7 @@ footer a:hover{color:var(--gold)}
   section,.page-hero{padding:60px 20px}
   .stats-row{grid-template-columns:1fr 1fr}
   .item-grid{grid-template-columns:1fr}
+  section [style*="grid-template-columns: 1fr 1fr"]{grid-template-columns:1fr !important}
 }
 </style>
 </head>
@@ -122,7 +123,7 @@ footer a:hover{color:var(--gold)}
 <!-- SCREENSHOT -->
 <section>
   <div class="screenshot-showcase reveal">
-    <img src="assets/game-upgrades.png" alt="Tree Defence gameplay - Roguelike upgrade cards">
+    <img src="assets/game-upgrades.png" alt="Tree Defence gameplay - Roguelike upgrade cards" style="max-width:700px;margin:0 auto;display:block">
     <div class="caption">Choose your upgrades wisely. Every run is different.</div>
   </div>
 </section>
@@ -142,6 +143,28 @@ footer a:hover{color:var(--gold)}
   <div class="section-label">// Gameplay</div>
   <h2 class="section-title">How It Works</h2>
   <p class="section-text">Enemies march toward your tree from the right. You control the squirrel, switching weapons, firing at enemies, and building combos. Every 3 waves, pick a roguelike upgrade card to power up your build. Survive as long as you can.</p>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;margin-top:48px">
+    <div>
+      <h3 style="font-family:var(--font-meme);font-size:26px;color:var(--white);margin-bottom:16px;letter-spacing:1px">Combo System 🔥</h3>
+      <p style="color:var(--text);font-size:17px;line-height:1.7">Chain kills without missing to build your combo meter. Hit milestones at 150, 250, 350, 450, and 500 to earn temporary damage and fire rate buffs. At peak combo, your squirrel gets a DBZ-style power-up aura. Miss a shot and lose it all.</p>
+    </div>
+    <div style="background:var(--bg2);border:1px solid rgba(232,169,18,0.1);border-radius:16px;padding:40px;text-align:center">
+      <div style="font-family:var(--font-meme);font-size:64px;color:var(--gold);letter-spacing:4px">500x</div>
+      <div style="font-family:var(--font-mono);font-size:13px;color:var(--text-dim);margin-top:8px">MAX COMBO = DBZ AURA</div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;margin-top:48px">
+    <div style="background:var(--bg2);border:1px solid rgba(232,169,18,0.1);border-radius:16px;padding:40px;text-align:center">
+      <div style="font-size:64px">🃏🃏🃏</div>
+      <div style="font-family:var(--font-mono);font-size:13px;color:var(--text-dim);margin-top:8px">PICK 1 OF 3 EVERY 3 WAVES</div>
+    </div>
+    <div>
+      <h3 style="font-family:var(--font-meme);font-size:26px;color:var(--white);margin-bottom:16px;letter-spacing:1px">Roguelike Upgrades 🃏</h3>
+      <p style="color:var(--text);font-size:17px;line-height:1.7">Every 3 waves, choose from randomized upgrade cards. Stack fire rate, unlock split-shot turrets, boost ability damage, or improve your weapons. Each run plays differently depending on what you pick.</p>
+    </div>
+  </div>
 </section>
 
 <div class="glow-line"></div>
