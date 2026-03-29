@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Lore Master — MEME•BACKED•CURRENCY Manga Series</title>
+<meta name="description" content="The AI Lore Master posts manga pages to Twitter. The community votes on polls to shape the story. Each page is one post. Collect pages to complete chapters.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#060610;--bg2:#0c0c1a;--bg3:#111128;
+  --gold:#e8a912;--gold-bright:#ffd04a;--gold-dim:#a07208;
+  --red:#e83a3a;--cyan:#2af0e8;--white:#eee8e0;
+  --text:#c8c4bc;--text-dim:#787470;
+  --font-display:'Chakra Petch',sans-serif;
+  --font-body:'Rajdhani',sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:17px;line-height:1.6;overflow-x:hidden}
+::selection{background:var(--gold);color:var(--bg)}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:16px 40px;display:flex;align-items:center;justify-content:space-between;backdrop-filter:blur(12px);background:rgba(6,6,16,0.8);border-bottom:1px solid rgba(232,169,18,0.1);transition:all 0.3s}
+.nav-logo{font-family:var(--font-display);font-size:18px;font-weight:700;color:var(--gold);letter-spacing:2px;text-decoration:none}
+.nav-logo span{color:var(--text-dim);font-weight:400}
+.nav-links{display:flex;gap:28px;align-items:center}
+.nav-links a{color:var(--text-dim);text-decoration:none;font-family:var(--font-display);font-size:14px;letter-spacing:1.5px;text-transform:uppercase;transition:color 0.2s}
+.nav-links a:hover,.nav-links a.active{color:var(--gold)}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 24px;border-radius:4px;font-family:var(--font-display);font-size:14px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;text-decoration:none;transition:all 0.2s;cursor:pointer;border:none}
+.btn-gold{background:var(--gold);color:var(--bg);box-shadow:0 0 20px rgba(232,169,18,0.3)}
+.btn-gold:hover{background:var(--gold-bright);box-shadow:0 0 30px rgba(232,169,18,0.5);transform:translateY(-1px)}
+.btn-outline{border:1px solid var(--gold-dim);color:var(--gold);background:transparent}
+.btn-outline:hover{background:rgba(232,169,18,0.1);border-color:var(--gold)}
+.nav-toggle{display:none;background:none;border:none;color:var(--gold);font-size:24px;cursor:pointer;padding:4px 8px}
+
+/* PAGE HERO */
+.page-hero{padding:140px 40px 80px;max-width:1100px;margin:0 auto;position:relative}
+.page-hero::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:800px;height:600px;background:radial-gradient(circle,rgba(232,169,18,0.06) 0%,transparent 70%);pointer-events:none}
+.section-label{font-family:var(--font-mono);font-size:12px;color:var(--gold-dim);letter-spacing:3px;text-transform:uppercase;margin-bottom:12px}
+.page-hero h1{font-family:var(--font-display);font-size:clamp(36px,5vw,64px);font-weight:700;color:var(--white);margin-bottom:16px;line-height:1.1}
+.page-hero h1 .accent{color:var(--gold)}
+.page-hero .lead{font-size:20px;color:var(--text);max-width:700px;line-height:1.7;margin-bottom:32px}
+
+/* SECTIONS */
+section{padding:80px 40px;max-width:1100px;margin:0 auto}
+.section-title{font-family:var(--font-display);font-size:clamp(28px,4vw,40px);font-weight:700;color:var(--white);margin-bottom:24px;line-height:1.15}
+.section-text{font-size:18px;color:var(--text);max-width:680px;line-height:1.7}
+
+/* HOW IT WORKS - STEP FLOW */
+.step-flow{display:grid;grid-template-columns:repeat(3,1fr);gap:32px;margin-top:48px;position:relative}
+.step-flow::before{content:'';position:absolute;top:48px;left:calc(16.66% + 16px);right:calc(16.66% + 16px);height:2px;background:linear-gradient(90deg,var(--gold-dim),var(--gold),var(--gold-dim));opacity:0.4}
+.step{background:var(--bg2);border:1px solid rgba(232,169,18,0.08);border-radius:12px;padding:36px 28px;text-align:center;position:relative;transition:all 0.2s}
+.step:hover{border-color:var(--gold-dim);transform:translateY(-3px)}
+.step-num{display:inline-flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:50%;background:var(--bg);border:2px solid var(--gold);font-family:var(--font-display);font-size:20px;font-weight:700;color:var(--gold);margin-bottom:20px;position:relative;z-index:1}
+.step h3{font-family:var(--font-display);font-size:20px;color:var(--white);margin-bottom:10px}
+.step p{font-size:15px;color:var(--text-dim);line-height:1.6}
+
+/* MANGA STRUCTURE */
+.structure-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;margin-top:48px}
+.structure-visual{background:var(--bg2);border:1px solid rgba(232,169,18,0.1);border-radius:12px;padding:40px;position:relative;overflow:hidden}
+.structure-visual::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.manga-diagram{display:flex;flex-direction:column;gap:16px}
+.manga-row{display:flex;gap:12px;align-items:center}
+.manga-page{width:48px;height:64px;border-radius:4px;border:2px solid var(--gold-dim);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:11px;color:var(--gold);background:rgba(232,169,18,0.05);flex-shrink:0;transition:all 0.2s}
+.manga-page.active{border-color:var(--gold);background:rgba(232,169,18,0.15);box-shadow:0 0 12px rgba(232,169,18,0.3)}
+.manga-page.empty{border-style:dashed;opacity:0.4}
+.manga-label{font-family:var(--font-display);font-size:14px;color:var(--text-dim);margin-left:8px}
+.manga-label strong{color:var(--white)}
+.chapter-bracket{border-left:3px solid var(--gold);padding-left:16px}
+.chapter-tag{font-family:var(--font-mono);font-size:11px;color:var(--gold);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+
+.structure-content h3{font-family:var(--font-display);font-size:26px;color:var(--white);margin-bottom:16px}
+.structure-content p{font-size:17px;color:var(--text);line-height:1.7;margin-bottom:16px}
+.structure-content .highlight{color:var(--gold);font-weight:600}
+
+/* VOTE EXPLANATION */
+.vote-section{background:var(--bg2);border-radius:12px;padding:60px;margin-top:60px;border:1px solid rgba(232,169,18,0.06);position:relative;overflow:hidden}
+.vote-section::after{content:'';position:absolute;top:-100px;right:-100px;width:300px;height:300px;background:radial-gradient(circle,rgba(232,169,18,0.06),transparent);pointer-events:none}
+.vote-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;margin-top:32px}
+.vote-example{background:var(--bg);border:1px solid rgba(232,169,18,0.1);border-radius:8px;padding:28px}
+.vote-example .tweet-header{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.vote-example .avatar{width:40px;height:40px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.vote-example .handle{font-family:var(--font-mono);font-size:13px;color:var(--gold)}
+.vote-example .name{font-family:var(--font-display);font-size:15px;color:var(--white)}
+.vote-example .tweet-body{font-size:15px;color:var(--text);line-height:1.6;margin-bottom:16px}
+.vote-example .manga-preview{background:var(--bg2);border-radius:8px;aspect-ratio:9/16;max-height:200px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;border:1px solid rgba(232,169,18,0.06)}
+.vote-example .manga-preview span{font-family:var(--font-display);color:var(--text-dim);font-size:12px;letter-spacing:1px;text-transform:uppercase}
+.vote-options{display:flex;flex-direction:column;gap:8px}
+.vote-opt{display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(232,169,18,0.05);border:1px solid rgba(232,169,18,0.1);border-radius:6px;font-size:14px;color:var(--text);transition:all 0.2s}
+.vote-opt:hover{border-color:var(--gold);background:rgba(232,169,18,0.1)}
+.vote-opt .emoji{font-size:18px;flex-shrink:0}
+
+/* FEATURES */
+.features-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px;margin-top:40px}
+.feat-card{background:var(--bg2);border:1px solid rgba(232,169,18,0.06);border-radius:8px;padding:28px;transition:all 0.2s}
+.feat-card:hover{border-color:var(--gold-dim);transform:translateY(-2px)}
+.feat-card .icon{font-size:28px;margin-bottom:14px;display:block}
+.feat-card h4{font-family:var(--font-display);font-size:18px;color:var(--white);margin-bottom:8px}
+.feat-card p{font-size:15px;color:var(--text-dim);line-height:1.6}
+
+/* CTA */
+.cta-box{background:var(--bg2);border:1px solid rgba(232,169,18,0.15);border-radius:12px;padding:48px;text-align:center;margin-top:60px;position:relative;overflow:hidden}
+.cta-box::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.cta-box h3{font-family:var(--font-display);font-size:28px;color:var(--white);margin-bottom:12px}
+.cta-box p{color:var(--text);font-size:17px;max-width:500px;margin:0 auto 28px;line-height:1.7}
+.cta-box .btn-row{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+
+/* GLOW LINE */
+.glow-line{height:1px;background:linear-gradient(90deg,transparent,var(--gold-dim),transparent);margin:0 auto;max-width:800px}
+
+/* FOOTER */
+footer{border-top:1px solid rgba(232,169,18,0.08);padding:40px;text-align:center;color:var(--text-dim);font-size:14px}
+footer a{color:var(--gold-dim);text-decoration:none}
+footer a:hover{color:var(--gold)}
+
+@media(max-width:768px){
+  nav{padding:12px 20px}
+  .nav-links{display:none;position:absolute;top:100%;left:0;right:0;background:rgba(6,6,16,0.97);flex-direction:column;padding:20px;gap:16px;border-bottom:1px solid rgba(232,169,18,0.1)}
+  .nav-links.open{display:flex}
+  .nav-toggle{display:block}
+  section,.page-hero{padding:60px 20px}
+  .step-flow{grid-template-columns:1fr}
+  .step-flow::before{display:none}
+  .structure-grid,.vote-grid{grid-template-columns:1fr}
+  .features-grid{grid-template-columns:1fr}
+  .vote-section{padding:32px 20px}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="nav-logo">MBC <span>// MEME•BACKED•CURRENCY</span></a>
+  <button class="nav-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')">☰</button>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="game.html">Game</a>
+    <a href="lore.html" class="active">Lore</a>
+    <a href="https://www.satflow.com/runes/MEME%E2%80%A2BACKED%E2%80%A2CURRENCY" target="_blank" class="btn btn-outline">Buy on Satflow</a>
+  </div>
+</nav>
+
+<!-- PAGE HERO -->
+<div class="page-hero">
+  <div class="section-label">// MBC Ecosystem — Lore</div>
+  <h1>AI Lore <span class="accent">Master</span></h1>
+  <p class="lead">An autonomous AI posts manga-style pages to Twitter every few hours. The community votes on polls to decide what happens next. Every page is one post. Collect enough pages and you complete a chapter. The story is never written alone.</p>
+  <div style="display:flex;gap:16px;flex-wrap:wrap">
+    <a href="https://x.com/MEMEBACKEDCURR" target="_blank" class="btn btn-gold">Follow on 𝕏</a>
+  </div>
+</div>
+
+<div class="glow-line"></div>
+
+<!-- HOW IT WORKS -->
+<section>
+  <div class="section-label">// How It Works</div>
+  <h2 class="section-title">Three Steps, One Story</h2>
+
+  <div class="step-flow">
+    <div class="step">
+      <div class="step-num">1</div>
+      <h3>AI Posts a Page</h3>
+      <p>The Lore Master generates a manga-style page with AI art and story text, then posts it to Twitter automatically.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <h3>Community Votes</h3>
+      <p>Each post includes poll options (🅰️ 🅱️ 🅲️). Followers vote on what should happen next in the story.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <h3>Story Evolves</h3>
+      <p>The winning vote shapes the next page. Over time, pages accumulate into complete chapters — written by the community.</p>
+    </div>
+  </div>
+</section>
+
+<div class="glow-line"></div>
+
+<!-- STRUCTURE -->
+<section>
+  <div class="section-label">// Manga Structure</div>
+  <h2 class="section-title">Pages Build Into Chapters</h2>
+
+  <div class="structure-grid">
+    <div class="structure-visual">
+      <div class="manga-diagram">
+        <div class="chapter-bracket">
+          <div class="chapter-tag">Chapter 1 — Complete</div>
+          <div class="manga-row">
+            <div class="manga-page">P1</div>
+            <div class="manga-page">P2</div>
+            <div class="manga-page">P3</div>
+            <div class="manga-page">P4</div>
+            <div class="manga-page">P5</div>
+            <div class="manga-page">P6</div>
+            <div class="manga-label"><strong>6 pages</strong> = 1 chapter</div>
+          </div>
+        </div>
+        <div class="chapter-bracket" style="margin-top:20px">
+          <div class="chapter-tag">Chapter 2 — In Progress</div>
+          <div class="manga-row">
+            <div class="manga-page active">P1</div>
+            <div class="manga-page active">P2</div>
+            <div class="manga-page active">P3</div>
+            <div class="manga-page empty">P4</div>
+            <div class="manga-page empty">P5</div>
+            <div class="manga-page empty">P6</div>
+            <div class="manga-label"><strong>3/6</strong> pages posted</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="structure-content">
+      <h3>One Post = One Page</h3>
+      <p>Every time the AI Lore Master posts to Twitter, that's one page in the ongoing manga series. Each page advances the story based on the <span class="highlight">community's previous vote</span>.</p>
+      <p>After a set number of pages, the chapter wraps up and a new chapter arc begins. The result is a collaboratively written manga — powered by AI art and community decisions.</p>
+    </div>
+  </div>
+</section>
+
+<div class="glow-line"></div>
+
+<!-- VOTING EXPLAINED -->
+<div style="max-width:1100px;margin:0 auto;padding:0 40px">
+  <div class="vote-section">
+    <div class="section-label">// Community Voting</div>
+    <h2 class="section-title">Your Vote Shapes the Story</h2>
+    <p class="section-text">Every page post includes poll-style options. The community picks the direction. The AI Lore Master takes the winning choice and writes the next page around it.</p>
+
+    <div class="vote-grid">
+      <div class="vote-example">
+        <div class="tweet-header">
+          <div class="avatar">📖</div>
+          <div>
+            <div class="name">MEME•BACKED•CURRENCY</div>
+            <div class="handle">@MEMEBACKEDCURR</div>
+          </div>
+        </div>
+        <div class="manga-preview">
+          <span>Manga Page Art</span>
+        </div>
+        <div class="tweet-body">
+          Chapter 2 — Page 3<br><br>
+          The hero stands at the crossroads. A storm approaches from the east. An old signal fire flickers to the west...<br><br>
+          What happens next?
+        </div>
+        <div class="vote-options">
+          <div class="vote-opt"><span class="emoji">🅰️</span> Head into the storm</div>
+          <div class="vote-opt"><span class="emoji">🅱️</span> Follow the signal fire</div>
+          <div class="vote-opt"><span class="emoji">🅲️</span> Set camp and wait for dawn</div>
+        </div>
+      </div>
+      <div>
+        <h3 style="font-family:var(--font-display);font-size:24px;color:var(--white);margin-bottom:16px">How Voting Works</h3>
+        <p style="color:var(--text);font-size:17px;line-height:1.8;margin-bottom:20px">Each page post includes three options labeled 🅰️ 🅱️ 🅲️. Since Twitter doesn't allow polls with media attachments, votes are cast through replies and engagement.</p>
+        <p style="color:var(--text);font-size:17px;line-height:1.8;margin-bottom:20px">The AI reads the results and incorporates the winning direction into the next page. Every vote matters — the story branches based on what the community chooses.</p>
+        <p style="color:var(--text-dim);font-size:15px;line-height:1.7">The Lore Master posts automatically every few hours, so the story keeps moving even while you sleep. Come back, catch up on pages, and cast your vote on the latest one.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="glow-line" style="margin-top:80px"></div>
+
+<!-- FEATURES -->
+<section>
+  <div class="section-label">// Features</div>
+  <h2 class="section-title">What Makes It Unique</h2>
+
+  <div class="features-grid">
+    <div class="feat-card">
+      <span class="icon">🤖</span>
+      <h4>Fully Autonomous</h4>
+      <p>The AI Lore Master runs 24/7 on its own. It generates art, writes the story, posts to Twitter, and reads votes — no human intervention needed.</p>
+    </div>
+    <div class="feat-card">
+      <span class="icon">🎨</span>
+      <h4>AI Manga Art</h4>
+      <p>Each page features a manga-style illustration generated by AI, designed as a full comic panel layout at portrait resolution.</p>
+    </div>
+    <div class="feat-card">
+      <span class="icon">🗳️</span>
+      <h4>Community-Written</h4>
+      <p>No single author. The story is shaped by collective votes. Plot twists, character fates, and world events are all decided by the community.</p>
+    </div>
+    <div class="feat-card">
+      <span class="icon">⛓️</span>
+      <h4>Bitcoin Rune Powered</h4>
+      <p>Part of the MEME•BACKED•CURRENCY ecosystem. The lore drives engagement and community around the MBC token on Bitcoin.</p>
+    </div>
+  </div>
+</section>
+
+<div class="glow-line"></div>
+
+<!-- CTA -->
+<section>
+  <div class="cta-box">
+    <h3>Follow the Story</h3>
+    <p>The manga is being written right now. Follow @MEMEBACKEDCURR on Twitter to read the latest pages and vote on what happens next.</p>
+    <div class="btn-row">
+      <a href="https://x.com/MEMEBACKEDCURR" target="_blank" class="btn btn-gold">Follow on 𝕏</a>
+      <a href="index.html" class="btn btn-outline">Back to Home</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>MEME•BACKED•CURRENCY — Bitcoin Rune Token<br>
+  <a href="index.html">Home</a> · <a href="game.html">Tree Defence</a> · <a href="https://x.com/MEMEBACKEDCURR" target="_blank">@MEMEBACKEDCURR</a></p>
+</footer>
+
+<script>
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.style.opacity = '1';
+      e.target.style.transform = 'translateY(0)';
+    }
+  });
+}, { threshold: 0.1 });
+document.querySelectorAll('.step, .feat-card, .vote-example, .structure-visual').forEach(el => {
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(20px)';
+  el.style.transition = 'opacity 0.5s, transform 0.5s';
+  observer.observe(el);
+});
+window.addEventListener('scroll', () => {
+  document.querySelector('nav').style.background = window.scrollY > 50
+    ? 'rgba(6,6,16,0.95)' : 'rgba(6,6,16,0.8)';
+});
+</script>
+</body>
+</html>

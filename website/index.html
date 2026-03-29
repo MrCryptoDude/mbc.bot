@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MEME•BACKED•CURRENCY — Bitcoin Rune Ecosystem</title>
+<meta name="description" content="MEME•BACKED•CURRENCY is a Bitcoin Rune token ecosystem featuring a tower defense game, AI-generated manga lore, and a community-driven story.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#060610;--bg2:#0c0c1a;--bg3:#111128;
+  --gold:#e8a912;--gold-bright:#ffd04a;--gold-dim:#a07208;
+  --red:#e83a3a;--cyan:#2af0e8;--white:#eee8e0;
+  --text:#c8c4bc;--text-dim:#787470;
+  --font-display:'Chakra Petch',sans-serif;
+  --font-body:'Rajdhani',sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:17px;line-height:1.6;overflow-x:hidden}
+::selection{background:var(--gold);color:var(--bg)}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:16px 40px;display:flex;align-items:center;justify-content:space-between;backdrop-filter:blur(12px);background:rgba(6,6,16,0.8);border-bottom:1px solid rgba(232,169,18,0.1);transition:all 0.3s}
+.nav-logo{font-family:var(--font-display);font-size:18px;font-weight:700;color:var(--gold);letter-spacing:2px;text-decoration:none}
+.nav-logo span{color:var(--text-dim);font-weight:400}
+.nav-links{display:flex;gap:28px;align-items:center}
+.nav-links a{color:var(--text-dim);text-decoration:none;font-family:var(--font-display);font-size:14px;letter-spacing:1.5px;text-transform:uppercase;transition:color 0.2s}
+.nav-links a:hover{color:var(--gold)}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 24px;border-radius:4px;font-family:var(--font-display);font-size:14px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;text-decoration:none;transition:all 0.2s;cursor:pointer;border:none}
+.btn-gold{background:var(--gold);color:var(--bg);box-shadow:0 0 20px rgba(232,169,18,0.3)}
+.btn-gold:hover{background:var(--gold-bright);box-shadow:0 0 30px rgba(232,169,18,0.5);transform:translateY(-1px)}
+.btn-outline{border:1px solid var(--gold-dim);color:var(--gold);background:transparent}
+.btn-outline:hover{background:rgba(232,169,18,0.1);border-color:var(--gold)}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 40px 80px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-200px;left:50%;transform:translateX(-50%);width:800px;height:800px;background:radial-gradient(circle,rgba(232,169,18,0.08) 0%,transparent 70%);pointer-events:none}
+.hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:200px;background:linear-gradient(transparent,var(--bg));pointer-events:none}
+.hero-badge{display:inline-block;padding:6px 16px;border:1px solid var(--gold-dim);border-radius:2px;font-family:var(--font-mono);font-size:12px;color:var(--gold);letter-spacing:2px;margin-bottom:32px;text-transform:uppercase}
+.hero h1{font-family:var(--font-display);font-size:clamp(42px,7vw,88px);font-weight:700;line-height:1.05;color:var(--white);margin-bottom:8px;letter-spacing:-1px}
+.hero h1 .rune{color:var(--gold);text-shadow:0 0 40px rgba(232,169,18,0.4)}
+.hero-sub{font-size:clamp(18px,2.5vw,26px);color:var(--text-dim);max-width:600px;margin:16px auto 40px;font-weight:400}
+.hero-actions{display:flex;gap:16px;flex-wrap:wrap;justify-content:center}
+.hero-stats{display:flex;gap:48px;margin-top:60px;padding-top:40px;border-top:1px solid rgba(232,169,18,0.1)}
+.hero-stat{text-align:center}
+.hero-stat .val{font-family:var(--font-display);font-size:28px;font-weight:700;color:var(--gold)}
+.hero-stat .label{font-size:13px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin-top:4px}
+
+/* SECTIONS */
+section{padding:100px 40px;max-width:1100px;margin:0 auto}
+.section-label{font-family:var(--font-mono);font-size:12px;color:var(--gold-dim);letter-spacing:3px;text-transform:uppercase;margin-bottom:12px}
+.section-title{font-family:var(--font-display);font-size:clamp(28px,4vw,44px);font-weight:700;color:var(--white);margin-bottom:24px;line-height:1.15}
+.section-text{font-size:18px;color:var(--text);max-width:680px;line-height:1.7}
+
+/* ABOUT */
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;margin-top:48px}
+.about-card{background:var(--bg2);border:1px solid rgba(232,169,18,0.08);border-radius:8px;padding:32px;position:relative;overflow:hidden;transition:all 0.2s}
+.about-card:hover{border-color:var(--gold-dim);transform:translateY(-2px)}
+.about-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.about-card h3{font-family:var(--font-display);font-size:20px;color:var(--white);margin-bottom:12px}
+.about-card p{color:var(--text-dim);font-size:15px;line-height:1.6}
+.about-icon{font-size:32px;margin-bottom:16px;display:block}
+
+/* ECOSYSTEM CARDS */
+.eco-grid{display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-top:48px}
+.eco-card{background:var(--bg2);border:1px solid rgba(232,169,18,0.08);border-radius:12px;padding:40px;position:relative;overflow:hidden;transition:all 0.3s}
+.eco-card:hover{border-color:var(--gold);transform:translateY(-4px);box-shadow:0 12px 40px rgba(232,169,18,0.1)}
+.eco-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.eco-card .eco-icon{font-size:40px;margin-bottom:20px;display:block}
+.eco-card h3{font-family:var(--font-display);font-size:24px;color:var(--white);margin-bottom:12px}
+.eco-card p{color:var(--text-dim);font-size:16px;line-height:1.7;margin-bottom:24px}
+.eco-card .eco-tag{display:inline-block;padding:4px 10px;background:rgba(232,169,18,0.1);color:var(--gold);font-family:var(--font-mono);font-size:11px;border-radius:2px;margin-bottom:16px;text-transform:uppercase;letter-spacing:1px}
+.eco-card .btn{margin-top:auto}
+
+/* TOKENOMICS */
+.token-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px;margin-top:40px}
+.token-item{background:var(--bg2);border:1px solid rgba(232,169,18,0.06);border-radius:8px;padding:28px}
+.token-item .key{font-family:var(--font-mono);font-size:12px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px}
+.token-item .value{font-family:var(--font-display);font-size:24px;font-weight:700;color:var(--white)}
+.token-item .value.gold{color:var(--gold)}
+
+/* CTA */
+.cta-section{text-align:center;padding:80px 40px;position:relative}
+.cta-section::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:600px;height:300px;background:radial-gradient(ellipse,rgba(232,169,18,0.08),transparent);pointer-events:none}
+.cta-links{display:flex;gap:16px;justify-content:center;margin-top:32px;flex-wrap:wrap}
+
+/* FOOTER */
+footer{border-top:1px solid rgba(232,169,18,0.08);padding:40px;text-align:center;color:var(--text-dim);font-size:14px}
+footer a{color:var(--gold-dim);text-decoration:none}
+footer a:hover{color:var(--gold)}
+
+/* GLOW LINE */
+.glow-line{height:1px;background:linear-gradient(90deg,transparent,var(--gold-dim),transparent);margin:0 auto;max-width:800px}
+
+/* MOBILE NAV */
+.nav-toggle{display:none;background:none;border:none;color:var(--gold);font-size:24px;cursor:pointer;padding:4px 8px}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  nav{padding:12px 20px}
+  .nav-links{display:none;position:absolute;top:100%;left:0;right:0;background:rgba(6,6,16,0.97);flex-direction:column;padding:20px;gap:16px;border-bottom:1px solid rgba(232,169,18,0.1)}
+  .nav-links.open{display:flex}
+  .nav-toggle{display:block}
+  section{padding:60px 20px}
+  .about-grid,.eco-grid,.token-grid{grid-template-columns:1fr}
+  .hero-stats{flex-direction:column;gap:20px}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="nav-logo">MBC <span>// MEME•BACKED•CURRENCY</span></a>
+  <button class="nav-toggle" onclick="document.querySelector('.nav-links').classList.toggle('open')">☰</button>
+  <div class="nav-links">
+    <a href="#about">About</a>
+    <a href="game.html">Game</a>
+    <a href="lore.html">Lore</a>
+    <a href="#tokenomics">Tokenomics</a>
+    <a href="https://x.com/MEMEBACKEDCURR" target="_blank" class="btn btn-outline">𝕏 Twitter</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <img src="assets/mbc-logo.jpg" alt="MBC" style="width:140px;height:140px;border-radius:50%;border:3px solid var(--gold);box-shadow:0 0 40px rgba(232,169,18,0.3);margin-bottom:24px">
+  <div class="hero-badge">Bitcoin Rune Token</div>
+  <h1>MEME<span class="rune">•</span>BACKED<span class="rune">•</span>CURRENCY</h1>
+  <p class="hero-sub">The first Bitcoin Rune with a playable tower defense game, AI-generated manga lore, and a community that shapes the story.</p>
+  <div class="hero-actions">
+    <a href="game.html" class="btn btn-gold">🎮 Tree Defence</a>
+    <a href="https://www.satflow.com/runes/MEME%E2%80%A2BACKED%E2%80%A2CURRENCY" target="_blank" class="btn btn-outline">Buy on Satflow</a>
+  </div>
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <div class="val">BITCOIN</div>
+      <div class="label">Native Chain</div>
+    </div>
+    <div class="hero-stat">
+      <div class="val">RUNE</div>
+      <div class="label">Token Standard</div>
+    </div>
+    <div class="hero-stat">
+      <div class="val">1,000</div>
+      <div class="label">MBC to Play</div>
+    </div>
+  </div>
+</section>
+
+<div class="glow-line"></div>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="section-label">// What is MBC</div>
+  <h2 class="section-title">More Than a Meme Coin</h2>
+  <p class="section-text">MEME•BACKED•CURRENCY isn't just a token — it's an ecosystem. A Bitcoin Rune backed by a real game, AI-driven manga storytelling, and a community that decides where the story goes next.</p>
+
+  <div class="about-grid" style="margin-top:48px">
+    <div class="about-card">
+      <span class="about-icon">🎮</span>
+      <h3>Playable Game</h3>
+      <p>Tree Defence — a tower defense game where a squirrel defends a tree against waves of enemies. Hold 1,000 MBC to unlock access. Real utility, real gameplay.</p>
+    </div>
+    <div class="about-card">
+      <span class="about-icon">⛓️</span>
+      <h3>Bitcoin Native</h3>
+      <p>Built on the Runes protocol — the most efficient fungible token standard on Bitcoin. No wrapped tokens, no bridges. Pure Bitcoin.</p>
+    </div>
+    <div class="about-card">
+      <span class="about-icon">📖</span>
+      <h3>AI Manga Series</h3>
+      <p>An AI Lore Master posts manga pages to Twitter. The community votes on story direction through polls. Each vote shapes the next page. Your voice writes the story.</p>
+    </div>
+    <div class="about-card">
+      <span class="about-icon">🗳️</span>
+      <h3>Community Driven</h3>
+      <p>Every manga page ends with a poll. The community votes, and the winning choice becomes canon. Chapters are built page by page through collective decisions.</p>
+    </div>
+  </div>
+</section>
+
+<div class="glow-line"></div>
+
+<!-- ECOSYSTEM -->
+<section id="ecosystem">
+  <div class="section-label">// Ecosystem</div>
+  <h2 class="section-title">Explore the MBC Universe</h2>
+  <p class="section-text">Two live projects — one token. The MBC ecosystem is growing, with each project driving engagement and utility for MEME•BACKED•CURRENCY holders.</p>
+
+  <div class="eco-grid">
+    <div class="eco-card">
+      <span class="eco-tag">Game</span>
+      <span class="eco-icon">🎮</span>
+      <h3>Tree Defence</h3>
+      <p>A tower defense game where you're a squirrel armed to the teeth, defending your tree against waves of beavers, lumberjacks, cyclops bosses, and more. 7 weapons, 13+ enemies, 4 devastating abilities, combo system, and roguelike upgrades.</p>
+      <a href="game.html" class="btn btn-outline">Learn More →</a>
+    </div>
+    <div class="eco-card">
+      <span class="eco-tag">Lore</span>
+      <span class="eco-icon">📖</span>
+      <h3>AI Lore Master</h3>
+      <p>An autonomous AI posts manga-style pages to Twitter. Each post is one page — collect enough pages and you complete a chapter. Community votes on polls shape every twist. The story is never written alone.</p>
+      <a href="lore.html" class="btn btn-outline">Learn More →</a>
+    </div>
+  </div>
+</section>
+
+<div class="glow-line"></div>
+
+<!-- TOKENOMICS -->
+<section id="tokenomics">
+  <div class="section-label">// Tokenomics</div>
+  <h2 class="section-title">MEME•BACKED•CURRENCY</h2>
+
+  <div class="token-grid">
+    <div class="token-item">
+      <div class="key">Token Standard</div>
+      <div class="value gold">Bitcoin Rune</div>
+    </div>
+    <div class="token-item">
+      <div class="key">Chain</div>
+      <div class="value">Bitcoin L1</div>
+    </div>
+    <div class="token-item">
+      <div class="key">Game Access Threshold</div>
+      <div class="value gold">1,000 MBC</div>
+    </div>
+    <div class="token-item">
+      <div class="key">Marketplace</div>
+      <div class="value"><a href="https://www.satflow.com/runes/MEME%E2%80%A2BACKED%E2%80%A2CURRENCY" target="_blank" style="color:var(--gold);text-decoration:none">Satflow</a></div>
+    </div>
+    <div class="token-item">
+      <div class="key">Compatible Wallets</div>
+      <div class="value">Xverse / Unisat / Leather</div>
+    </div>
+    <div class="token-item">
+      <div class="key">Utility</div>
+      <div class="value gold">Game Access + Governance</div>
+    </div>
+  </div>
+</section>
+
+<div class="glow-line"></div>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="section-label">// Join the Community</div>
+  <h2 class="section-title">Hold MBC. Play the Game.<br>Shape the Story.</h2>
+  <p class="section-text" style="margin:0 auto">Get 1,000 MEME•BACKED•CURRENCY, download Tree Defence, and become part of the first Bitcoin Rune with real game utility.</p>
+
+  <div class="cta-links">
+    <a href="https://www.satflow.com/runes/MEME%E2%80%A2BACKED%E2%80%A2CURRENCY" target="_blank" class="btn btn-gold">Buy MBC on Satflow</a>
+    <a href="https://x.com/MEMEBACKEDCURR" target="_blank" class="btn btn-outline">𝕏 Twitter</a>
+    <a href="game.html" class="btn btn-outline">🎮 Tree Defence</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>MEME•BACKED•CURRENCY — Bitcoin Rune Token<br>
+  <a href="https://x.com/MEMEBACKEDCURR" target="_blank">@MEMEBACKEDCURR</a> · Built on Bitcoin</p>
+</footer>
+
+<script>
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.style.opacity = '1';
+      e.target.style.transform = 'translateY(0)';
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.about-card, .eco-card, .token-item').forEach(el => {
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(20px)';
+  el.style.transition = 'opacity 0.5s, transform 0.5s';
+  observer.observe(el);
+});
+
+window.addEventListener('scroll', () => {
+  const nav = document.querySelector('nav');
+  nav.style.background = window.scrollY > 50
+    ? 'rgba(6,6,16,0.95)'
+    : 'rgba(6,6,16,0.8)';
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Verify Wallet — MEME•BACKED•CURRENCY</title>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#060610;--bg2:#0c0c1a;
+  --gold:#e8a912;--gold-bright:#ffd04a;--gold-dim:#a07208;
+  --red:#e83a3a;--green:#2ade6a;--white:#eee8e0;
+  --text:#c8c4bc;--text-dim:#787470;
+  --font-display:'Chakra Petch',sans-serif;
+  --font-body:'Rajdhani',sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.card{background:var(--bg2);border:1px solid rgba(232,169,18,0.15);border-radius:16px;padding:48px;max-width:480px;width:100%;text-align:center;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.logo{font-family:var(--font-display);font-size:20px;font-weight:700;color:var(--gold);letter-spacing:2px;margin-bottom:8px}
+h1{font-family:var(--font-display);font-size:28px;color:var(--white);margin-bottom:8px}
+.subtitle{color:var(--text-dim);font-size:16px;margin-bottom:32px}
+.wallet-buttons{display:flex;flex-direction:column;gap:12px;margin-bottom:24px}
+.wallet-btn{display:flex;align-items:center;justify-content:center;gap:12px;padding:14px 24px;border-radius:8px;font-family:var(--font-display);font-size:16px;font-weight:600;letter-spacing:1px;text-transform:uppercase;cursor:pointer;border:2px solid rgba(232,169,18,0.2);background:rgba(232,169,18,0.05);color:var(--gold);transition:all 0.2s}
+.wallet-btn:hover{border-color:var(--gold);background:rgba(232,169,18,0.1);transform:translateY(-1px)}
+.wallet-btn:disabled{opacity:0.4;cursor:not-allowed;transform:none}
+.wallet-btn .icon{font-size:22px}
+.divider{display:flex;align-items:center;gap:16px;margin:24px 0;color:var(--text-dim);font-size:13px;text-transform:uppercase;letter-spacing:2px;font-family:var(--font-mono)}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:rgba(232,169,18,0.15)}
+.manual-input{display:flex;gap:8px}
+.manual-input input{flex:1;padding:12px 16px;border-radius:6px;border:1px solid rgba(232,169,18,0.2);background:rgba(0,0,0,0.3);color:var(--white);font-family:var(--font-mono);font-size:13px}
+.manual-input input:focus{outline:none;border-color:var(--gold)}
+.manual-input input::placeholder{color:var(--text-dim)}
+.verify-btn{padding:12px 24px;border-radius:6px;border:none;background:var(--gold);color:var(--bg);font-family:var(--font-display);font-size:14px;font-weight:600;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all 0.2s}
+.verify-btn:hover{background:var(--gold-bright)}
+.verify-btn:disabled{opacity:0.5;cursor:not-allowed}
+
+/* Status states */
+.status{margin-top:24px;padding:16px;border-radius:8px;font-size:15px;display:none}
+.status.show{display:block}
+.status.loading{background:rgba(232,169,18,0.08);border:1px solid rgba(232,169,18,0.2);color:var(--gold)}
+.status.success{background:rgba(42,222,106,0.08);border:1px solid rgba(42,222,106,0.3);color:var(--green)}
+.status.error{background:rgba(232,58,58,0.08);border:1px solid rgba(232,58,58,0.3);color:var(--red)}
+.status .big{font-family:var(--font-display);font-size:22px;font-weight:700;display:block;margin-bottom:4px}
+
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--gold-dim);border-top-color:var(--gold);border-radius:50%;animation:spin 0.8s linear infinite;margin-right:8px;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.requirement{margin-top:20px;padding:12px;background:rgba(232,169,18,0.04);border-left:3px solid var(--gold-dim);border-radius:0 4px 4px 0;font-family:var(--font-mono);font-size:13px;color:var(--text-dim);text-align:left}
+.no-session{color:var(--red);font-family:var(--font-mono);font-size:14px}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <img src="assets/mbc-logo.jpg" alt="MBC" style="width:80px;height:80px;border-radius:50%;border:2px solid var(--gold);margin-bottom:16px">
+  <div class="logo">MBC</div>
+  <h1>Connect Your Wallet</h1>
+  <p class="subtitle">Verify you hold 1,000 MEME•BACKED•CURRENCY to play Tree Defence</p>
+
+  <div id="no-session" class="no-session" style="display:none">
+    ⚠ No session ID found. Please launch this page from the game.
+  </div>
+
+  <div id="main-content">
+    <div class="wallet-buttons">
+      <button class="wallet-btn" id="btn-unisat" onclick="connectUnisat()">
+        <span class="icon">🟧</span> Connect Unisat
+      </button>
+      <button class="wallet-btn" id="btn-xverse" onclick="connectXverse()">
+        <span class="icon">🟦</span> Connect Xverse
+      </button>
+      <button class="wallet-btn" id="btn-leather" onclick="connectLeather()">
+        <span class="icon">🟫</span> Connect Leather
+      </button>
+    </div>
+
+    <div class="requirement">
+      🔒 Requires 1,000 MBC in your wallet. Buy on
+      <a href="https://www.satflow.com/runes/MEME%E2%80%A2BACKED%E2%80%A2CURRENCY" target="_blank" style="color:var(--gold)">Satflow</a>
+    </div>
+  </div>
+
+  <div class="status" id="status"></div>
+</div>
+
+<script>
+// Get session ID from URL
+const params = new URLSearchParams(window.location.search);
+const sessionId = params.get("session");
+// API base — same origin when served from mbc-bot, or override for dev
+const API_BASE = window.location.origin;
+
+if (!sessionId) {
+  document.getElementById("no-session").style.display = "block";
+  document.getElementById("main-content").style.display = "none";
+}
+
+function showStatus(type, html) {
+  const el = document.getElementById("status");
+  el.className = "status show " + type;
+  el.innerHTML = html;
+}
+
+// ─── Unisat Wallet ──────────────────────────────────────────────
+async function connectUnisat() {
+  if (typeof window.unisat === "undefined") {
+    showStatus("error", "Unisat wallet not detected. Install it from <a href='https://unisat.io' target='_blank' style='color:var(--gold)'>unisat.io</a>");
+    return;
+  }
+  showStatus("loading", "<span class='spinner'></span> Connecting to Unisat...");
+  try {
+    const accounts = await window.unisat.requestAccounts();
+    if (accounts && accounts.length > 0) {
+      await submitAddress(accounts[0], "unisat");
+    }
+  } catch (err) {
+    showStatus("error", "Connection rejected: " + (err.message || err));
+  }
+}
+
+// ─── Xverse Wallet ──────────────────────────────────────────────
+async function connectXverse() {
+  // Xverse injects satsConnect or XverseProviders
+  if (typeof window.XverseProviders === "undefined" && typeof window.satsConnect === "undefined") {
+    showStatus("error", "Xverse wallet not detected. Install it from <a href='https://www.xverse.app' target='_blank' style='color:var(--gold)'>xverse.app</a>");
+    return;
+  }
+  showStatus("loading", "<span class='spinner'></span> Connecting to Xverse...");
+  try {
+    // Use the Xverse provider's request method
+    const provider = window.XverseProviders?.BitcoinProvider || window.BitcoinProvider;
+    if (provider) {
+      const response = await provider.request("getAccounts", {
+        purposes: ["ordinals", "payment"],
+      });
+      if (response.result && response.result.length > 0) {
+        // Prefer the ordinals (taproot) address for Runes
+        const ordAddr = response.result.find(a => a.purpose === "ordinals");
+        const addr = ordAddr ? ordAddr.address : response.result[0].address;
+        await submitAddress(addr, "xverse");
+      }
+    }
+  } catch (err) {
+    showStatus("error", "Connection rejected: " + (err.message || err));
+  }
+}
+
+// ─── Leather Wallet ─────────────────────────────────────────────
+async function connectLeather() {
+  if (typeof window.LeatherProvider === "undefined" && typeof window.btc === "undefined") {
+    showStatus("error", "Leather wallet not detected. Install it from <a href='https://leather.io' target='_blank' style='color:var(--gold)'>leather.io</a>");
+    return;
+  }
+  showStatus("loading", "<span class='spinner'></span> Connecting to Leather...");
+  try {
+    const provider = window.LeatherProvider || window.btc;
+    const response = await provider.request("getAddresses");
+    if (response.result && response.result.addresses) {
+      // Find taproot address (p2tr) for Runes
+      const taproot = response.result.addresses.find(a => a.type === "p2tr");
+      const addr = taproot ? taproot.address : response.result.addresses[0].address;
+      await submitAddress(addr, "leather");
+    }
+  } catch (err) {
+    showStatus("error", "Connection rejected: " + (err.message || err));
+  }
+}
+
+// ─── Submit to server ───────────────────────────────────────────
+async function submitAddress(address, wallet) {
+  showStatus("loading", `<span class='spinner'></span> Checking MBC balance for ${address.slice(0, 8)}...${address.slice(-6)}`);
+
+  try {
+    const res = await fetch(`${API_BASE}/api/verify?action=complete`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ sessionId, address, wallet }),
+    });
+    const data = await res.json();
+
+    if (data.verified) {
+      showStatus("success",
+        `<span class='big'>✓ Verified!</span>
+         ${address.slice(0, 8)}...${address.slice(-6)} holds ${data.balance.toLocaleString()} MBC<br>
+         <br>You can close this tab and return to the game.`
+      );
+      // Disable all buttons
+      document.querySelectorAll(".wallet-btn, .verify-btn").forEach(b => b.disabled = true);
+    } else {
+      showStatus("error",
+        `<span class='big'>✗ Insufficient Balance</span>
+         Found ${data.balance.toLocaleString()} MBC — need ${data.required.toLocaleString()}<br>
+         <br>Buy MBC on <a href="https://www.satflow.com/runes/MEME%E2%80%A2BACKED%E2%80%A2CURRENCY" target="_blank" style="color:var(--gold)">Satflow</a>`
+      );
+    }
+  } catch (err) {
+    showStatus("error", "Server error: " + (err.message || err));
+  }
+}
+</script>
+</body>
+</html>

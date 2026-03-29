@@ -1,0 +1,5 @@
+{
+  "buildCommand": "mkdir -p public && cp -r website/* public/",
+  "installCommand": "npm install",
+  "framework": null
+}

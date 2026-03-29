@@ -22,7 +22,15 @@ export async function postTweet(text: string, mediaPath?: string, replyToTweetId
     let mediaId: string | undefined;
 
     if (mediaPath && fs.existsSync(mediaPath)) {
+      logger.info(`Uploading media: ${mediaPath} (${(fs.statSync(mediaPath).size / 1024).toFixed(1)} KB)`);
       mediaId = await uploadMedia(mediaPath);
+      if (mediaId) {
+        logger.info(`Media uploaded successfully: ${mediaId}`);
+      } else {
+        logger.error("Media upload returned undefined — tweet will post without image");
+      }
+    } else if (mediaPath) {
+      logger.error(`Media file not found: ${mediaPath}`);
     }
 
     const payload: any = { text };
@@ -34,12 +42,15 @@ export async function postTweet(text: string, mediaPath?: string, replyToTweetId
     }
 
     const result = await client.v2.tweet(payload);
+    logger.info(`Tweet posted: ${result.data.id}`, { chars: text.length, hasMedia: !!mediaId });
     return result.data.id;
   } catch (err) {
     logger.error("Failed to post tweet", { error: String(err) });
     return null;
   }
 }
+
+// ─── Post a single manga episode tweet (image + title + description + vote options) ───
 
 export async function postEpisodeTweet(
   title: string,
@@ -48,16 +59,39 @@ export async function postEpisodeTweet(
   mediaPath?: string,
   replyToTweetId?: string
 ): Promise<string | null> {
-  const shortDescription = description.slice(0, 160);
-  let text = `${title}\n\n${shortDescription}`;
-  const choicesText = `\n\nA) ${choices[0]}\nB) ${choices[1]}\nC) ${choices[2]}`;
-  if ((text + choicesText).length <= 280) {
-    text = `${text}${choicesText}`;
-  } else if (text.length > 280) {
-    text = `${title}\n\n${description.slice(0, Math.max(0, 280 - title.length - 6))}...`;
+  // Build single tweet: title + short description + vote options
+  const optionLabels = ["🅰️", "🅱️", "🅲️"];
+  const optionLines = choices
+    .filter(o => o && o.trim().length > 0)
+    .map((opt, i) => `${optionLabels[i]} ${opt}`)
+    .join("\n");
+
+  let text = `${title}\n\n${description}`;
+
+  // Add vote options if we have room
+  const voteBlock = `\n\n${optionLines}\n\n💬 Vote in replies!`;
+  if (text.length + voteBlock.length <= 280) {
+    text += voteBlock;
+  } else {
+    // Shorten description to fit vote options
+    const maxDescLen = 280 - title.length - voteBlock.length - 4; // 4 for \n\n
+    if (maxDescLen > 30) {
+      text = `${title}\n\n${description.slice(0, maxDescLen).trim()}...${voteBlock}`;
+    } else {
+      // Just title + options
+      text = `${title}${voteBlock}`;
+    }
   }
+
+  if (text.length > 280) {
+    text = text.slice(0, 277) + "...";
+  }
+
+  logger.info(`Posting episode tweet: ${text.length} chars, hasMedia: ${!!mediaPath}`);
   return postTweet(text, mediaPath, replyToTweetId);
 }
+
+// ─── Post poll as reply (kept for backward compat but we prefer inline voting now) ───
 
 export async function postEpisodePoll(parentTweetId: string, options: [string, string, string]): Promise<string | null> {
   for (let attempt = 1; attempt <= 3; attempt += 1) {
@@ -84,7 +118,6 @@ export async function postEpisodePoll(parentTweetId: string, options: [string, s
       return null;
     }
   }
-
   return null;
 }
 

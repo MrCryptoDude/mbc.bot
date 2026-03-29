@@ -42,7 +42,7 @@ test("Story Mode posts episode and creates poll metadata", async () => {
       internalNotes: "",
     }),
     generateSummary: async () => "",
-    generateImage: async () => null,
+    generateImage: async () => ({ localPath: "data/test-story-post/panel.png", type: "image" }),
     postEpisode: async () => "tweet-1",
     postPoll: async () => "poll-1",
   });
@@ -53,6 +53,7 @@ test("Story Mode posts episode and creates poll metadata", async () => {
   assert.equal(posts[0]?.tweetId, "tweet-1");
   assert.equal(posts[0]?.pollTweetId, "poll-1");
   assert.deepEqual(posts[0]?.pollOptions, ["A1", "B1", "C1"]);
+  assert.equal(posts[0]?.mediaUrl, "data/test-story-post/panel.png");
 });
 
 test("Story Mode resolves previous poll and passes winner into next context", async () => {
@@ -100,7 +101,7 @@ test("Story Mode resolves previous poll and passes winner into next context", as
       };
     },
     generateSummary: async () => "",
-    generateImage: async () => null,
+    generateImage: async () => ({ localPath: "data/test-story-poll/panel.png", type: "image" }),
     postEpisode: async () => "tweet-2",
     postPoll: async () => "poll-2",
   });
@@ -111,4 +112,40 @@ test("Story Mode resolves previous poll and passes winner into next context", as
   assert.equal(seenDecision, "Right");
   assert.equal(posts[1]?.chapterNumber, 1);
   assert.equal(posts[1]?.pageNumber, 2);
+});
+
+test("Story Mode skips post when image generation fails", async () => {
+  const dataDir = path.resolve("data/test-story-image-required");
+  cleanup(dataDir);
+  setBaseEnv(dataDir);
+
+  const { db } = await import("../src/services/database");
+  const { createStoryModeRunner } = await import("../src/jobs/lore-cycle");
+
+  db.reset();
+  let postEpisodeCalled = 0;
+  const run = createStoryModeRunner({
+    resolvePollWinner: async () => ({ winningOptionText: null }),
+    decideArcLengths: async () => ({ targetPagesInEpisode: 12, targetEpisodesInChapter: 6 }),
+    generateEpisode: async () => ({
+      loreText: "Episode description",
+      tweetTitle: "Episode 1",
+      mangaPrompt: "anime prompt",
+      callToAction: "",
+      pollOptions: ["A1", "B1", "C1"],
+      internalNotes: "",
+    }),
+    generateSummary: async () => "",
+    generateImage: async () => null,
+    postEpisode: async () => {
+      postEpisodeCalled += 1;
+      return "tweet-1";
+    },
+    postPoll: async () => "poll-1",
+  });
+
+  await run();
+  const posts = db.getPosts();
+  assert.equal(posts.length, 0);
+  assert.equal(postEpisodeCalled, 0);
 });

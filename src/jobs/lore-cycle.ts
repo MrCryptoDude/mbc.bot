@@ -50,7 +50,12 @@ export function createStoryModeRunner(deps: StoryModeDeps = defaultDeps) {
       ];
 
       const media = await deps.generateImage(aiResponse.mangaPrompt);
-      const tweetId = await deps.postEpisode(aiResponse.tweetTitle, aiResponse.loreText, choices, media?.localPath);
+      if (!media?.localPath) {
+        logger.error("Skipping Story Mode post because image generation failed");
+        return;
+      }
+
+      const tweetId = await deps.postEpisode(aiResponse.tweetTitle, aiResponse.loreText, choices, media.localPath);
       if (!tweetId) {
         logger.error("Failed to post Story Mode episode");
         return;
@@ -60,7 +65,7 @@ export function createStoryModeRunner(deps: StoryModeDeps = defaultDeps) {
       db.addPost({
         content: aiResponse.loreText,
         mangaPrompt: aiResponse.mangaPrompt,
-        mediaUrl: media?.localPath || null,
+        mediaUrl: media.localPath,
         mediaType: "image",
         tweetId,
         pollTweetId,
