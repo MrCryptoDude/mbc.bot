@@ -6,99 +6,140 @@
 <title>MEME•BACKED•CURRENCY — Bitcoin Rune Ecosystem</title>
 <meta name="description" content="MEME•BACKED•CURRENCY is a Bitcoin Rune token ecosystem featuring a tower defense game, AI-generated manga lore, and a community-driven story.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Chakra+Petch:wght@400;600;700&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   --bg:#060610;--bg2:#0c0c1a;--bg3:#111128;
   --gold:#e8a912;--gold-bright:#ffd04a;--gold-dim:#a07208;
+  --green:#4ade80;--green-dim:#166534;
   --red:#e83a3a;--cyan:#2af0e8;--white:#eee8e0;
   --text:#c8c4bc;--text-dim:#787470;
+  --meme-green:#6dba4f;--meme-orange:#f5a623;--pepe-green:#7ab648;
   --font-display:'Chakra Petch',sans-serif;
+  --font-meme:'Bangers',cursive;
   --font-body:'Rajdhani',sans-serif;
   --font-mono:'JetBrains Mono',monospace;
+  --scroll-pct:0;
 }
 html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:17px;line-height:1.6;overflow-x:hidden}
 ::selection{background:var(--gold);color:var(--bg)}
 
-/* NAV */
-nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:16px 40px;display:flex;align-items:center;justify-content:space-between;backdrop-filter:blur(12px);background:rgba(6,6,16,0.8);border-bottom:1px solid rgba(232,169,18,0.1);transition:all 0.3s}
-.nav-logo{font-family:var(--font-display);font-size:18px;font-weight:700;color:var(--gold);letter-spacing:2px;text-decoration:none}
-.nav-logo span{color:var(--text-dim);font-weight:400}
-.nav-links{display:flex;gap:28px;align-items:center}
-.nav-links a{color:var(--text-dim);text-decoration:none;font-family:var(--font-display);font-size:14px;letter-spacing:1.5px;text-transform:uppercase;transition:color 0.2s}
-.nav-links a:hover{color:var(--gold)}
-.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 24px;border-radius:4px;font-family:var(--font-display);font-size:14px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;text-decoration:none;transition:all 0.2s;cursor:pointer;border:none}
-.btn-gold{background:var(--gold);color:var(--bg);box-shadow:0 0 20px rgba(232,169,18,0.3)}
-.btn-gold:hover{background:var(--gold-bright);box-shadow:0 0 30px rgba(232,169,18,0.5);transform:translateY(-1px)}
-.btn-outline{border:1px solid var(--gold-dim);color:var(--gold);background:transparent}
-.btn-outline:hover{background:rgba(232,169,18,0.1);border-color:var(--gold)}
+/* ===== SCROLLING BACKGROUND ===== */
+.bg-layer{position:fixed;top:0;left:0;right:0;bottom:0;z-index:-1;transition:background 0.3s}
 
-/* HERO */
-.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 40px 80px;position:relative;overflow:hidden}
-.hero::before{content:'';position:absolute;top:-200px;left:50%;transform:translateX(-50%);width:800px;height:800px;background:radial-gradient(circle,rgba(232,169,18,0.08) 0%,transparent 70%);pointer-events:none}
+/* ===== FLOATING MEMES ===== */
+.float-memes{position:fixed;top:0;left:0;right:0;bottom:0;pointer-events:none;z-index:0;overflow:hidden}
+.float-meme{position:absolute;font-size:24px;opacity:0.07;animation:floatUp linear infinite}
+@keyframes floatUp{0%{transform:translateY(110vh) rotate(0deg)}100%{transform:translateY(-10vh) rotate(360deg)}}
+
+/* ===== PEPE PEEK ===== */
+.pepe-peek{position:fixed;bottom:-20px;right:30px;z-index:50;transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);transform:translateY(100%);pointer-events:none}
+.pepe-peek.show{transform:translateY(0)}
+.pepe-peek svg{width:120px;height:120px;filter:drop-shadow(0 -4px 12px rgba(0,0,0,0.5))}
+
+/* ===== DOGE PEEK ===== */
+.doge-peek{position:fixed;bottom:-20px;left:30px;z-index:50;transition:transform 0.5s cubic-bezier(0.34,1.56,0.64,1);transform:translateY(100%);pointer-events:none}
+.doge-peek.show{transform:translateY(0)}
+.doge-peek svg{width:100px;height:100px;filter:drop-shadow(0 -4px 12px rgba(0,0,0,0.5))}
+
+/* ===== NAV ===== */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:14px 40px;display:flex;align-items:center;justify-content:space-between;backdrop-filter:blur(16px);background:rgba(6,6,16,0.75);border-bottom:1px solid rgba(232,169,18,0.1);transition:all 0.3s}
+.nav-logo{font-family:var(--font-meme);font-size:22px;color:var(--gold);letter-spacing:3px;text-decoration:none;text-shadow:0 0 20px rgba(232,169,18,0.3)}
+.nav-logo span{color:var(--text-dim);font-family:var(--font-display);font-size:13px;font-weight:400}
+.nav-links{display:flex;gap:24px;align-items:center}
+.nav-links a{color:var(--text-dim);text-decoration:none;font-family:var(--font-display);font-size:14px;letter-spacing:1.5px;text-transform:uppercase;transition:all 0.2s;position:relative}
+.nav-links a:hover{color:var(--gold);transform:scale(1.05)}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 24px;border-radius:6px;font-family:var(--font-display);font-size:14px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;text-decoration:none;transition:all 0.25s;cursor:pointer;border:none}
+.btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold-bright));color:var(--bg);box-shadow:0 4px 20px rgba(232,169,18,0.3)}
+.btn-gold:hover{box-shadow:0 6px 30px rgba(232,169,18,0.5);transform:translateY(-2px) scale(1.02)}
+.btn-outline{border:1px solid var(--gold-dim);color:var(--gold);background:transparent}
+.btn-outline:hover{background:rgba(232,169,18,0.1);border-color:var(--gold);transform:translateY(-2px)}
+.nav-toggle{display:none;background:none;border:none;color:var(--gold);font-size:24px;cursor:pointer;padding:4px 8px}
+
+/* ===== HERO ===== */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 40px 80px;position:relative;overflow:hidden;z-index:1}
+.hero::before{content:'';position:absolute;top:-200px;left:50%;transform:translateX(-50%);width:900px;height:900px;background:radial-gradient(circle,rgba(232,169,18,0.1) 0%,rgba(122,182,72,0.05) 40%,transparent 70%);pointer-events:none;animation:heroPulse 4s ease-in-out infinite}
+@keyframes heroPulse{0%,100%{transform:translateX(-50%) scale(1);opacity:1}50%{transform:translateX(-50%) scale(1.1);opacity:0.7}}
 .hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:200px;background:linear-gradient(transparent,var(--bg));pointer-events:none}
-.hero-badge{display:inline-block;padding:6px 16px;border:1px solid var(--gold-dim);border-radius:2px;font-family:var(--font-mono);font-size:12px;color:var(--gold);letter-spacing:2px;margin-bottom:32px;text-transform:uppercase}
-.hero h1{font-family:var(--font-display);font-size:clamp(42px,7vw,88px);font-weight:700;line-height:1.05;color:var(--white);margin-bottom:8px;letter-spacing:-1px}
-.hero h1 .rune{color:var(--gold);text-shadow:0 0 40px rgba(232,169,18,0.4)}
-.hero-sub{font-size:clamp(18px,2.5vw,26px);color:var(--text-dim);max-width:600px;margin:16px auto 40px;font-weight:400}
+.hero-logo{width:160px;height:160px;border-radius:50%;border:4px solid var(--gold);box-shadow:0 0 60px rgba(232,169,18,0.4),0 0 120px rgba(232,169,18,0.1);margin-bottom:28px;animation:logoBob 3s ease-in-out infinite;transition:transform 0.3s}
+.hero-logo:hover{transform:scale(1.1) rotate(5deg)}
+@keyframes logoBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.hero-badge{display:inline-block;padding:6px 20px;border:1px solid var(--gold-dim);border-radius:20px;font-family:var(--font-mono);font-size:12px;color:var(--gold);letter-spacing:2px;margin-bottom:28px;text-transform:uppercase;background:rgba(232,169,18,0.05)}
+.hero h1{font-family:var(--font-meme);font-size:clamp(48px,8vw,100px);line-height:1;color:var(--white);margin-bottom:12px;letter-spacing:4px}
+.hero h1 .rune{color:var(--gold);text-shadow:0 0 40px rgba(232,169,18,0.5);animation:runeGlow 2s ease-in-out infinite alternate}
+@keyframes runeGlow{0%{text-shadow:0 0 20px rgba(232,169,18,0.3)}100%{text-shadow:0 0 60px rgba(232,169,18,0.6)}}
+.hero-sub{font-size:clamp(18px,2.5vw,24px);color:var(--text-dim);max-width:620px;margin:16px auto 40px;font-weight:400}
 .hero-actions{display:flex;gap:16px;flex-wrap:wrap;justify-content:center}
-.hero-stats{display:flex;gap:48px;margin-top:60px;padding-top:40px;border-top:1px solid rgba(232,169,18,0.1)}
-.hero-stat{text-align:center}
-.hero-stat .val{font-family:var(--font-display);font-size:28px;font-weight:700;color:var(--gold)}
+.hero-stats{display:flex;gap:48px;margin-top:64px;padding-top:40px;border-top:1px solid rgba(232,169,18,0.12)}
+.hero-stat{text-align:center;transition:transform 0.2s}
+.hero-stat:hover{transform:scale(1.1)}
+.hero-stat .val{font-family:var(--font-meme);font-size:32px;color:var(--gold);letter-spacing:2px}
 .hero-stat .label{font-size:13px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;margin-top:4px}
 
-/* SECTIONS */
-section{padding:100px 40px;max-width:1100px;margin:0 auto}
+/* ===== SECTIONS ===== */
+section{padding:100px 40px;max-width:1100px;margin:0 auto;position:relative;z-index:1}
 .section-label{font-family:var(--font-mono);font-size:12px;color:var(--gold-dim);letter-spacing:3px;text-transform:uppercase;margin-bottom:12px}
-.section-title{font-family:var(--font-display);font-size:clamp(28px,4vw,44px);font-weight:700;color:var(--white);margin-bottom:24px;line-height:1.15}
+.section-title{font-family:var(--font-meme);font-size:clamp(32px,5vw,52px);color:var(--white);margin-bottom:24px;line-height:1.1;letter-spacing:2px}
 .section-text{font-size:18px;color:var(--text);max-width:680px;line-height:1.7}
 
-/* ABOUT */
-.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;margin-top:48px}
-.about-card{background:var(--bg2);border:1px solid rgba(232,169,18,0.08);border-radius:8px;padding:32px;position:relative;overflow:hidden;transition:all 0.2s}
-.about-card:hover{border-color:var(--gold-dim);transform:translateY(-2px)}
-.about-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
-.about-card h3{font-family:var(--font-display);font-size:20px;color:var(--white);margin-bottom:12px}
+/* ===== ABOUT CARDS ===== */
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:48px}
+.about-card{background:linear-gradient(135deg,rgba(12,12,26,0.9),rgba(17,17,40,0.9));border:1px solid rgba(232,169,18,0.08);border-radius:16px;padding:32px;position:relative;overflow:hidden;transition:all 0.3s;cursor:default}
+.about-card:hover{border-color:var(--gold);transform:translateY(-6px) rotate(-0.5deg);box-shadow:0 12px 40px rgba(232,169,18,0.15)}
+.about-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--gold),transparent);transform:scaleX(0);transition:transform 0.3s}
+.about-card:hover::before{transform:scaleX(1)}
+.about-icon{font-size:40px;margin-bottom:16px;display:block;transition:transform 0.3s}
+.about-card:hover .about-icon{transform:scale(1.3) rotate(10deg)}
+.about-card h3{font-family:var(--font-meme);font-size:22px;color:var(--white);margin-bottom:10px;letter-spacing:1px}
 .about-card p{color:var(--text-dim);font-size:15px;line-height:1.6}
-.about-icon{font-size:32px;margin-bottom:16px;display:block}
 
-/* ECOSYSTEM CARDS */
+/* ===== ECOSYSTEM ===== */
 .eco-grid{display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-top:48px}
-.eco-card{background:var(--bg2);border:1px solid rgba(232,169,18,0.08);border-radius:12px;padding:40px;position:relative;overflow:hidden;transition:all 0.3s}
-.eco-card:hover{border-color:var(--gold);transform:translateY(-4px);box-shadow:0 12px 40px rgba(232,169,18,0.1)}
-.eco-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
-.eco-card .eco-icon{font-size:40px;margin-bottom:20px;display:block}
-.eco-card h3{font-family:var(--font-display);font-size:24px;color:var(--white);margin-bottom:12px}
+.eco-card{background:linear-gradient(145deg,rgba(12,12,26,0.95),rgba(17,17,40,0.95));border:2px solid rgba(232,169,18,0.1);border-radius:20px;padding:40px;position:relative;overflow:hidden;transition:all 0.35s}
+.eco-card:hover{border-color:var(--gold);transform:translateY(-8px);box-shadow:0 20px 60px rgba(232,169,18,0.15)}
+.eco-card::before{content:'';position:absolute;top:-50%;right:-50%;width:200%;height:200%;background:radial-gradient(circle at 30% 30%,rgba(232,169,18,0.04),transparent 50%);pointer-events:none}
+.eco-card .eco-icon{font-size:48px;margin-bottom:20px;display:block;transition:transform 0.3s}
+.eco-card:hover .eco-icon{transform:scale(1.2) rotate(-5deg)}
+.eco-card .eco-tag{display:inline-block;padding:4px 12px;background:rgba(232,169,18,0.12);color:var(--gold);font-family:var(--font-meme);font-size:14px;border-radius:20px;margin-bottom:16px;letter-spacing:2px}
+.eco-card h3{font-family:var(--font-meme);font-size:28px;color:var(--white);margin-bottom:12px;letter-spacing:1px}
 .eco-card p{color:var(--text-dim);font-size:16px;line-height:1.7;margin-bottom:24px}
-.eco-card .eco-tag{display:inline-block;padding:4px 10px;background:rgba(232,169,18,0.1);color:var(--gold);font-family:var(--font-mono);font-size:11px;border-radius:2px;margin-bottom:16px;text-transform:uppercase;letter-spacing:1px}
-.eco-card .btn{margin-top:auto}
+.eco-card img{width:100%;border-radius:12px;margin-bottom:20px;border:1px solid rgba(232,169,18,0.15);transition:transform 0.3s}
+.eco-card:hover img{transform:scale(1.02)}
 
-/* TOKENOMICS */
-.token-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px;margin-top:40px}
-.token-item{background:var(--bg2);border:1px solid rgba(232,169,18,0.06);border-radius:8px;padding:28px}
+/* ===== TOKENOMICS ===== */
+.token-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;margin-top:40px}
+.token-item{background:linear-gradient(135deg,rgba(12,12,26,0.9),rgba(17,17,40,0.9));border:1px solid rgba(232,169,18,0.06);border-radius:12px;padding:28px;transition:all 0.25s}
+.token-item:hover{border-color:var(--gold-dim);transform:scale(1.02)}
 .token-item .key{font-family:var(--font-mono);font-size:12px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px}
-.token-item .value{font-family:var(--font-display);font-size:24px;font-weight:700;color:var(--white)}
+.token-item .value{font-family:var(--font-meme);font-size:26px;color:var(--white);letter-spacing:1px}
 .token-item .value.gold{color:var(--gold)}
 
-/* CTA */
-.cta-section{text-align:center;padding:80px 40px;position:relative}
+/* ===== MEME BANNER ===== */
+.meme-banner{text-align:center;padding:60px 20px;position:relative;z-index:1}
+.meme-banner .meme-text{font-family:var(--font-meme);font-size:clamp(28px,5vw,48px);color:var(--gold);letter-spacing:4px;text-shadow:0 0 30px rgba(232,169,18,0.3);animation:memeWobble 3s ease-in-out infinite}
+@keyframes memeWobble{0%,100%{transform:rotate(-1deg)}50%{transform:rotate(1deg)}}
+.meme-banner .meme-sub{color:var(--text-dim);font-size:18px;margin-top:8px}
+
+/* ===== CTA ===== */
+.cta-section{text-align:center;padding:80px 40px;position:relative;z-index:1}
 .cta-section::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:600px;height:300px;background:radial-gradient(ellipse,rgba(232,169,18,0.08),transparent);pointer-events:none}
 .cta-links{display:flex;gap:16px;justify-content:center;margin-top:32px;flex-wrap:wrap}
 
-/* FOOTER */
-footer{border-top:1px solid rgba(232,169,18,0.08);padding:40px;text-align:center;color:var(--text-dim);font-size:14px}
+/* ===== GLOW LINE ===== */
+.glow-line{height:2px;background:linear-gradient(90deg,transparent,var(--gold-dim),var(--gold),var(--gold-dim),transparent);margin:0 auto;max-width:800px;position:relative;z-index:1}
+
+/* ===== FOOTER ===== */
+footer{border-top:1px solid rgba(232,169,18,0.08);padding:40px;text-align:center;color:var(--text-dim);font-size:14px;position:relative;z-index:1}
 footer a{color:var(--gold-dim);text-decoration:none}
 footer a:hover{color:var(--gold)}
 
-/* GLOW LINE */
-.glow-line{height:1px;background:linear-gradient(90deg,transparent,var(--gold-dim),transparent);margin:0 auto;max-width:800px}
+/* ===== SCROLL REVEAL ===== */
+.reveal{opacity:0;transform:translateY(30px);transition:opacity 0.6s,transform 0.6s}
+.reveal.visible{opacity:1;transform:translateY(0)}
 
-/* MOBILE NAV */
-.nav-toggle{display:none;background:none;border:none;color:var(--gold);font-size:24px;cursor:pointer;padding:4px 8px}
-
-/* RESPONSIVE */
+/* ===== RESPONSIVE ===== */
 @media(max-width:768px){
   nav{padding:12px 20px}
   .nav-links{display:none;position:absolute;top:100%;left:0;right:0;background:rgba(6,6,16,0.97);flex-direction:column;padding:20px;gap:16px;border-bottom:1px solid rgba(232,169,18,0.1)}
@@ -107,10 +148,59 @@ footer a:hover{color:var(--gold)}
   section{padding:60px 20px}
   .about-grid,.eco-grid,.token-grid{grid-template-columns:1fr}
   .hero-stats{flex-direction:column;gap:20px}
+  .pepe-peek svg{width:80px;height:80px}
+  .doge-peek svg{width:70px;height:70px}
+  .hero-logo{width:120px;height:120px}
 }
 </style>
 </head>
 <body>
+
+<!-- SCROLLING BACKGROUND -->
+<div class="bg-layer" id="bgLayer"></div>
+
+<!-- FLOATING MEMES -->
+<div class="float-memes" id="floatMemes"></div>
+
+<!-- PEPE PEEK (bottom-right) -->
+<div class="pepe-peek" id="pepePeek">
+<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+  <ellipse cx="60" cy="70" rx="55" ry="48" fill="#6dba4f"/>
+  <ellipse cx="60" cy="74" rx="48" ry="38" fill="#7ec85a"/>
+  <ellipse cx="38" cy="52" rx="18" ry="20" fill="#6dba4f"/>
+  <ellipse cx="82" cy="52" rx="18" ry="20" fill="#6dba4f"/>
+  <ellipse cx="38" cy="50" rx="13" ry="15" fill="white"/>
+  <ellipse cx="82" cy="50" rx="13" ry="15" fill="white"/>
+  <circle cx="40" cy="50" r="7" fill="#222"/>
+  <circle cx="80" cy="50" r="7" fill="#222"/>
+  <circle cx="42" cy="47" r="2.5" fill="white"/>
+  <circle cx="82" cy="47" r="2.5" fill="white"/>
+  <path d="M45 72 Q60 82 75 72" stroke="#4a8a35" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <ellipse cx="25" cy="70" rx="8" ry="5" fill="rgba(232,169,18,0.2)"/>
+  <ellipse cx="95" cy="70" rx="8" ry="5" fill="rgba(232,169,18,0.2)"/>
+</svg>
+</div>
+
+<!-- DOGE PEEK (bottom-left) -->
+<div class="doge-peek" id="dogePeek">
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <ellipse cx="50" cy="58" rx="42" ry="38" fill="#d4a843"/>
+  <ellipse cx="50" cy="62" rx="36" ry="30" fill="#e8c36a"/>
+  <polygon points="25,35 15,10 38,28" fill="#d4a843"/>
+  <polygon points="75,35 85,10 62,28" fill="#d4a843"/>
+  <polygon points="27,33 18,14 37,29" fill="#c49838"/>
+  <polygon points="73,33 82,14 63,29" fill="#c49838"/>
+  <ellipse cx="36" cy="48" rx="8" ry="9" fill="white"/>
+  <ellipse cx="64" cy="48" rx="8" ry="9" fill="white"/>
+  <circle cx="37" cy="48" r="5" fill="#333"/>
+  <circle cx="63" cy="48" r="5" fill="#333"/>
+  <circle cx="39" cy="46" r="2" fill="white"/>
+  <circle cx="65" cy="46" r="2" fill="white"/>
+  <ellipse cx="50" cy="60" rx="5" ry="3.5" fill="#333"/>
+  <path d="M42 66 Q50 72 58 66" stroke="#c49838" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <ellipse cx="50" cy="63" rx="12" ry="8" fill="#e8d4a0" opacity="0.5"/>
+</svg>
+</div>
 
 <!-- NAV -->
 <nav>
@@ -127,7 +217,7 @@ footer a:hover{color:var(--gold)}
 
 <!-- HERO -->
 <section class="hero">
-  <img src="assets/mbc-logo.jpg" alt="MBC" style="width:140px;height:140px;border-radius:50%;border:3px solid var(--gold);box-shadow:0 0 40px rgba(232,169,18,0.3);margin-bottom:24px">
+  <img src="assets/mbc-logo.jpg" alt="MBC" class="hero-logo">
   <div class="hero-badge">Bitcoin Rune Token</div>
   <h1>MEME<span class="rune">•</span>BACKED<span class="rune">•</span>CURRENCY</h1>
   <p class="hero-sub">The first Bitcoin Rune with a playable tower defense game, AI-generated manga lore, and a community that shapes the story.</p>
@@ -136,22 +226,19 @@ footer a:hover{color:var(--gold)}
     <a href="https://www.satflow.com/runes/MEME%E2%80%A2BACKED%E2%80%A2CURRENCY" target="_blank" class="btn btn-outline">Buy on Satflow</a>
   </div>
   <div class="hero-stats">
-    <div class="hero-stat">
-      <div class="val">BITCOIN</div>
-      <div class="label">Native Chain</div>
-    </div>
-    <div class="hero-stat">
-      <div class="val">RUNE</div>
-      <div class="label">Token Standard</div>
-    </div>
-    <div class="hero-stat">
-      <div class="val">1,000</div>
-      <div class="label">MBC to Play</div>
-    </div>
+    <div class="hero-stat"><div class="val">BITCOIN</div><div class="label">Native Chain</div></div>
+    <div class="hero-stat"><div class="val">RUNE</div><div class="label">Token Standard</div></div>
+    <div class="hero-stat"><div class="val">1,000</div><div class="label">MBC to Play</div></div>
   </div>
 </section>
 
 <div class="glow-line"></div>
+
+<!-- MEME BANNER -->
+<div class="meme-banner">
+  <div class="meme-text">gm. hold mbc. defend tree. shape lore.</div>
+  <div class="meme-sub">not financial advice. just vibes. 🐸</div>
+</div>
 
 <!-- ABOUT -->
 <section id="about">
@@ -159,23 +246,23 @@ footer a:hover{color:var(--gold)}
   <h2 class="section-title">More Than a Meme Coin</h2>
   <p class="section-text">MEME•BACKED•CURRENCY isn't just a token — it's an ecosystem. A Bitcoin Rune backed by a real game, AI-driven manga storytelling, and a community that decides where the story goes next.</p>
 
-  <div class="about-grid" style="margin-top:48px">
-    <div class="about-card">
+  <div class="about-grid">
+    <div class="about-card reveal">
       <span class="about-icon">🎮</span>
       <h3>Playable Game</h3>
       <p>Tree Defence — a tower defense game where a squirrel defends a tree against waves of enemies. Hold 1,000 MBC to unlock access. Real utility, real gameplay.</p>
     </div>
-    <div class="about-card">
+    <div class="about-card reveal">
       <span class="about-icon">⛓️</span>
       <h3>Bitcoin Native</h3>
       <p>Built on the Runes protocol — the most efficient fungible token standard on Bitcoin. No wrapped tokens, no bridges. Pure Bitcoin.</p>
     </div>
-    <div class="about-card">
+    <div class="about-card reveal">
       <span class="about-icon">📖</span>
       <h3>AI Manga Series</h3>
-      <p>An AI Lore Master posts manga pages to Twitter. The community votes on story direction through polls. Each vote shapes the next page. Your voice writes the story.</p>
+      <p>An AI Lore Master posts manga pages to Twitter. The community votes on story direction through polls. Each vote shapes the next page.</p>
     </div>
-    <div class="about-card">
+    <div class="about-card reveal">
       <span class="about-icon">🗳️</span>
       <h3>Community Driven</h3>
       <p>Every manga page ends with a poll. The community votes, and the winning choice becomes canon. Chapters are built page by page through collective decisions.</p>
@@ -189,21 +276,23 @@ footer a:hover{color:var(--gold)}
 <section id="ecosystem">
   <div class="section-label">// Ecosystem</div>
   <h2 class="section-title">Explore the MBC Universe</h2>
-  <p class="section-text">Two live projects — one token. The MBC ecosystem is growing, with each project driving engagement and utility for MEME•BACKED•CURRENCY holders.</p>
+  <p class="section-text">Two live projects — one token. The MBC ecosystem is growing, with each project driving engagement and utility for holders.</p>
 
   <div class="eco-grid">
-    <div class="eco-card">
+    <div class="eco-card reveal">
       <span class="eco-tag">Game</span>
       <span class="eco-icon">🎮</span>
+      <img src="assets/game-upgrades.png" alt="Tree Defence gameplay showing upgrade cards">
       <h3>Tree Defence</h3>
-      <p>A tower defense game where you're a squirrel armed to the teeth, defending your tree against waves of beavers, lumberjacks, cyclops bosses, and more. 7 weapons, 13+ enemies, 4 devastating abilities, combo system, and roguelike upgrades.</p>
+      <p>A tower defense game where you're a squirrel armed to the teeth. 7 weapons, 13+ enemies, 4 devastating abilities, combo system, and roguelike upgrades.</p>
       <a href="game.html" class="btn btn-outline">Learn More →</a>
     </div>
-    <div class="eco-card">
+    <div class="eco-card reveal">
       <span class="eco-tag">Lore</span>
       <span class="eco-icon">📖</span>
+      <img src="assets/lore-manga-2.png" alt="AI Lore Master manga page">
       <h3>AI Lore Master</h3>
-      <p>An autonomous AI posts manga-style pages to Twitter. Each post is one page — collect enough pages and you complete a chapter. Community votes on polls shape every twist. The story is never written alone.</p>
+      <p>An autonomous AI posts manga-style pages to Twitter. Community votes on polls shape every twist. The story is never written alone.</p>
       <a href="lore.html" class="btn btn-outline">Learn More →</a>
     </div>
   </div>
@@ -217,30 +306,15 @@ footer a:hover{color:var(--gold)}
   <h2 class="section-title">MEME•BACKED•CURRENCY</h2>
 
   <div class="token-grid">
-    <div class="token-item">
-      <div class="key">Token Standard</div>
-      <div class="value gold">Bitcoin Rune</div>
-    </div>
-    <div class="token-item">
-      <div class="key">Chain</div>
-      <div class="value">Bitcoin L1</div>
-    </div>
-    <div class="token-item">
-      <div class="key">Game Access Threshold</div>
-      <div class="value gold">1,000 MBC</div>
-    </div>
-    <div class="token-item">
+    <div class="token-item reveal"><div class="key">Token Standard</div><div class="value gold">Bitcoin Rune</div></div>
+    <div class="token-item reveal"><div class="key">Chain</div><div class="value">Bitcoin L1</div></div>
+    <div class="token-item reveal"><div class="key">Game Access</div><div class="value gold">1,000 MBC</div></div>
+    <div class="token-item reveal">
       <div class="key">Marketplace</div>
       <div class="value"><a href="https://www.satflow.com/runes/MEME%E2%80%A2BACKED%E2%80%A2CURRENCY" target="_blank" style="color:var(--gold);text-decoration:none">Satflow</a></div>
     </div>
-    <div class="token-item">
-      <div class="key">Compatible Wallets</div>
-      <div class="value">Xverse / Unisat / Leather</div>
-    </div>
-    <div class="token-item">
-      <div class="key">Utility</div>
-      <div class="value gold">Game Access + Governance</div>
-    </div>
+    <div class="token-item reveal"><div class="key">Compatible Wallets</div><div class="value">Xverse / Unisat / Leather</div></div>
+    <div class="token-item reveal"><div class="key">Utility</div><div class="value gold">Game Access + Governance</div></div>
   </div>
 </section>
 
@@ -261,33 +335,65 @@ footer a:hover{color:var(--gold)}
 
 <!-- FOOTER -->
 <footer>
-  <p>MEME•BACKED•CURRENCY — Bitcoin Rune Token<br>
-  <a href="https://x.com/MEMEBACKEDCURR" target="_blank">@MEMEBACKEDCURR</a> · Built on Bitcoin</p>
+  <p style="font-family:var(--font-meme);font-size:18px;color:var(--gold);margin-bottom:8px">MEME•BACKED•CURRENCY</p>
+  <p>Bitcoin Rune Token · <a href="https://x.com/MEMEBACKEDCURR" target="_blank">@MEMEBACKEDCURR</a> · Built on Bitcoin 🐸</p>
 </footer>
 
 <script>
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach(e => {
-    if (e.isIntersecting) {
-      e.target.style.opacity = '1';
-      e.target.style.transform = 'translateY(0)';
-    }
-  });
-}, { threshold: 0.1 });
+// ─── Floating meme particles ───────────────────────────────
+const memes = ['🐸','🐕','💎','🚀','⛓️','🎮','📖','🌙','💰','🔥','👑','⚡'];
+const container = document.getElementById('floatMemes');
+for (let i = 0; i < 20; i++) {
+  const el = document.createElement('div');
+  el.className = 'float-meme';
+  el.textContent = memes[Math.floor(Math.random() * memes.length)];
+  el.style.left = Math.random() * 100 + '%';
+  el.style.fontSize = (16 + Math.random() * 24) + 'px';
+  el.style.animationDuration = (15 + Math.random() * 25) + 's';
+  el.style.animationDelay = Math.random() * 20 + 's';
+  container.appendChild(el);
+}
 
-document.querySelectorAll('.about-card, .eco-card, .token-item').forEach(el => {
-  el.style.opacity = '0';
-  el.style.transform = 'translateY(20px)';
-  el.style.transition = 'opacity 0.5s, transform 0.5s';
-  observer.observe(el);
-});
+// ─── Scrolling background gradient ─────────────────────────
+const bgLayer = document.getElementById('bgLayer');
+const colors = [
+  [6, 6, 16],       // deep dark blue
+  [10, 8, 24],      // purple hint
+  [8, 16, 20],      // teal hint
+  [14, 10, 6],      // warm dark
+  [6, 12, 18],      // ocean dark
+  [6, 6, 16],       // back to start
+];
 
 window.addEventListener('scroll', () => {
-  const nav = document.querySelector('nav');
-  nav.style.background = window.scrollY > 50
-    ? 'rgba(6,6,16,0.95)'
-    : 'rgba(6,6,16,0.8)';
+  const scrollPct = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+  const idx = scrollPct * (colors.length - 1);
+  const i = Math.floor(idx);
+  const t = idx - i;
+  const c1 = colors[Math.min(i, colors.length - 1)];
+  const c2 = colors[Math.min(i + 1, colors.length - 1)];
+  const r = Math.round(c1[0] + (c2[0] - c1[0]) * t);
+  const g = Math.round(c1[1] + (c2[1] - c1[1]) * t);
+  const b = Math.round(c1[2] + (c2[2] - c1[2]) * t);
+  bgLayer.style.background = `rgb(${r},${g},${b})`;
+
+  // Pepe shows after 30% scroll
+  document.getElementById('pepePeek').classList.toggle('show', scrollPct > 0.3);
+  // Doge shows after 55% scroll
+  document.getElementById('dogePeek').classList.toggle('show', scrollPct > 0.55);
+
+  // Nav darken
+  document.querySelector('nav').style.background = window.scrollY > 50
+    ? 'rgba(6,6,16,0.95)' : 'rgba(6,6,16,0.75)';
 });
+
+// ─── Scroll reveal ─────────────────────────────────────────
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) e.target.classList.add('visible');
+  });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
 </script>
 </body>
 </html>
