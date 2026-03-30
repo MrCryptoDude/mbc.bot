@@ -339,7 +339,119 @@ footer a:hover{color:var(--gold)}
   <p>Bitcoin Rune Token · <a href="https://x.com/MEMEBACKEDCURR" target="_blank">@MEMEBACKEDCURR</a> · Built on Bitcoin 🐸</p>
 </footer>
 
+<!-- CLICK PARTICLES -->
+<canvas id="clickCanvas" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:999"></canvas>
+
+<!-- CURSOR FOLLOWER SQUIRREL -->
+<div id="cursorSquirrel" style="position:fixed;pointer-events:none;z-index:998;font-size:28px;transition:transform 0.08s;opacity:0;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.5))">🐿️</div>
+
 <script>
+// ─── CLICK-TO-SHOOT PARTICLES ────────────────────────────
+const clickCanvas = document.getElementById('clickCanvas');
+const ctx = clickCanvas.getContext('2d');
+let particles = [];
+function resizeCanvas() { clickCanvas.width = window.innerWidth; clickCanvas.height = window.innerHeight; }
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+const sparkEmojis = ['✨','⚡','💥','🔥','💎','🐸','🚀','⭐'];
+class ClickParticle {
+  constructor(x, y) {
+    this.x = x; this.y = y;
+    this.vx = (Math.random() - 0.5) * 8;
+    this.vy = (Math.random() - 0.5) * 8 - 3;
+    this.life = 1;
+    this.decay = 0.02 + Math.random() * 0.02;
+    this.emoji = sparkEmojis[Math.floor(Math.random() * sparkEmojis.length)];
+    this.size = 12 + Math.random() * 16;
+    this.rotation = Math.random() * Math.PI * 2;
+    this.rotSpeed = (Math.random() - 0.5) * 0.2;
+  }
+  update() {
+    this.x += this.vx; this.y += this.vy;
+    this.vy += 0.15;
+    this.life -= this.decay;
+    this.rotation += this.rotSpeed;
+  }
+  draw(ctx) {
+    ctx.save();
+    ctx.globalAlpha = this.life;
+    ctx.translate(this.x, this.y);
+    ctx.rotate(this.rotation);
+    ctx.font = this.size + 'px serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(this.emoji, 0, 0);
+    ctx.restore();
+  }
+}
+
+document.addEventListener('click', (e) => {
+  for (let i = 0; i < 6 + Math.floor(Math.random() * 4); i++) {
+    particles.push(new ClickParticle(e.clientX, e.clientY));
+  }
+});
+
+function animateParticles() {
+  ctx.clearRect(0, 0, clickCanvas.width, clickCanvas.height);
+  particles = particles.filter(p => p.life > 0);
+  particles.forEach(p => { p.update(); p.draw(ctx); });
+  requestAnimationFrame(animateParticles);
+}
+animateParticles();
+
+// ─── CURSOR FOLLOWER SQUIRREL ────────────────────────────
+const cursorSquirrel = document.getElementById('cursorSquirrel');
+let mouseX = 0, mouseY = 0, sqX = 0, sqY = 0, sqVisible = false;
+document.addEventListener('mousemove', (e) => {
+  mouseX = e.clientX; mouseY = e.clientY;
+  if (!sqVisible) { sqVisible = true; cursorSquirrel.style.opacity = '1'; }
+});
+function updateSquirrel() {
+  sqX += (mouseX - sqX) * 0.08;
+  sqY += (mouseY - sqY) * 0.08;
+  const dx = mouseX - sqX;
+  const flip = dx < -2 ? 'scaleX(-1)' : '';
+  cursorSquirrel.style.transform = `translate(${sqX + 20}px, ${sqY - 10}px) ${flip}`;
+  requestAnimationFrame(updateSquirrel);
+}
+updateSquirrel();
+
+// ─── KONAMI CODE EASTER EGG ──────────────────────────────
+const konamiCode = [38,38,40,40,37,39,37,39,66,65];
+let konamiIdx = 0;
+document.addEventListener('keydown', (e) => {
+  if (e.keyCode === konamiCode[konamiIdx]) {
+    konamiIdx++;
+    if (konamiIdx === konamiCode.length) {
+      konamiIdx = 0;
+      // MEGA MEME EXPLOSION
+      const megaEmojis = ['🐸','🐕','💎','🚀','🌙','👑','🔥','⚡','💰','🎮','📖','🗳️','⛓️','🐿️','☄️'];
+      for (let i = 0; i < 80; i++) {
+        setTimeout(() => {
+          const p = new ClickParticle(window.innerWidth/2 + (Math.random()-0.5)*400, window.innerHeight/2);
+          p.vx = (Math.random() - 0.5) * 20;
+          p.vy = (Math.random() - 0.5) * 20 - 5;
+          p.size = 24 + Math.random() * 32;
+          p.decay = 0.008;
+          p.emoji = megaEmojis[Math.floor(Math.random() * megaEmojis.length)];
+          particles.push(p);
+        }, i * 20);
+      }
+      // Flash the page gold
+      document.body.style.transition = 'box-shadow 0.3s';
+      document.body.style.boxShadow = 'inset 0 0 200px rgba(232,169,18,0.4)';
+      setTimeout(() => { document.body.style.boxShadow = 'none'; }, 1500);
+    }
+  } else { konamiIdx = 0; }
+});
+
+// ─── BUTTON HOVER SOUND EFFECT (CSS wobble) ──────────────
+document.querySelectorAll('.btn').forEach(btn => {
+  btn.addEventListener('mouseenter', () => {
+    btn.style.transition = 'all 0.15s cubic-bezier(0.34,1.56,0.64,1)';
+  });
+});
+
 // ─── Floating meme particles ───────────────────────────────
 const memes = ['🐸','🐕','💎','🚀','⛓️','🎮','📖','🌙','💰','🔥','👑','⚡'];
 const container = document.getElementById('floatMemes');
