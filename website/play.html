@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0">
 <title>Play Tree Defence — MEME•BACKED•CURRENCY</title>
 <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Chakra+Petch:wght@400;600;700&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -18,7 +18,7 @@
   --font-mono:'JetBrains Mono',monospace;
 }
 html,body{height:100%;overflow:hidden}
-body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:17px}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:17px;touch-action:none}
 
 /* VERIFY SCREEN */
 #verify-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
@@ -45,16 +45,28 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-si
 .back-link{display:inline-block;margin-top:20px;color:var(--text-dim);text-decoration:none;font-size:14px;transition:color 0.2s}
 .back-link:hover{color:var(--gold)}
 
-/* LOADING SCREEN */
-#loading-screen{display:none;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:20px}
-#loading-screen .loading-text{font-family:var(--font-meme);font-size:28px;color:var(--gold);letter-spacing:3px}
-.loading-bar-bg{width:300px;height:8px;background:rgba(232,169,18,0.1);border-radius:4px;overflow:hidden}
-.loading-bar{height:100%;width:0%;background:linear-gradient(90deg,var(--gold),var(--gold-bright));border-radius:4px;transition:width 0.3s}
+/* START SCREEN (after verification) */
+#start-screen{display:none;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:24px;cursor:pointer;user-select:none}
+#start-screen:hover .start-btn{background:var(--gold-bright);box-shadow:0 8px 40px rgba(232,169,18,0.5);transform:scale(1.05)}
+.start-btn{font-family:var(--font-meme);font-size:36px;color:var(--bg);background:var(--gold);padding:20px 60px;border-radius:16px;letter-spacing:4px;box-shadow:0 4px 30px rgba(232,169,18,0.3);transition:all 0.3s}
+.start-hint{font-family:var(--font-mono);font-size:13px;color:var(--text-dim);letter-spacing:1px}
+.fullscreen-hint{font-family:var(--font-mono);font-size:12px;color:var(--text-dim);letter-spacing:1px;margin-top:8px}
 
-/* GAME CONTAINER */
-#game-container{display:none;width:100vw;height:100vh}
-#game-container iframe,#game-container canvas{width:100%;height:100%;border:none}
+/* GAME CANVAS */
+#canvas{display:none;margin:0;padding:0;border:0;width:100vw !important;height:100vh !important}
+#canvas:focus{outline:none}
+
+/* Godot status overlay */
+#status{position:absolute;left:0;right:0;top:0;bottom:0;background-color:#242424;display:flex;flex-direction:column;justify-content:center;align-items:center;visibility:hidden}
+#status-splash{max-height:100%;max-width:100%;margin:auto}
+#status-progress{display:none;position:absolute;bottom:10%;width:50%;margin:0 auto;left:25%}
+#status-notice{display:none;background-color:#5b3943;border-radius:0.5rem;border:1px solid #9b3943;color:#e0e0e0;font-family:'Noto Sans',Arial,sans-serif;line-height:1.3;margin:0 2rem;padding:1rem;text-align:center;z-index:1}
+
+/* FULLSCREEN BUTTON */
+#fullscreen-btn{position:fixed;top:10px;right:10px;z-index:9999;background:rgba(232,169,18,0.9);color:#060610;border:none;border-radius:8px;padding:8px 14px;font-family:var(--font-meme);font-size:16px;cursor:pointer;display:none;letter-spacing:1px;transition:all 0.2s}
+#fullscreen-btn:hover{background:var(--gold-bright);transform:scale(1.05)}
 </style>
+<link id="-gd-engine-icon" rel="icon" type="image/png" href="game-web/index.icon.png" />
 </head>
 <body>
 
@@ -82,76 +94,72 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-si
       <a href="https://www.satflow.com/runes/MEME%E2%80%A2BACKED%E2%80%A2CURRENCY" target="_blank">Satflow</a>
     </div>
 
-    <div class="status" id="status"></div>
+    <div class="status" id="status-verify"></div>
 
     <a href="index.html" class="back-link">← Back to Home</a>
   </div>
 </div>
 
-<!-- STEP 2: LOADING -->
-<div id="loading-screen">
-  <img src="assets/mbc-logo.jpg" alt="MBC" style="width:80px;height:80px;border-radius:50%;border:2px solid var(--gold)">
-  <div class="loading-text">Loading Tree Defence...</div>
-  <div class="loading-bar-bg"><div class="loading-bar" id="loadingBar"></div></div>
+<!-- STEP 2: CLICK TO START (unlocks audio) -->
+<div id="start-screen">
+  <img src="assets/mbc-logo.jpg" alt="MBC" style="width:120px;height:120px;border-radius:50%;border:3px solid var(--gold);box-shadow:0 0 60px rgba(232,169,18,0.4)">
+  <div class="start-btn">▶ PLAY</div>
+  <div class="start-hint">Click anywhere to start</div>
+  <div class="fullscreen-hint">Press F11 for fullscreen</div>
 </div>
 
 <!-- STEP 3: GAME -->
-<div id="game-container"></div>
+<canvas id="canvas">Your browser does not support the canvas tag.</canvas>
+<div id="status">
+  <img id="status-splash" src="game-web/index.png" alt="" style="max-height:100%;max-width:100%;margin:auto">
+  <progress id="status-progress"></progress>
+  <div id="status-notice"></div>
+</div>
+<button id="fullscreen-btn" onclick="toggleFullscreen()">⛶ Fullscreen</button>
 
 <script>
 const API_BASE = window.location.origin;
 
 function showStatus(type, html) {
-  const el = document.getElementById('status');
+  const el = document.getElementById('status-verify');
   el.className = 'status show ' + type;
   el.innerHTML = html;
 }
 
-// ─── Unisat Wallet ──────────────────────────────────────
+// ─── Wallet connections ─────────────────────────────────
 async function connectUnisat() {
   if (typeof window.unisat === 'undefined') {
-    showStatus('error', "Unisat wallet not detected. Install it from <a href='https://unisat.io' target='_blank' style='color:var(--gold)'>unisat.io</a>");
+    showStatus('error', "Unisat wallet not detected. Install from <a href='https://unisat.io' target='_blank' style='color:var(--gold)'>unisat.io</a>");
     return;
   }
   showStatus('loading', "<span class='spinner'></span> Connecting to Unisat...");
   try {
     const accounts = await window.unisat.requestAccounts();
-    if (accounts && accounts.length > 0) {
-      await verifyAddress(accounts[0]);
-    }
-  } catch (err) {
-    showStatus('error', 'Connection rejected: ' + (err.message || err));
-  }
+    if (accounts && accounts.length > 0) await verifyAddress(accounts[0]);
+  } catch (err) { showStatus('error', 'Connection rejected: ' + (err.message || err)); }
 }
 
-// ─── Xverse Wallet ──────────────────────────────────────
 async function connectXverse() {
   if (typeof window.XverseProviders === 'undefined' && typeof window.satsConnect === 'undefined') {
-    showStatus('error', "Xverse wallet not detected. Install it from <a href='https://www.xverse.app' target='_blank' style='color:var(--gold)'>xverse.app</a>");
+    showStatus('error', "Xverse not detected. Install from <a href='https://www.xverse.app' target='_blank' style='color:var(--gold)'>xverse.app</a>");
     return;
   }
   showStatus('loading', "<span class='spinner'></span> Connecting to Xverse...");
   try {
     const provider = window.XverseProviders?.BitcoinProvider || window.BitcoinProvider;
     if (provider) {
-      const response = await provider.request('getAccounts', {
-        purposes: ['ordinals', 'payment'],
-      });
+      const response = await provider.request('getAccounts', { purposes: ['ordinals', 'payment'] });
       if (response.result && response.result.length > 0) {
         const ordAddr = response.result.find(a => a.purpose === 'ordinals');
-        const addr = ordAddr ? ordAddr.address : response.result[0].address;
-        await verifyAddress(addr);
+        await verifyAddress(ordAddr ? ordAddr.address : response.result[0].address);
       }
     }
-  } catch (err) {
-    showStatus('error', 'Connection rejected: ' + (err.message || err));
-  }
+  } catch (err) { showStatus('error', 'Connection rejected: ' + (err.message || err)); }
 }
 
-// ─── Leather Wallet ─────────────────────────────────────
 async function connectLeather() {
   if (typeof window.LeatherProvider === 'undefined' && typeof window.btc === 'undefined') {
-    showStatus('error', "Leather wallet not detected. Install it from <a href='https://leather.io' target='_blank' style='color:var(--gold)'>leather.io</a>");
+    showStatus('error', "Leather not detected. Install from <a href='https://leather.io' target='_blank' style='color:var(--gold)'>leather.io</a>");
     return;
   }
   showStatus('loading', "<span class='spinner'></span> Connecting to Leather...");
@@ -160,102 +168,129 @@ async function connectLeather() {
     const response = await provider.request('getAddresses');
     if (response.result && response.result.addresses) {
       const taproot = response.result.addresses.find(a => a.type === 'p2tr');
-      const addr = taproot ? taproot.address : response.result.addresses[0].address;
-      await verifyAddress(addr);
+      await verifyAddress(taproot ? taproot.address : response.result.addresses[0].address);
     }
-  } catch (err) {
-    showStatus('error', 'Connection rejected: ' + (err.message || err));
-  }
+  } catch (err) { showStatus('error', 'Connection rejected: ' + (err.message || err)); }
 }
 
-// ─── Verify via server ──────────────────────────────────
+// ─── Verify balance ─────────────────────────────────────
 async function verifyAddress(address) {
   showStatus('loading', `<span class='spinner'></span> Checking MBC balance for ${address.slice(0,8)}...${address.slice(-6)}`);
-
   try {
-    // Create a quick session and complete in one flow
     const startRes = await fetch(`${API_BASE}/api/verify?action=start`, {
       method: 'POST', headers: {'Content-Type': 'application/json'}
     });
     const startData = await startRes.json();
-    const sessionId = startData.sessionId;
 
     const res = await fetch(`${API_BASE}/api/verify?action=complete`, {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ sessionId, address }),
+      body: JSON.stringify({ sessionId: startData.sessionId, address }),
     });
     const data = await res.json();
 
     if (data.verified) {
-      showStatus('success',
-        `<span class='big'>✓ Verified!</span>
-         ${address.slice(0,8)}...${address.slice(-6)} holds ${data.balance.toLocaleString()} MBC`
-      );
+      showStatus('success', `<span class='big'>✓ Verified!</span>${data.balance.toLocaleString()} MBC`);
       document.querySelectorAll('.wallet-btn').forEach(b => b.disabled = true);
-      // Launch game after short delay
-      setTimeout(() => launchGame(), 1500);
+      setTimeout(() => showStartScreen(), 1200);
     } else {
       showStatus('error',
         `<span class='big'>✗ Insufficient Balance</span>
          Found ${data.balance.toLocaleString()} MBC — need ${data.required.toLocaleString()}<br>
-         <br>Buy MBC on <a href="https://www.satflow.com/runes/MEME%E2%80%A2BACKED%E2%80%A2CURRENCY" target="_blank" style="color:var(--gold)">Satflow</a>`
-      );
+         <a href="https://www.satflow.com/runes/MEME%E2%80%A2BACKED%E2%80%A2CURRENCY" target="_blank" style="color:var(--gold)">Buy MBC on Satflow</a>`);
     }
-  } catch (err) {
-    showStatus('error', 'Server error: ' + (err.message || err));
+  } catch (err) { showStatus('error', 'Server error: ' + (err.message || err)); }
+}
+
+// ─── Show start screen ──────────────────────────────────
+function showStartScreen() {
+  document.getElementById('verify-screen').style.display = 'none';
+  document.getElementById('start-screen').style.display = 'flex';
+}
+
+// ─── Launch game (on click — unlocks audio) ─────────────
+document.getElementById('start-screen').addEventListener('click', function() {
+  document.getElementById('start-screen').style.display = 'none';
+  document.getElementById('canvas').style.display = 'block';
+  document.getElementById('fullscreen-btn').style.display = 'block';
+  loadGame();
+});
+
+// ─── Fullscreen ─────────────────────────────────────────
+function toggleFullscreen() {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen();
+  } else {
+    document.exitFullscreen();
   }
 }
-
-// ─── Launch game ────────────────────────────────────────
-function launchGame() {
-  document.getElementById('verify-screen').style.display = 'none';
-  document.getElementById('loading-screen').style.display = 'flex';
-
-  // Simulate loading progress
-  const bar = document.getElementById('loadingBar');
-  let progress = 0;
-  const loadInterval = setInterval(() => {
-    progress += Math.random() * 15;
-    if (progress > 90) progress = 90;
-    bar.style.width = progress + '%';
-  }, 200);
-
-  // Load game in iframe
-  const container = document.getElementById('game-container');
-  const iframe = document.createElement('iframe');
-  iframe.src = 'game-web/index.html';
-  iframe.allow = 'autoplay; fullscreen';
-  iframe.style.width = '100%';
-  iframe.style.height = '100%';
-  iframe.style.border = 'none';
-
-  iframe.onload = () => {
-    clearInterval(loadInterval);
-    bar.style.width = '100%';
-    setTimeout(() => {
-      document.getElementById('loading-screen').style.display = 'none';
-      container.style.display = 'block';
-      // Focus the iframe so keyboard input works
-      iframe.focus();
-    }, 500);
-  };
-
-  iframe.onerror = () => {
-    clearInterval(loadInterval);
-    document.getElementById('loading-screen').style.display = 'none';
-    document.getElementById('verify-screen').style.display = 'flex';
-    showStatus('error', 'Failed to load game. Please try refreshing the page.');
-  };
-
-  container.appendChild(iframe);
-}
-
-// Click anywhere on game container to re-focus iframe (for keyboard input)
-document.getElementById('game-container').addEventListener('click', () => {
-  const iframe = document.querySelector('#game-container iframe');
-  if (iframe) iframe.focus();
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'F11') { e.preventDefault(); toggleFullscreen(); }
 });
+
+// ─── Load Godot engine ──────────────────────────────────
+function loadGame() {
+  const script = document.createElement('script');
+  script.src = 'game-web/index.js';
+  script.onload = function() {
+    const GODOT_CONFIG = {
+      "args": [],
+      "canvasResizePolicy": 2,
+      "emscriptenPoolSize": 8,
+      "ensureCrossOriginIsolationHeaders": false,
+      "executable": "game-web/index",
+      "experimentalVK": false,
+      "fileSizes": {"game-web/index.pck":75157396,"game-web/index.wasm":37686550},
+      "focusCanvas": true,
+      "gdextensionLibs": [],
+      "godotPoolSize": 4
+    };
+    const GODOT_THREADS_ENABLED = false;
+    const engine = new Engine(GODOT_CONFIG);
+
+    const statusOverlay = document.getElementById('status');
+    const statusProgress = document.getElementById('status-progress');
+    const statusNotice = document.getElementById('status-notice');
+    let initializing = true;
+    let statusMode = '';
+
+    function setStatusMode(mode) {
+      if (statusMode === mode || !initializing) return;
+      if (mode === 'hidden') { statusOverlay.remove(); initializing = false; return; }
+      statusOverlay.style.visibility = 'visible';
+      statusProgress.style.display = mode === 'progress' ? 'block' : 'none';
+      statusNotice.style.display = mode === 'notice' ? 'block' : 'none';
+      statusMode = mode;
+    }
+
+    function displayFailureNotice(err) {
+      console.error(err);
+      const msg = err instanceof Error ? err.message : typeof err === 'string' ? err : 'An unknown error occurred.';
+      statusNotice.textContent = msg;
+      statusNotice.style.display = 'block';
+      setStatusMode('notice');
+      initializing = false;
+    }
+
+    setStatusMode('progress');
+    engine.startGame({
+      'onProgress': function(current, total) {
+        if (current > 0 && total > 0) {
+          statusProgress.value = current;
+          statusProgress.max = total;
+        } else {
+          statusProgress.removeAttribute('value');
+          statusProgress.removeAttribute('max');
+        }
+      },
+    }).then(() => {
+      setStatusMode('hidden');
+      // Focus canvas for keyboard input
+      document.getElementById('canvas').focus();
+    }, displayFailureNotice);
+  };
+  document.head.appendChild(script);
+}
 </script>
 </body>
 </html>
