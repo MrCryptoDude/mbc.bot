@@ -5,50 +5,101 @@
 		<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0">
 		<title>Tree Defence</title>
 		<style>
-html, body, #canvas { margin: 0; padding: 0; border: 0; }
-html, body { height: 100%; overflow: hidden; }
-body { color: white; background-color: black; touch-action: none; }
-#canvas { display: block; }
+html, body { margin: 0; padding: 0; border: 0; height: 100%; overflow: hidden; background: #000; }
+body { color: white; touch-action: none; }
+#canvas { display: block; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
 #canvas:focus { outline: none; }
-#status { position: absolute; left: 0; right: 0; top: 0; bottom: 0; background-color: #242424; display: flex; flex-direction: column; justify-content: center; align-items: center; visibility: hidden; }
-#status-splash { max-height: 100%; max-width: 100%; margin: auto; height: 100%; width: 100%; object-fit: contain; }
-#status-progress { display: none; position: absolute; bottom: 10%; width: 50%; margin: 0 auto; left: 25%; }
-#status-notice { display: none; background-color: #5b3943; border-radius: 0.5rem; border: 1px solid #9b3943; color: #e0e0e0; font-family: Arial, sans-serif; line-height: 1.3; margin: 0 2rem; padding: 1rem; text-align: center; z-index: 1; }
+
 #click-overlay {
-	position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 9999;
+	position: fixed; top: 0; left: 0; right: 0; bottom: 0;
 	background: #0a0a14; display: flex; flex-direction: column;
-	align-items: center; justify-content: center; gap: 20px; cursor: pointer;
+	align-items: center; justify-content: center;
+	gap: 20px; cursor: pointer; z-index: 9999; user-select: none;
 }
-#click-overlay:hover .play-btn { background: #ffd04a; }
-.play-btn { font-size: 32px; font-weight: 700; color: #0a0a14; background: #e8a912; padding: 18px 56px; border-radius: 14px; }
-.hint { font-size: 14px; color: #787470; font-family: monospace; }
+#click-overlay:hover .play-btn { background: #ffd04a; transform: scale(1.05); }
+.play-btn {
+	font-family: Arial, sans-serif; font-size: 32px; font-weight: 700;
+	color: #0a0a14; background: #e8a912;
+	padding: 18px 56px; border-radius: 14px; letter-spacing: 3px;
+	box-shadow: 0 4px 30px rgba(232,169,18,0.4); transition: all 0.3s;
+}
+.start-hint { font-size: 14px; color: #787470; letter-spacing: 1px; font-family: monospace; }
+.start-logo { width: 100px; height: 100px; border-radius: 50%; border: 3px solid #e8a912; }
+
+#status {
+	position: absolute; left: 0; right: 0; top: 0; bottom: 0;
+	background-color: #242424; display: flex; flex-direction: column;
+	justify-content: center; align-items: center; visibility: hidden;
+}
+#status-splash { max-height: 100%; max-width: 100%; margin: auto; }
+#status-progress { display: none; position: absolute; bottom: 10%; width: 50%; margin: 0 auto; left: 25%; }
+#status-notice {
+	display: none; background-color: #5b3943; border-radius: 0.5rem;
+	border: 1px solid #9b3943; color: #e0e0e0;
+	font-family: Arial, sans-serif; line-height: 1.3;
+	margin: 0 2rem; padding: 1rem; text-align: center; z-index: 1;
+}
 		</style>
 		<link rel="icon" type="image/png" href="index.icon.png" />
 	</head>
 	<body>
 		<div id="click-overlay" onclick="startGame()">
+			<img src="../assets/mbc-logo.jpg" alt="MBC" class="start-logo" onerror="this.style.display='none'">
 			<div class="play-btn">▶ PLAY</div>
-			<div class="hint">Click to start</div>
+			<div class="start-hint">Click to start (enables sound)</div>
+			<div class="start-hint">Press F11 for fullscreen</div>
 		</div>
+
 		<canvas id="canvas"></canvas>
 		<div id="status">
-			<img id="status-splash" src="index.png" alt="">
+			<img id="status-splash" src="index.png" alt="" style="max-height:100%;max-width:100%;margin:auto">
 			<progress id="status-progress"></progress>
 			<div id="status-notice"></div>
 		</div>
+
 		<script src="index.js"></script>
 		<script>
+// ─── Canvas sizing — 16:9 ratio, centered on black bg ────
+function resizeCanvas() {
+	var canvas = document.getElementById('canvas');
+	var ww = window.innerWidth;
+	var wh = window.innerHeight;
+	var ratio = 1280 / 720;
+	var winRatio = ww / wh;
+	var cw, ch;
+	if (winRatio > ratio) { ch = wh; cw = wh * ratio; }
+	else { cw = ww; ch = ww / ratio; }
+	var dpr = window.devicePixelRatio || 1;
+	canvas.style.width = cw + 'px';
+	canvas.style.height = ch + 'px';
+	canvas.width = Math.round(cw * dpr);
+	canvas.height = Math.round(ch * dpr);
+}
+window.addEventListener('resize', resizeCanvas);
+document.addEventListener('fullscreenchange', function() { setTimeout(resizeCanvas, 100); });
+
+// ─── F11 fullscreen ─────────────────────────────────────
+document.addEventListener('keydown', function(e) {
+	if (e.key === 'F11') {
+		e.preventDefault();
+		if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+		else document.exitFullscreen();
+	}
+});
+
+// ─── Start game on click ────────────────────────────────
 function startGame() {
 	document.getElementById('click-overlay').remove();
+	resizeCanvas();
 
-	const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":75157396,"index.wasm":37686550},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
-	const engine = new Engine(GODOT_CONFIG);
+	var GODOT_CONFIG = {"args":[],"canvasResizePolicy":0,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":75157396,"index.wasm":37686550},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
+	var engine = new Engine(GODOT_CONFIG);
 
-	const statusOverlay = document.getElementById('status');
-	const statusProgress = document.getElementById('status-progress');
-	const statusNotice = document.getElementById('status-notice');
-	let initializing = true;
-	let statusMode = '';
+	var statusOverlay = document.getElementById('status');
+	var statusProgress = document.getElementById('status-progress');
+	var statusNotice = document.getElementById('status-notice');
+	var initializing = true;
+	var statusMode = '';
 
 	function setStatusMode(mode) {
 		if (statusMode === mode || !initializing) return;
@@ -70,27 +121,28 @@ function startGame() {
 		initializing = false;
 	}
 
-	const missing = Engine.getMissingFeatures({ threads: false });
+	var missing = Engine.getMissingFeatures({ threads: false });
 	if (missing.length !== 0) {
 		if (GODOT_CONFIG['ensureCrossOriginIsolationHeaders'] && 'serviceWorker' in navigator) {
-			navigator.serviceWorker.getRegistration().then((registration) => {
+			navigator.serviceWorker.getRegistration().then(function(registration) {
 				if (registration != null) return Promise.reject(new Error('exists'));
 				return engine.installServiceWorker();
-			}).then(() => {
+			}).then(function() {
 				window.location.reload();
-			}).catch(() => {});
+			}).catch(function() {});
 		} else {
 			displayFailureNotice(new Error('Missing: ' + missing.join(', ')));
 		}
 	} else {
 		setStatusMode('progress');
 		engine.startGame({
-			'onProgress': function (current, total) {
+			'onProgress': function(current, total) {
 				if (current > 0 && total > 0) { statusProgress.value = current; statusProgress.max = total; }
 				else { statusProgress.removeAttribute('value'); statusProgress.removeAttribute('max'); }
 			},
-		}).then(() => {
+		}).then(function() {
 			setStatusMode('hidden');
+			document.getElementById('canvas').focus();
 		}, displayFailureNotice);
 	}
 }
