@@ -18,10 +18,10 @@
   --font-mono:'JetBrains Mono',monospace;
 }
 html,body{height:100%;overflow:hidden}
-body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:17px;touch-action:none}
+body{background:#000;color:var(--text);font-family:var(--font-body);font-size:17px;touch-action:none}
 
 /* VERIFY SCREEN */
-#verify-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+#verify-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;background:var(--bg)}
 .card{background:var(--bg2);border:1px solid rgba(232,169,18,0.15);border-radius:20px;padding:48px;max-width:480px;width:100%;text-align:center;position:relative;overflow:hidden}
 .card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
 .card-logo{width:100px;height:100px;border-radius:50%;border:3px solid var(--gold);box-shadow:0 0 40px rgba(232,169,18,0.3);margin-bottom:20px}
@@ -45,26 +45,22 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-si
 .back-link{display:inline-block;margin-top:20px;color:var(--text-dim);text-decoration:none;font-size:14px;transition:color 0.2s}
 .back-link:hover{color:var(--gold)}
 
-/* START SCREEN (after verification) */
-#start-screen{display:none;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:24px;cursor:pointer;user-select:none}
+/* START SCREEN */
+#start-screen{display:none;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:24px;cursor:pointer;user-select:none;background:var(--bg)}
 #start-screen:hover .start-btn{background:var(--gold-bright);box-shadow:0 8px 40px rgba(232,169,18,0.5);transform:scale(1.05)}
 .start-btn{font-family:var(--font-meme);font-size:36px;color:var(--bg);background:var(--gold);padding:20px 60px;border-radius:16px;letter-spacing:4px;box-shadow:0 4px 30px rgba(232,169,18,0.3);transition:all 0.3s}
 .start-hint{font-family:var(--font-mono);font-size:13px;color:var(--text-dim);letter-spacing:1px}
-.fullscreen-hint{font-family:var(--font-mono);font-size:12px;color:var(--text-dim);letter-spacing:1px;margin-top:8px}
 
-/* GAME CANVAS */
-#canvas{display:none;margin:0;padding:0;border:0;width:100vw !important;height:100vh !important}
+/* GAME WRAPPER — maintains 16:9 centered on black bg */
+#game-wrapper{display:none;width:100vw;height:100vh;background:#000;position:relative;overflow:hidden}
+#canvas{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)}
 #canvas:focus{outline:none}
 
 /* Godot status overlay */
-#status{position:absolute;left:0;right:0;top:0;bottom:0;background-color:#242424;display:flex;flex-direction:column;justify-content:center;align-items:center;visibility:hidden}
+#status-godot{position:absolute;left:0;right:0;top:0;bottom:0;background-color:#242424;display:flex;flex-direction:column;justify-content:center;align-items:center;visibility:hidden;z-index:10}
 #status-splash{max-height:100%;max-width:100%;margin:auto}
 #status-progress{display:none;position:absolute;bottom:10%;width:50%;margin:0 auto;left:25%}
 #status-notice{display:none;background-color:#5b3943;border-radius:0.5rem;border:1px solid #9b3943;color:#e0e0e0;font-family:'Noto Sans',Arial,sans-serif;line-height:1.3;margin:0 2rem;padding:1rem;text-align:center;z-index:1}
-
-/* FULLSCREEN BUTTON */
-#fullscreen-btn{position:fixed;top:10px;right:10px;z-index:9999;background:rgba(232,169,18,0.9);color:#060610;border:none;border-radius:8px;padding:8px 14px;font-family:var(--font-meme);font-size:16px;cursor:pointer;display:none;letter-spacing:1px;transition:all 0.2s}
-#fullscreen-btn:hover{background:var(--gold-bright);transform:scale(1.05)}
 </style>
 <link id="-gd-engine-icon" rel="icon" type="image/png" href="game-web/index.icon.png" />
 </head>
@@ -76,7 +72,6 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-si
     <img src="assets/mbc-logo.jpg" alt="MBC" class="card-logo">
     <h1>Tree Defence</h1>
     <p class="subtitle">Connect your wallet to verify 1,000 MBC and play in your browser</p>
-
     <div class="wallet-buttons">
       <button class="wallet-btn" id="btn-unisat" onclick="connectUnisat()">
         <span class="icon">🟧</span> Connect Unisat
@@ -88,34 +83,31 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-si
         <span class="icon">🟫</span> Connect Leather
       </button>
     </div>
-
     <div class="requirement">
-      🔒 Requires 1,000 MBC in your wallet. Buy on
-      <a href="https://www.satflow.com/runes/MEME%E2%80%A2BACKED%E2%80%A2CURRENCY" target="_blank">Satflow</a>
+      🔒 Requires 1,000 MBC. Buy on <a href="https://www.satflow.com/runes/MEME%E2%80%A2BACKED%E2%80%A2CURRENCY" target="_blank">Satflow</a>
     </div>
-
     <div class="status" id="status-verify"></div>
-
     <a href="index.html" class="back-link">← Back to Home</a>
   </div>
 </div>
 
-<!-- STEP 2: CLICK TO START (unlocks audio) -->
+<!-- STEP 2: CLICK TO START -->
 <div id="start-screen">
   <img src="assets/mbc-logo.jpg" alt="MBC" style="width:120px;height:120px;border-radius:50%;border:3px solid var(--gold);box-shadow:0 0 60px rgba(232,169,18,0.4)">
   <div class="start-btn">▶ PLAY</div>
-  <div class="start-hint">Click anywhere to start</div>
-  <div class="fullscreen-hint">Press F11 for fullscreen</div>
+  <div class="start-hint">Click anywhere to start (enables sound)</div>
+  <div class="start-hint" style="margin-top:4px">Press F11 for fullscreen</div>
 </div>
 
 <!-- STEP 3: GAME -->
-<canvas id="canvas">Your browser does not support the canvas tag.</canvas>
-<div id="status">
-  <img id="status-splash" src="game-web/index.png" alt="" style="max-height:100%;max-width:100%;margin:auto">
-  <progress id="status-progress"></progress>
-  <div id="status-notice"></div>
+<div id="game-wrapper">
+  <canvas id="canvas">Your browser does not support the canvas tag.</canvas>
+  <div id="status-godot">
+    <img id="status-splash" src="game-web/index.png" alt="">
+    <progress id="status-progress"></progress>
+    <div id="status-notice"></div>
+  </div>
 </div>
-<button id="fullscreen-btn" onclick="toggleFullscreen()">⛶ Fullscreen</button>
 
 <script>
 const API_BASE = window.location.origin;
@@ -129,14 +121,14 @@ function showStatus(type, html) {
 // ─── Wallet connections ─────────────────────────────────
 async function connectUnisat() {
   if (typeof window.unisat === 'undefined') {
-    showStatus('error', "Unisat wallet not detected. Install from <a href='https://unisat.io' target='_blank' style='color:var(--gold)'>unisat.io</a>");
+    showStatus('error', "Unisat not detected. Install from <a href='https://unisat.io' target='_blank' style='color:var(--gold)'>unisat.io</a>");
     return;
   }
   showStatus('loading', "<span class='spinner'></span> Connecting to Unisat...");
   try {
     const accounts = await window.unisat.requestAccounts();
     if (accounts && accounts.length > 0) await verifyAddress(accounts[0]);
-  } catch (err) { showStatus('error', 'Connection rejected: ' + (err.message || err)); }
+  } catch (err) { showStatus('error', 'Rejected: ' + (err.message || err)); }
 }
 
 async function connectXverse() {
@@ -154,7 +146,7 @@ async function connectXverse() {
         await verifyAddress(ordAddr ? ordAddr.address : response.result[0].address);
       }
     }
-  } catch (err) { showStatus('error', 'Connection rejected: ' + (err.message || err)); }
+  } catch (err) { showStatus('error', 'Rejected: ' + (err.message || err)); }
 }
 
 async function connectLeather() {
@@ -170,10 +162,9 @@ async function connectLeather() {
       const taproot = response.result.addresses.find(a => a.type === 'p2tr');
       await verifyAddress(taproot ? taproot.address : response.result.addresses[0].address);
     }
-  } catch (err) { showStatus('error', 'Connection rejected: ' + (err.message || err)); }
+  } catch (err) { showStatus('error', 'Rejected: ' + (err.message || err)); }
 }
 
-// ─── Verify balance ─────────────────────────────────────
 async function verifyAddress(address) {
   showStatus('loading', `<span class='spinner'></span> Checking MBC balance for ${address.slice(0,8)}...${address.slice(-6)}`);
   try {
@@ -181,14 +172,12 @@ async function verifyAddress(address) {
       method: 'POST', headers: {'Content-Type': 'application/json'}
     });
     const startData = await startRes.json();
-
     const res = await fetch(`${API_BASE}/api/verify?action=complete`, {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({ sessionId: startData.sessionId, address }),
     });
     const data = await res.json();
-
     if (data.verified) {
       showStatus('success', `<span class='big'>✓ Verified!</span>${data.balance.toLocaleString()} MBC`);
       document.querySelectorAll('.wallet-btn').forEach(b => b.disabled = true);
@@ -202,30 +191,67 @@ async function verifyAddress(address) {
   } catch (err) { showStatus('error', 'Server error: ' + (err.message || err)); }
 }
 
-// ─── Show start screen ──────────────────────────────────
 function showStartScreen() {
   document.getElementById('verify-screen').style.display = 'none';
   document.getElementById('start-screen').style.display = 'flex';
 }
 
-// ─── Launch game (on click — unlocks audio) ─────────────
+// ─── CLICK TO START — unlocks audio ─────────────────────
 document.getElementById('start-screen').addEventListener('click', function() {
+  // Create and resume AudioContext BEFORE loading game (unlocks browser audio)
+  try {
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    // Create a silent buffer and play it to fully unlock audio
+    const buffer = audioCtx.createBuffer(1, 1, 22050);
+    const source = audioCtx.createBufferSource();
+    source.buffer = buffer;
+    source.connect(audioCtx.destination);
+    source.start(0);
+  } catch(e) { console.log('Audio unlock attempt:', e); }
+
   document.getElementById('start-screen').style.display = 'none';
-  document.getElementById('canvas').style.display = 'block';
-  document.getElementById('fullscreen-btn').style.display = 'block';
+  document.getElementById('game-wrapper').style.display = 'block';
+  resizeCanvas();
   loadGame();
 });
 
-// ─── Fullscreen ─────────────────────────────────────────
-function toggleFullscreen() {
-  if (!document.fullscreenElement) {
-    document.documentElement.requestFullscreen();
+// ─── Canvas sizing — 16:9 ratio, centered, no grey ──────
+function resizeCanvas() {
+  const canvas = document.getElementById('canvas');
+  const ww = window.innerWidth;
+  const wh = window.innerHeight;
+  const gameRatio = 1280 / 720;
+  const windowRatio = ww / wh;
+  let cw, ch;
+  if (windowRatio > gameRatio) {
+    // Window is wider — fit to height, black bars on sides
+    ch = wh;
+    cw = wh * gameRatio;
   } else {
-    document.exitFullscreen();
+    // Window is taller — fit to width, black bars top/bottom
+    cw = ww;
+    ch = ww / gameRatio;
   }
+  canvas.style.width = cw + 'px';
+  canvas.style.height = ch + 'px';
+  canvas.width = 1280;
+  canvas.height = 720;
 }
+window.addEventListener('resize', () => {
+  if (document.getElementById('game-wrapper').style.display === 'block') resizeCanvas();
+});
+
+// ─── Fullscreen on F11 ──────────────────────────────────
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'F11') { e.preventDefault(); toggleFullscreen(); }
+  if (e.key === 'F11') {
+    e.preventDefault();
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+    else document.exitFullscreen();
+  }
+});
+document.addEventListener('fullscreenchange', () => {
+  setTimeout(resizeCanvas, 100);
 });
 
 // ─── Load Godot engine ──────────────────────────────────
@@ -235,7 +261,7 @@ function loadGame() {
   script.onload = function() {
     const GODOT_CONFIG = {
       "args": [],
-      "canvasResizePolicy": 2,
+      "canvasResizePolicy": 0,
       "emscriptenPoolSize": 8,
       "ensureCrossOriginIsolationHeaders": false,
       "executable": "game-web/index",
@@ -245,10 +271,9 @@ function loadGame() {
       "gdextensionLibs": [],
       "godotPoolSize": 4
     };
-    const GODOT_THREADS_ENABLED = false;
     const engine = new Engine(GODOT_CONFIG);
 
-    const statusOverlay = document.getElementById('status');
+    const statusOverlay = document.getElementById('status-godot');
     const statusProgress = document.getElementById('status-progress');
     const statusNotice = document.getElementById('status-notice');
     let initializing = true;
@@ -285,8 +310,13 @@ function loadGame() {
       },
     }).then(() => {
       setStatusMode('hidden');
-      // Focus canvas for keyboard input
       document.getElementById('canvas').focus();
+      // Try resuming audio context again after engine loads
+      try {
+        if (window.GodotAudio && window.GodotAudio.ctx) {
+          window.GodotAudio.ctx.resume();
+        }
+      } catch(e) {}
     }, displayFailureNotice);
   };
   document.head.appendChild(script);
