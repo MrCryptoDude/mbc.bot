@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Play Tree Defence — MEME•BACKED•CURRENCY</title>
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Chakra+Petch:wght@400;600;700&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#060610;--bg2:#0c0c1a;
+  --gold:#e8a912;--gold-bright:#ffd04a;--gold-dim:#a07208;
+  --red:#e83a3a;--green:#2ade6a;--white:#eee8e0;
+  --text:#c8c4bc;--text-dim:#787470;
+  --font-display:'Chakra Petch',sans-serif;
+  --font-meme:'Bangers',cursive;
+  --font-body:'Rajdhani',sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);font-size:17px}
+
+/* VERIFY SCREEN */
+#verify-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+.card{background:var(--bg2);border:1px solid rgba(232,169,18,0.15);border-radius:20px;padding:48px;max-width:480px;width:100%;text-align:center;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.card-logo{width:100px;height:100px;border-radius:50%;border:3px solid var(--gold);box-shadow:0 0 40px rgba(232,169,18,0.3);margin-bottom:20px}
+.card h1{font-family:var(--font-meme);font-size:32px;color:var(--white);margin-bottom:6px;letter-spacing:2px}
+.card .subtitle{color:var(--text-dim);font-size:16px;margin-bottom:32px}
+.wallet-buttons{display:flex;flex-direction:column;gap:12px;margin-bottom:20px}
+.wallet-btn{display:flex;align-items:center;justify-content:center;gap:12px;padding:14px 24px;border-radius:10px;font-family:var(--font-meme);font-size:18px;letter-spacing:1px;cursor:pointer;border:2px solid rgba(232,169,18,0.2);background:rgba(232,169,18,0.05);color:var(--gold);transition:all 0.2s}
+.wallet-btn:hover{border-color:var(--gold);background:rgba(232,169,18,0.12);transform:translateY(-2px)}
+.wallet-btn:disabled{opacity:0.4;cursor:not-allowed;transform:none}
+.wallet-btn .icon{font-size:22px}
+.status{margin-top:20px;padding:16px;border-radius:10px;font-size:15px;display:none}
+.status.show{display:block}
+.status.loading{background:rgba(232,169,18,0.08);border:1px solid rgba(232,169,18,0.2);color:var(--gold)}
+.status.success{background:rgba(42,222,106,0.08);border:1px solid rgba(42,222,106,0.3);color:var(--green)}
+.status.error{background:rgba(232,58,58,0.08);border:1px solid rgba(232,58,58,0.3);color:var(--red)}
+.status .big{font-family:var(--font-meme);font-size:24px;display:block;margin-bottom:4px;letter-spacing:1px}
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--gold-dim);border-top-color:var(--gold);border-radius:50%;animation:spin 0.8s linear infinite;margin-right:8px;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+.requirement{margin-top:20px;padding:12px;background:rgba(232,169,18,0.04);border-left:3px solid var(--gold-dim);border-radius:0 6px 6px 0;font-family:var(--font-mono);font-size:13px;color:var(--text-dim);text-align:left}
+.requirement a{color:var(--gold)}
+.back-link{display:inline-block;margin-top:20px;color:var(--text-dim);text-decoration:none;font-size:14px;transition:color 0.2s}
+.back-link:hover{color:var(--gold)}
+
+/* LOADING SCREEN */
+#loading-screen{display:none;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:20px}
+#loading-screen .loading-text{font-family:var(--font-meme);font-size:28px;color:var(--gold);letter-spacing:3px}
+.loading-bar-bg{width:300px;height:8px;background:rgba(232,169,18,0.1);border-radius:4px;overflow:hidden}
+.loading-bar{height:100%;width:0%;background:linear-gradient(90deg,var(--gold),var(--gold-bright));border-radius:4px;transition:width 0.3s}
+
+/* GAME CONTAINER */
+#game-container{display:none;width:100vw;height:100vh}
+#game-container iframe,#game-container canvas{width:100%;height:100%;border:none}
+</style>
+</head>
+<body>
+
+<!-- STEP 1: WALLET VERIFICATION -->
+<div id="verify-screen">
+  <div class="card">
+    <img src="assets/mbc-logo.jpg" alt="MBC" class="card-logo">
+    <h1>Tree Defence</h1>
+    <p class="subtitle">Connect your wallet to verify 1,000 MBC and play in your browser</p>
+
+    <div class="wallet-buttons">
+      <button class="wallet-btn" id="btn-unisat" onclick="connectUnisat()">
+        <span class="icon">🟧</span> Connect Unisat
+      </button>
+      <button class="wallet-btn" id="btn-xverse" onclick="connectXverse()">
+        <span class="icon">🟦</span> Connect Xverse
+      </button>
+      <button class="wallet-btn" id="btn-leather" onclick="connectLeather()">
+        <span class="icon">🟫</span> Connect Leather
+      </button>
+    </div>
+
+    <div class="requirement">
+      🔒 Requires 1,000 MBC in your wallet. Buy on
+      <a href="https://www.satflow.com/runes/MEME%E2%80%A2BACKED%E2%80%A2CURRENCY" target="_blank">Satflow</a>
+    </div>
+
+    <div class="status" id="status"></div>
+
+    <a href="index.html" class="back-link">← Back to Home</a>
+  </div>
+</div>
+
+<!-- STEP 2: LOADING -->
+<div id="loading-screen">
+  <img src="assets/mbc-logo.jpg" alt="MBC" style="width:80px;height:80px;border-radius:50%;border:2px solid var(--gold)">
+  <div class="loading-text">Loading Tree Defence...</div>
+  <div class="loading-bar-bg"><div class="loading-bar" id="loadingBar"></div></div>
+</div>
+
+<!-- STEP 3: GAME -->
+<div id="game-container"></div>
+
+<script>
+const API_BASE = window.location.origin;
+
+function showStatus(type, html) {
+  const el = document.getElementById('status');
+  el.className = 'status show ' + type;
+  el.innerHTML = html;
+}
+
+// ─── Unisat Wallet ──────────────────────────────────────
+async function connectUnisat() {
+  if (typeof window.unisat === 'undefined') {
+    showStatus('error', "Unisat wallet not detected. Install it from <a href='https://unisat.io' target='_blank' style='color:var(--gold)'>unisat.io</a>");
+    return;
+  }
+  showStatus('loading', "<span class='spinner'></span> Connecting to Unisat...");
+  try {
+    const accounts = await window.unisat.requestAccounts();
+    if (accounts && accounts.length > 0) {
+      await verifyAddress(accounts[0]);
+    }
+  } catch (err) {
+    showStatus('error', 'Connection rejected: ' + (err.message || err));
+  }
+}
+
+// ─── Xverse Wallet ──────────────────────────────────────
+async function connectXverse() {
+  if (typeof window.XverseProviders === 'undefined' && typeof window.satsConnect === 'undefined') {
+    showStatus('error', "Xverse wallet not detected. Install it from <a href='https://www.xverse.app' target='_blank' style='color:var(--gold)'>xverse.app</a>");
+    return;
+  }
+  showStatus('loading', "<span class='spinner'></span> Connecting to Xverse...");
+  try {
+    const provider = window.XverseProviders?.BitcoinProvider || window.BitcoinProvider;
+    if (provider) {
+      const response = await provider.request('getAccounts', {
+        purposes: ['ordinals', 'payment'],
+      });
+      if (response.result && response.result.length > 0) {
+        const ordAddr = response.result.find(a => a.purpose === 'ordinals');
+        const addr = ordAddr ? ordAddr.address : response.result[0].address;
+        await verifyAddress(addr);
+      }
+    }
+  } catch (err) {
+    showStatus('error', 'Connection rejected: ' + (err.message || err));
+  }
+}
+
+// ─── Leather Wallet ─────────────────────────────────────
+async function connectLeather() {
+  if (typeof window.LeatherProvider === 'undefined' && typeof window.btc === 'undefined') {
+    showStatus('error', "Leather wallet not detected. Install it from <a href='https://leather.io' target='_blank' style='color:var(--gold)'>leather.io</a>");
+    return;
+  }
+  showStatus('loading', "<span class='spinner'></span> Connecting to Leather...");
+  try {
+    const provider = window.LeatherProvider || window.btc;
+    const response = await provider.request('getAddresses');
+    if (response.result && response.result.addresses) {
+      const taproot = response.result.addresses.find(a => a.type === 'p2tr');
+      const addr = taproot ? taproot.address : response.result.addresses[0].address;
+      await verifyAddress(addr);
+    }
+  } catch (err) {
+    showStatus('error', 'Connection rejected: ' + (err.message || err));
+  }
+}
+
+// ─── Verify via server ──────────────────────────────────
+async function verifyAddress(address) {
+  showStatus('loading', `<span class='spinner'></span> Checking MBC balance for ${address.slice(0,8)}...${address.slice(-6)}`);
+
+  try {
+    // Create a quick session and complete in one flow
+    const startRes = await fetch(`${API_BASE}/api/verify?action=start`, {
+      method: 'POST', headers: {'Content-Type': 'application/json'}
+    });
+    const startData = await startRes.json();
+    const sessionId = startData.sessionId;
+
+    const res = await fetch(`${API_BASE}/api/verify?action=complete`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ sessionId, address }),
+    });
+    const data = await res.json();
+
+    if (data.verified) {
+      showStatus('success',
+        `<span class='big'>✓ Verified!</span>
+         ${address.slice(0,8)}...${address.slice(-6)} holds ${data.balance.toLocaleString()} MBC`
+      );
+      document.querySelectorAll('.wallet-btn').forEach(b => b.disabled = true);
+      // Launch game after short delay
+      setTimeout(() => launchGame(), 1500);
+    } else {
+      showStatus('error',
+        `<span class='big'>✗ Insufficient Balance</span>
+         Found ${data.balance.toLocaleString()} MBC — need ${data.required.toLocaleString()}<br>
+         <br>Buy MBC on <a href="https://www.satflow.com/runes/MEME%E2%80%A2BACKED%E2%80%A2CURRENCY" target="_blank" style="color:var(--gold)">Satflow</a>`
+      );
+    }
+  } catch (err) {
+    showStatus('error', 'Server error: ' + (err.message || err));
+  }
+}
+
+// ─── Launch game ────────────────────────────────────────
+function launchGame() {
+  document.getElementById('verify-screen').style.display = 'none';
+  document.getElementById('loading-screen').style.display = 'flex';
+
+  // Simulate loading progress
+  const bar = document.getElementById('loadingBar');
+  let progress = 0;
+  const loadInterval = setInterval(() => {
+    progress += Math.random() * 15;
+    if (progress > 90) progress = 90;
+    bar.style.width = progress + '%';
+  }, 200);
+
+  // Load game in iframe
+  const container = document.getElementById('game-container');
+  const iframe = document.createElement('iframe');
+  iframe.src = 'game-web/index.html';
+  iframe.allow = 'autoplay; fullscreen';
+  iframe.style.width = '100%';
+  iframe.style.height = '100%';
+  iframe.style.border = 'none';
+
+  iframe.onload = () => {
+    clearInterval(loadInterval);
+    bar.style.width = '100%';
+    setTimeout(() => {
+      document.getElementById('loading-screen').style.display = 'none';
+      container.style.display = 'block';
+      // Focus the iframe so keyboard input works
+      iframe.focus();
+    }, 500);
+  };
+
+  iframe.onerror = () => {
+    clearInterval(loadInterval);
+    document.getElementById('loading-screen').style.display = 'none';
+    document.getElementById('verify-screen').style.display = 'flex';
+    showStatus('error', 'Failed to load game. Please try refreshing the page.');
+  };
+
+  container.appendChild(iframe);
+}
+
+// Click anywhere on game container to re-focus iframe (for keyboard input)
+document.getElementById('game-container').addEventListener('click', () => {
+  const iframe = document.querySelector('#game-container iframe');
+  if (iframe) iframe.focus();
+});
+</script>
+</body>
+</html>
