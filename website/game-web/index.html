@@ -102,7 +102,7 @@ document.addEventListener('keydown', (e) => {
 	if (e.key === 'F11') { e.preventDefault(); if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); }
 });
 
-// ─── Monitor AudioContext state ─────────────────────────
+// ─── Monitor AudioContext + AudioWorklet ─────────────────
 const OrigAudioContext = window.AudioContext || window.webkitAudioContext;
 const allContexts = [];
 if (OrigAudioContext) {
@@ -114,10 +114,29 @@ if (OrigAudioContext) {
 		ctx.addEventListener('statechange', () => {
 			logAudio('AudioContext statechange → ' + ctx.state);
 		});
+		// Intercept AudioWorklet.addModule to track worklet loading
+		if (ctx.audioWorklet) {
+			const origAddModule = ctx.audioWorklet.addModule.bind(ctx.audioWorklet);
+			ctx.audioWorklet.addModule = function(url, ...rest) {
+				logAudio('AudioWorklet.addModule called: ' + url);
+				return origAddModule(url, ...rest).then((result) => {
+					logAudio('AudioWorklet loaded OK: ' + url);
+					return result;
+				}).catch((err) => {
+					logAudio('AudioWorklet FAILED: ' + url + ' → ' + err.message);
+					throw err;
+				});
+			};
+		} else {
+			logAudio('WARNING: No audioWorklet on context!');
+		}
+		// Track AudioNode creation
+		const origCreateGain = ctx.createGain.bind(ctx);
+		let nodeCount = 0;
+		ctx.createGain = function(...a) { nodeCount++; if(nodeCount<=3) logAudio('createGain #'+nodeCount); return origCreateGain(...a); };
 		return ctx;
 	};
 	window.AudioContext.prototype = OrigConstructor.prototype;
-	// Copy static methods
 	Object.keys(OrigConstructor).forEach(key => { window.AudioContext[key] = OrigConstructor[key]; });
 	if (window.webkitAudioContext) window.webkitAudioContext = window.AudioContext;
 }
