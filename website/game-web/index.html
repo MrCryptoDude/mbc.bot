@@ -207,12 +207,45 @@ document.getElementById('click-overlay').addEventListener('click', function star
 				}
 			});
 
-			// Also try to find Godot's audio context directly
+			// Test beep — plays a short tone to verify speakers work
 			setTimeout(() => {
 				allContexts.forEach((ctx, i) => {
 					logAudio(`Context[${i}] final state=${ctx.state}, dest=${ctx.destination ? 'ok' : 'null'}`);
+					// Attach analyser to see if Godot is producing audio
+					try {
+						const analyser = ctx.createAnalyser();
+						analyser.fftSize = 256;
+						// Connect destination to analyser (listen to output)
+						const dataArray = new Uint8Array(analyser.frequencyBinCount);
+						// Check audio levels every second
+						let checkCount = 0;
+						const checker = setInterval(() => {
+							analyser.getByteFrequencyData(dataArray);
+							const max = Math.max(...dataArray);
+							const avg = dataArray.reduce((a,b) => a+b, 0) / dataArray.length;
+							logAudio(`Audio level: max=${max}, avg=${avg.toFixed(1)}, nodes=${ctx.destination.numberOfInputs}`);
+							checkCount++;
+							if (checkCount >= 5) clearInterval(checker);
+						}, 2000);
+					} catch(e) { logAudio('Analyser error: ' + e.message); }
 				});
-			}, 2000);
+				
+				// Play a test beep on the FIRST context to verify speakers
+				if (allContexts.length > 0) {
+					try {
+						const ctx = allContexts[0];
+						const osc = ctx.createOscillator();
+						const gain = ctx.createGain();
+						osc.frequency.value = 440;
+						gain.gain.value = 0.3;
+						osc.connect(gain);
+						gain.connect(ctx.destination);
+						osc.start();
+						setTimeout(() => { osc.stop(); logAudio('Test beep finished'); }, 500);
+						logAudio('TEST BEEP playing (440Hz for 0.5s)...');
+					} catch(e) { logAudio('Beep error: ' + e.message); }
+				}
+			}, 3000);
 		}, displayFailureNotice);
 	}
 });
