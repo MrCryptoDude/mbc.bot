@@ -4,13 +4,6 @@
   "framework": null,
   "headers": [
     {
-      "source": "/game-web/(.*)",
-      "headers": [
-        { "key": "Cross-Origin-Opener-Policy", "value": "same-origin" },
-        { "key": "Cross-Origin-Embedder-Policy", "value": "require-corp" }
-      ]
-    },
-    {
       "source": "/api/(.*)",
       "headers": [
         { "key": "Access-Control-Allow-Origin", "value": "*" },

@@ -5,100 +5,16 @@
 		<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0">
 		<title>Tree Defence</title>
 		<style>
-html, body, #canvas {
-	margin: 0;
-	padding: 0;
-	border: 0;
-}
+html, body { margin: 0; padding: 0; border: 0; height: 100%; overflow: hidden; background: #000; }
+body { color: white; touch-action: none; }
+#canvas { display: block; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+#canvas:focus { outline: none; }
 
-body {
-	color: white;
-	background-color: black;
-	overflow: hidden;
-	touch-action: none;
-}
-
-#canvas {
-	display: block;
-}
-
-#canvas:focus {
-	outline: none;
-}
-
-#status, #status-splash, #status-progress {
-	position: absolute;
-	left: 0;
-	right: 0;
-}
-
-#status, #status-splash {
-	top: 0;
-	bottom: 0;
-}
-
-#status {
-	background-color: #242424;
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-	visibility: hidden;
-}
-
-#status-splash {
-	max-height: 100%;
-	max-width: 100%;
-	margin: auto;
-}
-
-#status-splash.show-image--false {
-	display: none;
-}
-
-#status-splash.fullsize--true {
-	height: 100%;
-	width: 100%;
-	object-fit: contain;
-}
-
-#status-splash.use-filter--false {
-	image-rendering: pixelated;
-}
-
-#status-progress, #status-notice {
-	display: none;
-}
-
-#status-progress {
-	bottom: 10%;
-	width: 50%;
-	margin: 0 auto;
-}
-
-#status-notice {
-	background-color: #5b3943;
-	border-radius: 0.5rem;
-	border: 1px solid #9b3943;
-	color: #e0e0e0;
-	font-family: 'Noto Sans', 'Droid Sans', Arial, sans-serif;
-	line-height: 1.3;
-	margin: 0 2rem;
-	overflow: hidden;
-	padding: 1rem;
-	text-align: center;
-	z-index: 1;
-}
-
-/* CLICK-TO-START OVERLAY — sits on top of everything */
 #click-overlay {
-	position: fixed;
-	top: 0; left: 0; right: 0; bottom: 0;
-	background: #0a0a14;
-	display: flex; flex-direction: column;
+	position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+	background: #0a0a14; display: flex; flex-direction: column;
 	align-items: center; justify-content: center;
-	gap: 20px; cursor: pointer; z-index: 9999;
-	user-select: none;
+	gap: 20px; cursor: pointer; z-index: 9999; user-select: none;
 }
 #click-overlay:hover .play-btn { background: #ffd04a; transform: scale(1.05); }
 .play-btn {
@@ -108,13 +24,33 @@ body {
 	box-shadow: 0 4px 30px rgba(232,169,18,0.4); transition: all 0.3s;
 }
 .start-hint { font-size: 14px; color: #787470; letter-spacing: 1px; font-family: monospace; }
-.start-logo { width: 100px; height: 100px; border-radius: 50%; border: 3px solid #e8a912; box-shadow: 0 0 50px rgba(232,169,18,0.3); }
+.start-logo { width: 100px; height: 100px; border-radius: 50%; border: 3px solid #e8a912; }
+
+#status {
+	position: absolute; left: 0; right: 0; top: 0; bottom: 0;
+	background-color: #242424; display: flex; flex-direction: column;
+	justify-content: center; align-items: center; visibility: hidden;
+}
+#status-splash { max-height: 100%; max-width: 100%; margin: auto; }
+#status-progress { display: none; position: absolute; bottom: 10%; width: 50%; margin: 0 auto; left: 25%; }
+#status-notice {
+	display: none; background-color: #5b3943; border-radius: 0.5rem;
+	border: 1px solid #9b3943; color: #e0e0e0;
+	font-family: Arial, sans-serif; line-height: 1.3;
+	margin: 0 2rem; padding: 1rem; text-align: center; z-index: 1;
+}
+
+/* Audio debug panel — visible on screen */
+#audio-debug {
+	position: fixed; bottom: 10px; left: 10px; z-index: 99999;
+	background: rgba(0,0,0,0.85); color: #e8a912; font-family: monospace;
+	font-size: 11px; padding: 8px 12px; border-radius: 6px;
+	border: 1px solid #333; max-width: 400px; line-height: 1.5;
+}
 		</style>
 		<link id="-gd-engine-icon" rel="icon" type="image/png" href="index.icon.png" />
-		<link rel="apple-touch-icon" href="index.apple-touch-icon.png"/>
 	</head>
 	<body>
-		<!-- CLICK OVERLAY — removed on click, then Godot starts with audio unlocked -->
 		<div id="click-overlay">
 			<img src="../assets/mbc-logo.jpg" alt="MBC" class="start-logo" onerror="this.style.display='none'">
 			<div class="play-btn">▶ PLAY</div>
@@ -122,137 +58,162 @@ body {
 			<div class="start-hint">Press F11 for fullscreen</div>
 		</div>
 
-		<canvas id="canvas">
-			Your browser does not support the canvas tag.
-		</canvas>
-
-		<noscript>
-			Your browser does not support JavaScript.
-		</noscript>
-
+		<canvas id="canvas">Your browser does not support the canvas tag.</canvas>
 		<div id="status">
-			<img id="status-splash" class="show-image--true fullsize--true use-filter--true" src="index.png" alt="">
+			<img id="status-splash" src="index.png" alt="" style="max-height:100%;max-width:100%;margin:auto">
 			<progress id="status-progress"></progress>
 			<div id="status-notice"></div>
 		</div>
+		<div id="audio-debug">Audio: waiting for click...</div>
 
+		<noscript>Your browser does not support JavaScript.</noscript>
 		<script src="index.js"></script>
 		<script>
-// Wait for click before starting the engine
-document.getElementById('click-overlay').addEventListener('click', function() {
-	// Remove overlay
-	document.getElementById('click-overlay').remove();
+// ─── Audio debug logger (visible on screen) ─────────────
+const audioDebug = document.getElementById('audio-debug');
+const debugLog = [];
+function logAudio(msg) {
+	const time = new Date().toLocaleTimeString();
+	debugLog.push(`[${time}] ${msg}`);
+	if (debugLog.length > 8) debugLog.shift();
+	audioDebug.textContent = debugLog.join('\n');
+	console.log('[AudioDebug] ' + msg);
+}
 
-	// NOW start Godot — this is inside a user gesture so AudioContext will be allowed
-	const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"index","experimentalVK":false,"fileSizes":{"index.pck":75157396,"index.wasm":37686550},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4};
-	const GODOT_THREADS_ENABLED = false;
-	const engine = new Engine(GODOT_CONFIG);
-
-	(function () {
-		const statusOverlay = document.getElementById('status');
-		const statusProgress = document.getElementById('status-progress');
-		const statusNotice = document.getElementById('status-notice');
-
-		let initializing = true;
-		let statusMode = '';
-
-		function setStatusMode(mode) {
-			if (statusMode === mode || !initializing) {
-				return;
-			}
-			if (mode === 'hidden') {
-				statusOverlay.remove();
-				initializing = false;
-				return;
-			}
-			statusOverlay.style.visibility = 'visible';
-			statusProgress.style.display = mode === 'progress' ? 'block' : 'none';
-			statusNotice.style.display = mode === 'notice' ? 'block' : 'none';
-			statusMode = mode;
-		}
-
-		function setStatusNotice(text) {
-			while (statusNotice.lastChild) {
-				statusNotice.removeChild(statusNotice.lastChild);
-			}
-			const lines = text.split('\n');
-			lines.forEach((line) => {
-				statusNotice.appendChild(document.createTextNode(line));
-				statusNotice.appendChild(document.createElement('br'));
-			});
-		}
-
-		function displayFailureNotice(err) {
-			console.error(err);
-			if (err instanceof Error) {
-				setStatusNotice(err.message);
-			} else if (typeof err === 'string') {
-				setStatusNotice(err);
-			} else {
-				setStatusNotice('An unknown error occurred.');
-			}
-			setStatusMode('notice');
-			initializing = false;
-		}
-
-		const missing = Engine.getMissingFeatures({
-			threads: GODOT_THREADS_ENABLED,
-		});
-
-		if (missing.length !== 0) {
-			if (GODOT_CONFIG['serviceWorker'] && GODOT_CONFIG['ensureCrossOriginIsolationHeaders'] && 'serviceWorker' in navigator) {
-				let serviceWorkerRegistrationPromise;
-				try {
-					serviceWorkerRegistrationPromise = navigator.serviceWorker.getRegistration();
-				} catch (err) {
-					serviceWorkerRegistrationPromise = Promise.reject(new Error('Service worker registration failed.'));
-				}
-				Promise.race([
-					serviceWorkerRegistrationPromise.then((registration) => {
-						if (registration != null) {
-							return Promise.reject(new Error('Service worker already exists.'));
-						}
-						return registration;
-					}).then(() => engine.installServiceWorker()),
-					new Promise((resolve) => {
-						setTimeout(() => resolve(), 2000);
-					}),
-				]).then(() => {
-					window.location.reload();
-				}).catch((err) => {
-					console.error('Error while registering service worker:', err);
-				});
-			} else {
-				const missingMsg = 'Error\nThe following features required to run Godot projects on the Web are missing:\n';
-				displayFailureNotice(missingMsg + missing.join('\n'));
-			}
-		} else {
-			setStatusMode('progress');
-			engine.startGame({
-				'onProgress': function (current, total) {
-					if (current > 0 && total > 0) {
-						statusProgress.value = current;
-						statusProgress.max = total;
-					} else {
-						statusProgress.removeAttribute('value');
-						statusProgress.removeAttribute('max');
-					}
-				},
-			}).then(() => {
-				setStatusMode('hidden');
-				// Focus canvas for keyboard input
-				document.getElementById('canvas').focus();
-			}, displayFailureNotice);
-		}
-	}());
+// ─── Canvas sizing — 16:9, centered on black ────────────
+function resizeCanvas() {
+	const canvas = document.getElementById('canvas');
+	const ww = window.innerWidth;
+	const wh = window.innerHeight;
+	const ratio = 1280 / 720;
+	const winRatio = ww / wh;
+	let cw, ch;
+	if (winRatio > ratio) { ch = wh; cw = wh * ratio; }
+	else { cw = ww; ch = ww / ratio; }
+	const dpr = window.devicePixelRatio || 1;
+	canvas.style.width = cw + 'px';
+	canvas.style.height = ch + 'px';
+	canvas.width = Math.round(cw * dpr);
+	canvas.height = Math.round(ch * dpr);
+}
+window.addEventListener('resize', resizeCanvas);
+document.addEventListener('fullscreenchange', () => setTimeout(resizeCanvas, 100));
+document.addEventListener('keydown', (e) => {
+	if (e.key === 'F11') { e.preventDefault(); if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); }
 });
 
-// Fullscreen on F11
-document.addEventListener('keydown', (e) => {
-	if (e.key === 'F11') {
-		e.preventDefault();
-		if (!document.fullscreenElement) document.documentElement.requestFullscreen();
-		else document.exitFullscreen();
+// ─── Monitor AudioContext state ─────────────────────────
+const OrigAudioContext = window.AudioContext || window.webkitAudioContext;
+const allContexts = [];
+if (OrigAudioContext) {
+	const OrigConstructor = OrigAudioContext;
+	window.AudioContext = function(...args) {
+		const ctx = new OrigConstructor(...args);
+		allContexts.push(ctx);
+		logAudio('AudioContext created, state=' + ctx.state + ', sampleRate=' + ctx.sampleRate);
+		ctx.addEventListener('statechange', () => {
+			logAudio('AudioContext statechange → ' + ctx.state);
+		});
+		return ctx;
+	};
+	window.AudioContext.prototype = OrigConstructor.prototype;
+	// Copy static methods
+	Object.keys(OrigConstructor).forEach(key => { window.AudioContext[key] = OrigConstructor[key]; });
+	if (window.webkitAudioContext) window.webkitAudioContext = window.AudioContext;
+}
+
+// ─── Click to start ─────────────────────────────────────
+document.getElementById('click-overlay').addEventListener('click', function startGame() {
+	document.getElementById('click-overlay').removeEventListener('click', startGame);
+	document.getElementById('click-overlay').style.display = 'none';
+	resizeCanvas();
+
+	logAudio('User clicked PLAY — starting engine...');
+
+	// Try to pre-create and resume an AudioContext
+	try {
+		const preCtx = new (OrigAudioContext)();
+		logAudio('Pre-created AudioContext, state=' + preCtx.state);
+		if (preCtx.state === 'suspended') {
+			preCtx.resume().then(() => logAudio('Pre-ctx resumed → ' + preCtx.state));
+		}
+		// Play silent buffer
+		const buf = preCtx.createBuffer(1, 1, 22050);
+		const src = preCtx.createBufferSource();
+		src.buffer = buf;
+		src.connect(preCtx.destination);
+		src.start(0);
+		logAudio('Silent buffer played on pre-ctx');
+	} catch(e) { logAudio('Pre-ctx error: ' + e.message); }
+
+	// Start Godot
+	const GODOT_CONFIG = {
+		"args": [], "canvasResizePolicy": 0,
+		"emscriptenPoolSize": 8, "ensureCrossOriginIsolationHeaders": false,
+		"executable": "index", "experimentalVK": false,
+		"fileSizes": {"index.pck":75157396, "index.wasm":37686550},
+		"focusCanvas": true, "gdextensionLibs": [], "godotPoolSize": 4
+	};
+	const engine = new Engine(GODOT_CONFIG);
+
+	const statusOverlay = document.getElementById('status');
+	const statusProgress = document.getElementById('status-progress');
+	const statusNotice = document.getElementById('status-notice');
+	let initializing = true;
+	let statusMode = '';
+
+	function setStatusMode(mode) {
+		if (statusMode === mode || !initializing) return;
+		if (mode === 'hidden') { statusOverlay.remove(); initializing = false; return; }
+		statusOverlay.style.visibility = 'visible';
+		statusProgress.style.display = mode === 'progress' ? 'block' : 'none';
+		statusNotice.style.display = mode === 'notice' ? 'block' : 'none';
+		statusMode = mode;
+	}
+
+	function displayFailureNotice(err) {
+		console.error(err);
+		logAudio('ENGINE ERROR: ' + (err.message || err));
+		const msg = err instanceof Error ? err.message : String(err);
+		statusNotice.textContent = msg;
+		statusNotice.style.display = 'block';
+		setStatusMode('notice');
+		initializing = false;
+	}
+
+	logAudio('Checking missing features...');
+	const missing = Engine.getMissingFeatures({ threads: false });
+	if (missing.length > 0) {
+		logAudio('Missing features: ' + missing.join(', '));
+		displayFailureNotice('Missing: ' + missing.join(', '));
+	} else {
+		logAudio('No missing features, starting game...');
+		setStatusMode('progress');
+		engine.startGame({
+			'onProgress': function(current, total) {
+				if (current > 0 && total > 0) { statusProgress.value = current; statusProgress.max = total; }
+				else { statusProgress.removeAttribute('value'); statusProgress.removeAttribute('max'); }
+			},
+		}).then(() => {
+			setStatusMode('hidden');
+			document.getElementById('canvas').focus();
+			logAudio('Engine started successfully!');
+
+			// Resume all AudioContexts we captured
+			allContexts.forEach((ctx, i) => {
+				logAudio(`Context[${i}] state=${ctx.state}`);
+				if (ctx.state === 'suspended') {
+					ctx.resume().then(() => logAudio(`Context[${i}] resumed → ${ctx.state}`));
+				}
+			});
+
+			// Also try to find Godot's audio context directly
+			setTimeout(() => {
+				allContexts.forEach((ctx, i) => {
+					logAudio(`Context[${i}] final state=${ctx.state}, dest=${ctx.destination ? 'ok' : 'null'}`);
+				});
+			}, 2000);
+		}, displayFailureNotice);
 	}
 });
 		</script>
