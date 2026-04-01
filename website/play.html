@@ -20,7 +20,6 @@
 html,body{height:100%;overflow:hidden}
 body{background:#000;color:var(--text);font-family:var(--font-body);font-size:17px;touch-action:none}
 
-/* VERIFY SCREEN */
 #verify-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;background:var(--bg)}
 .card{background:var(--bg2);border:1px solid rgba(232,169,18,0.15);border-radius:20px;padding:48px;max-width:480px;width:100%;text-align:center;position:relative;overflow:hidden}
 .card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
@@ -45,24 +44,24 @@ body{background:#000;color:var(--text);font-family:var(--font-body);font-size:17
 .back-link{display:inline-block;margin-top:20px;color:var(--text-dim);text-decoration:none;font-size:14px;transition:color 0.2s}
 .back-link:hover{color:var(--gold)}
 
-/* START SCREEN */
 #start-screen{display:none;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:24px;cursor:pointer;user-select:none;background:var(--bg)}
 #start-screen:hover .start-btn{background:var(--gold-bright);box-shadow:0 8px 40px rgba(232,169,18,0.5);transform:scale(1.05)}
 .start-btn{font-family:var(--font-meme);font-size:36px;color:var(--bg);background:var(--gold);padding:20px 60px;border-radius:16px;letter-spacing:4px;box-shadow:0 4px 30px rgba(232,169,18,0.3);transition:all 0.3s}
 .start-hint{font-family:var(--font-mono);font-size:13px;color:var(--text-dim);letter-spacing:1px}
+.loading-text{font-family:var(--font-meme);font-size:20px;color:var(--gold);letter-spacing:2px;display:none}
 
-/* GAME WRAPPER — maintains 16:9 centered on black bg */
 #game-wrapper{display:none;width:100vw;height:100vh;background:#000;position:relative;overflow:hidden}
 #canvas{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)}
 #canvas:focus{outline:none}
 
-/* Godot status overlay */
 #status-godot{position:absolute;left:0;right:0;top:0;bottom:0;background-color:#242424;display:flex;flex-direction:column;justify-content:center;align-items:center;visibility:hidden;z-index:10}
 #status-splash{max-height:100%;max-width:100%;margin:auto}
 #status-progress{display:none;position:absolute;bottom:10%;width:50%;margin:0 auto;left:25%}
 #status-notice{display:none;background-color:#5b3943;border-radius:0.5rem;border:1px solid #9b3943;color:#e0e0e0;font-family:'Noto Sans',Arial,sans-serif;line-height:1.3;margin:0 2rem;padding:1rem;text-align:center;z-index:1}
 </style>
 <link id="-gd-engine-icon" rel="icon" type="image/png" href="game-web/index.icon.png" />
+<!-- PRE-LOAD Godot engine script so it's ready when user clicks Play -->
+<script src="game-web/index.js"></script>
 </head>
 <body>
 
@@ -94,9 +93,10 @@ body{background:#000;color:var(--text);font-family:var(--font-body);font-size:17
 <!-- STEP 2: CLICK TO START -->
 <div id="start-screen">
   <img src="assets/mbc-logo.jpg" alt="MBC" style="width:120px;height:120px;border-radius:50%;border:3px solid var(--gold);box-shadow:0 0 60px rgba(232,169,18,0.4)">
-  <div class="start-btn">▶ PLAY</div>
-  <div class="start-hint">Click anywhere to start (enables sound)</div>
+  <div class="start-btn" id="playBtn">▶ PLAY</div>
+  <div class="start-hint">Click to start (enables sound)</div>
   <div class="start-hint" style="margin-top:4px">Press F11 for fullscreen</div>
+  <div class="loading-text" id="loadingText">Loading game...</div>
 </div>
 
 <!-- STEP 3: GAME -->
@@ -181,7 +181,10 @@ async function verifyAddress(address) {
     if (data.verified) {
       showStatus('success', `<span class='big'>✓ Verified!</span>${data.balance.toLocaleString()} MBC`);
       document.querySelectorAll('.wallet-btn').forEach(b => b.disabled = true);
-      setTimeout(() => showStartScreen(), 1200);
+      setTimeout(() => {
+        document.getElementById('verify-screen').style.display = 'none';
+        document.getElementById('start-screen').style.display = 'flex';
+      }, 1200);
     } else {
       showStatus('error',
         `<span class='big'>✗ Insufficient Balance</span>
@@ -191,32 +194,93 @@ async function verifyAddress(address) {
   } catch (err) { showStatus('error', 'Server error: ' + (err.message || err)); }
 }
 
-function showStartScreen() {
-  document.getElementById('verify-screen').style.display = 'none';
-  document.getElementById('start-screen').style.display = 'flex';
-}
+// ─── CLICK TO START — engine.startGame() called DIRECTLY in click handler ───
+document.getElementById('start-screen').addEventListener('click', function startGameOnClick() {
+  // Remove this listener so it only fires once
+  document.getElementById('start-screen').removeEventListener('click', startGameOnClick);
+  
+  // Update UI
+  document.getElementById('playBtn').style.display = 'none';
+  document.querySelector('.start-hint').style.display = 'none';
+  document.getElementById('loadingText').style.display = 'block';
 
-// ─── CLICK TO START — unlocks audio ─────────────────────
-document.getElementById('start-screen').addEventListener('click', function() {
-  // Create and resume AudioContext BEFORE loading game (unlocks browser audio)
-  try {
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    if (audioCtx.state === 'suspended') audioCtx.resume();
-    // Create a silent buffer and play it to fully unlock audio
-    const buffer = audioCtx.createBuffer(1, 1, 22050);
-    const source = audioCtx.createBufferSource();
-    source.buffer = buffer;
-    source.connect(audioCtx.destination);
-    source.start(0);
-  } catch(e) { console.log('Audio unlock attempt:', e); }
-
+  // Show game canvas
   document.getElementById('start-screen').style.display = 'none';
   document.getElementById('game-wrapper').style.display = 'block';
   resizeCanvas();
-  loadGame();
+
+  // Create and start the Godot engine DIRECTLY inside user click handler
+  // This is critical for browser audio — AudioContext must be created during a user gesture
+  const GODOT_CONFIG = {
+    "args": [],
+    "canvasResizePolicy": 0,
+    "emscriptenPoolSize": 8,
+    "ensureCrossOriginIsolationHeaders": false,
+    "executable": "game-web/index",
+    "experimentalVK": false,
+    "fileSizes": {"game-web/index.pck":75157396, "game-web/index.wasm":37686550},
+    "focusCanvas": true,
+    "gdextensionLibs": [],
+    "godotPoolSize": 4
+  };
+
+  const engine = new Engine(GODOT_CONFIG);
+
+  const statusOverlay = document.getElementById('status-godot');
+  const statusProgress = document.getElementById('status-progress');
+  const statusNotice = document.getElementById('status-notice');
+  let initializing = true;
+  let statusMode = '';
+
+  function setStatusMode(mode) {
+    if (statusMode === mode || !initializing) return;
+    if (mode === 'hidden') { statusOverlay.remove(); initializing = false; return; }
+    statusOverlay.style.visibility = 'visible';
+    statusProgress.style.display = mode === 'progress' ? 'block' : 'none';
+    statusNotice.style.display = mode === 'notice' ? 'block' : 'none';
+    statusMode = mode;
+  }
+
+  function displayFailureNotice(err) {
+    console.error(err);
+    const msg = err instanceof Error ? err.message : typeof err === 'string' ? err : 'An unknown error occurred.';
+    statusNotice.textContent = msg;
+    statusNotice.style.display = 'block';
+    setStatusMode('notice');
+    initializing = false;
+  }
+
+  setStatusMode('progress');
+  engine.startGame({
+    'onProgress': function(current, total) {
+      if (current > 0 && total > 0) {
+        statusProgress.value = current;
+        statusProgress.max = total;
+      } else {
+        statusProgress.removeAttribute('value');
+        statusProgress.removeAttribute('max');
+      }
+    },
+  }).then(() => {
+    setStatusMode('hidden');
+    document.getElementById('canvas').focus();
+    // Resume all AudioContexts that might exist
+    if (typeof GodotRuntime !== 'undefined' && GodotRuntime.audio_context) {
+      GodotRuntime.audio_context.resume();
+    }
+    // Also try the global GodotAudio approach
+    try {
+      const allContexts = [...document.querySelectorAll('*')].reduce((acc, el) => acc, []);
+      // Find any suspended AudioContext
+      if (window.GodotAudio && window.GodotAudio.ctx) {
+        window.GodotAudio.ctx.resume();
+        console.log('Resumed GodotAudio.ctx');
+      }
+    } catch(e) { console.log('Audio resume attempt:', e); }
+  }, displayFailureNotice);
 });
 
-// ─── Canvas sizing — 16:9 ratio, centered, no grey ──────
+// ─── Canvas sizing — 16:9 ratio, centered ───────────────
 function resizeCanvas() {
   const canvas = document.getElementById('canvas');
   const ww = window.innerWidth;
@@ -225,13 +289,9 @@ function resizeCanvas() {
   const windowRatio = ww / wh;
   let cw, ch;
   if (windowRatio > gameRatio) {
-    // Window is wider — fit to height, black bars on sides
-    ch = wh;
-    cw = wh * gameRatio;
+    ch = wh; cw = wh * gameRatio;
   } else {
-    // Window is taller — fit to width, black bars top/bottom
-    cw = ww;
-    ch = ww / gameRatio;
+    cw = ww; ch = ww / gameRatio;
   }
   canvas.style.width = cw + 'px';
   canvas.style.height = ch + 'px';
@@ -241,8 +301,7 @@ function resizeCanvas() {
 window.addEventListener('resize', () => {
   if (document.getElementById('game-wrapper').style.display === 'block') resizeCanvas();
 });
-
-// ─── Fullscreen on F11 ──────────────────────────────────
+document.addEventListener('fullscreenchange', () => setTimeout(resizeCanvas, 100));
 document.addEventListener('keydown', (e) => {
   if (e.key === 'F11') {
     e.preventDefault();
@@ -250,77 +309,6 @@ document.addEventListener('keydown', (e) => {
     else document.exitFullscreen();
   }
 });
-document.addEventListener('fullscreenchange', () => {
-  setTimeout(resizeCanvas, 100);
-});
-
-// ─── Load Godot engine ──────────────────────────────────
-function loadGame() {
-  const script = document.createElement('script');
-  script.src = 'game-web/index.js';
-  script.onload = function() {
-    const GODOT_CONFIG = {
-      "args": [],
-      "canvasResizePolicy": 0,
-      "emscriptenPoolSize": 8,
-      "ensureCrossOriginIsolationHeaders": false,
-      "executable": "game-web/index",
-      "experimentalVK": false,
-      "fileSizes": {"game-web/index.pck":75157396,"game-web/index.wasm":37686550},
-      "focusCanvas": true,
-      "gdextensionLibs": [],
-      "godotPoolSize": 4
-    };
-    const engine = new Engine(GODOT_CONFIG);
-
-    const statusOverlay = document.getElementById('status-godot');
-    const statusProgress = document.getElementById('status-progress');
-    const statusNotice = document.getElementById('status-notice');
-    let initializing = true;
-    let statusMode = '';
-
-    function setStatusMode(mode) {
-      if (statusMode === mode || !initializing) return;
-      if (mode === 'hidden') { statusOverlay.remove(); initializing = false; return; }
-      statusOverlay.style.visibility = 'visible';
-      statusProgress.style.display = mode === 'progress' ? 'block' : 'none';
-      statusNotice.style.display = mode === 'notice' ? 'block' : 'none';
-      statusMode = mode;
-    }
-
-    function displayFailureNotice(err) {
-      console.error(err);
-      const msg = err instanceof Error ? err.message : typeof err === 'string' ? err : 'An unknown error occurred.';
-      statusNotice.textContent = msg;
-      statusNotice.style.display = 'block';
-      setStatusMode('notice');
-      initializing = false;
-    }
-
-    setStatusMode('progress');
-    engine.startGame({
-      'onProgress': function(current, total) {
-        if (current > 0 && total > 0) {
-          statusProgress.value = current;
-          statusProgress.max = total;
-        } else {
-          statusProgress.removeAttribute('value');
-          statusProgress.removeAttribute('max');
-        }
-      },
-    }).then(() => {
-      setStatusMode('hidden');
-      document.getElementById('canvas').focus();
-      // Try resuming audio context again after engine loads
-      try {
-        if (window.GodotAudio && window.GodotAudio.ctx) {
-          window.GodotAudio.ctx.resume();
-        }
-      } catch(e) {}
-    }, displayFailureNotice);
-  };
-  document.head.appendChild(script);
-}
 </script>
 </body>
 </html>
