@@ -10,6 +10,7 @@ export interface LorePost {
   pollTweetId?: string | null;
   pollOptions?: [string, string, string] | null;
   winningOption?: string | null;
+  newsContext?: string | null;
   pageNumber: number;
   episodeNumber: number;
   pageInEpisode: number;
@@ -65,6 +66,7 @@ export interface StoryContext {
   chapterSummary: string;
   lastDecision: string | null;
   progression: StoryProgression;
+  newsContext: string;
 }
 
 export interface AILoreResponse {

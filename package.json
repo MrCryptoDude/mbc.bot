@@ -14,28 +14,24 @@
     "serve": "ts-node src/index.ts serve",
     "test": "node --test -r ts-node/register tests/**/*.test.ts"
   },
-  "keywords": [
-    "twitter",
-    "bot",
-    "dnd",
-    "ai",
-    "dungeon-master"
-  ],
+  "keywords": ["twitter", "bot", "dnd", "ai", "dungeon-master"],
   "license": "MIT",
   "dependencies": {
-    "@types/cors": "^2.8.17",
-    "@vercel/node": "^5.0.0",
-    "@types/express": "^5.0.0",
-    "@types/node": "^25.2.3",
-    "@types/node-cron": "^3.0.11",
-    "cors": "^2.8.5",
-    "dotenv": "^17.2.4",
-    "express": "^4.21.0",
-    "node-cron": "^4.2.1",
-    "openai": "^6.21.0",
-    "ts-node": "^10.9.2",
-    "twitter-api-v2": "^1.29.0",
-    "typescript": "^5.9.3",
-    "winston": "^3.19.0"
+    "@vercel/node": "5.0.0",
+    "cors": "2.8.5",
+    "dotenv": "16.4.7",
+    "express": "4.21.2",
+    "node-cron": "4.2.1",
+    "openai": "6.21.0",
+    "twitter-api-v2": "1.29.0",
+    "winston": "3.19.0"
+  },
+  "devDependencies": {
+    "@types/cors": "2.8.17",
+    "@types/express": "5.0.0",
+    "@types/node": "22.10.5",
+    "@types/node-cron": "3.0.11",
+    "ts-node": "10.9.2",
+    "typescript": "5.9.3"
   }
 }
