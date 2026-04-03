@@ -14,6 +14,7 @@ function getCronExpression(): string {
     case 4:  return "0 2,6,10,14,18,22 * * *";
     case 6:  return "0 3,9,15,21 * * *";
     case 8:  return "0 6,14,22 * * *";
+    case 24: return "0 13 * * *"; // Daily at 13:00 UTC = 15:00 Stockholm
     default: return `0 */${hours} * * *`;
   }
 }
@@ -21,7 +22,6 @@ function getCronExpression(): string {
 async function main(): Promise<void> {
   logger.info("Starting MEMEBACKEDCURR bot");
 
-  // Start verification server
   const port = parseInt(process.env.PORT || "3000", 10);
   startServer(port);
 
@@ -43,7 +43,7 @@ async function main(): Promise<void> {
     await runDnDModeCycle();
   });
 
-  logger.info(`Story Mode schedule: every ${config.bot.postIntervalHours} hours (${storyCron})`);
+  logger.info(`Story Mode schedule: ${storyCron} (daily at 15:00 Stockholm / 13:00 UTC)`);
   logger.info("DnD Mode schedule: every 2 minutes");
 
   process.on("SIGINT", () => process.exit(0));
@@ -64,7 +64,6 @@ if (command === "post-now") {
   logger.info("Database reset complete");
   process.exit(0);
 } else if (command === "serve") {
-  // Server-only mode — no bot, no Twitter, just the website + verification API
   const port = parseInt(process.env.PORT || "3000", 10);
   startServer(port);
   logger.info("Server-only mode (no bot). Open http://localhost:" + port);
