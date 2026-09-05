@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+# draft of an alternative design — not for indexing
+Disallow: /paint.html
+
+Sitemap: https://memebackedcurrency.com/sitemap.xml

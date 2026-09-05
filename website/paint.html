@@ -3,11 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- DRAFT PAGE. Duplicate of the homepage, so it is kept out of search.
+     DELETE THE NEXT LINE (and the robots.txt Disallow) if this becomes index.html. -->
+<meta name="robots" content="noindex,nofollow">
 <title>$MEME — Meme Backed Currency | A Meme for All</title>
 <meta name="description" content="$MEME — Meme Backed Currency. A meme for all. Live on Pons on Robinhood Chain. Creator fees go to holders.">
 <meta property="og:title" content="$MEME — Meme Backed Currency">
 <meta property="og:description" content="A meme for all. Live on Pons on Robinhood Chain — creator fees go to holders. Ticker: MEME.">
-<meta property="og:image" content="assets/mbc-logo.jpg">
+<meta property="og:image" content="https://memebackedcurrency.com/assets/mbc-logo.jpg">
+<meta property="og:url" content="https://memebackedcurrency.com/">
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@MEMEBACKEDCURR">
@@ -67,7 +71,7 @@ svg{display:block;overflow:visible}
 nav{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 18px;
   border-bottom:3px solid var(--ink);background:var(--paper)}
 .logo{display:flex;align-items:center;gap:9px;text-decoration:none;color:var(--ink)}
-.logo img{width:46px;height:auto;image-rendering:pixelated;border:3px solid var(--ink);transform:rotate(-3deg)}
+.logo img{width:46px;height:auto;border:3px solid var(--ink);transform:rotate(-3deg)}
 .logo b{font-size:21px;letter-spacing:-.5px}
 .logo b i{font-style:normal;color:var(--org)}
 .nl{display:flex;gap:7px;flex-wrap:wrap;margin-left:auto;align-items:center}
@@ -107,10 +111,11 @@ p{margin-bottom:12px}
 /* ── hero ── */
 .hero{display:grid;grid-template-columns:1.15fr .85fr;gap:26px;align-items:center;padding-top:34px}
 .coinbox{position:relative;text-align:center}
-.coinbox img{width:min(74%,270px);margin:0 auto;image-rendering:pixelated;border:4px solid var(--ink)}
+.coinbox img{width:min(74%,270px);margin:0 auto;border:4px solid var(--ink)}
 /* the classic badly-cropped-out selection rectangle */
 .marquee{position:absolute;inset:2% 8% 12% 8%;border:2px dashed var(--ink);pointer-events:none}
 .cap-scribble{font-size:14px;color:var(--dgray);margin-top:8px}
+
 .arrow-note{display:inline-block;margin-top:2px;font-size:14px;color:var(--red);transform:rotate(-2.5deg);
   line-height:1.3;text-align:left}
 
@@ -184,7 +189,7 @@ ol.crude li b{background:var(--lime);padding:0 3px}
 
 /* ── footer ── */
 footer{padding:30px 18px 44px;text-align:center}
-footer img{width:88px;margin:0 auto 10px;image-rendering:pixelated;border:3px solid var(--ink);
+footer img{width:88px;margin:0 auto 10px;border:3px solid var(--ink);
   transform:rotate(2deg)}
 footer .ln{font-size:15px;margin-top:8px}
 footer .dis{max-width:70ch;margin:16px auto 0;font-family:var(--sys);font-size:12px;line-height:1.6;
@@ -223,7 +228,7 @@ footer .dis{max-width:70ch;margin:16px auto 0;font-family:var(--sys);font-size:1
 
 <nav>
   <a href="#top" class="logo">
-    <img src="assets/mbc-logo-crunchy.jpg" alt="Meme Backed Currency">
+    <img src="assets/mbc-logo.jpg" alt="Meme Backed Currency">
     <b>MEME<i>/</i>BACKED</b>
   </a>
   <div class="nl">
@@ -262,7 +267,7 @@ footer .dis{max-width:70ch;margin:16px auto 0;font-family:var(--sys);font-size:1
   </div>
 
   <div class="coinbox">
-    <img src="assets/mbc-logo-crunchy.jpg" alt="the meme backed currency coin">
+    <img src="assets/mbc-logo.jpg" alt="the meme backed currency coin">
     <span class="marquee"></span>
     <p class="cap-scribble">fig 1. the coin (i drew this)</p>
     <p class="arrow-note">↖ this is him. he is load bearing</p>
@@ -339,6 +344,10 @@ footer .dis{max-width:70ch;margin:16px auto 0;font-family:var(--sys);font-size:1
             <path d="M32 33 L40 36 L48 32" stroke-width="3"/>
           </g>
         </svg>
+        </svg>
+          <g stroke="#000" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          </g>
+        </svg>
         <h3>3. YOU get it</h3>
         <p>if you are holding, thats you. hello</p>
       </div>
@@ -401,7 +410,7 @@ footer .dis{max-width:70ch;margin:16px auto 0;font-family:var(--sys);font-size:1
 </section>
 
 <footer>
-  <img src="assets/mbc-logo-crunchy.jpg" alt="Meme Backed Currency">
+  <img src="assets/mbc-logo.jpg" alt="Meme Backed Currency">
   <p><b style="font-size:20px">MEME BACKED CURRENCY</b></p>
   <p class="ln">a meme for all &nbsp;·&nbsp;
     <a href="https://x.com/MEMEBACKEDCURR" target="_blank" rel="noopener">X</a> &nbsp;·&nbsp;

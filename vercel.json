@@ -2,14 +2,19 @@
   "buildCommand": "mkdir -p public && cp -r website/* public/",
   "installCommand": "npm install",
   "framework": null,
+  "redirects": [
+    { "source": "/game.html", "destination": "/", "permanent": true },
+    { "source": "/lore.html", "destination": "/", "permanent": true },
+    { "source": "/play.html", "destination": "/", "permanent": true },
+    { "source": "/verify.html", "destination": "/", "permanent": true },
+    { "source": "/game", "destination": "/", "permanent": true },
+    { "source": "/lore", "destination": "/", "permanent": true },
+    { "source": "/play", "destination": "/", "permanent": true },
+    { "source": "/verify", "destination": "/", "permanent": true },
+    { "source": "/game-web", "destination": "/", "permanent": true },
+    { "source": "/game-web/:path*", "destination": "/", "permanent": true }
+  ],
   "headers": [
-    {
-      "source": "/game-web/(.*)",
-      "headers": [
-        { "key": "Cross-Origin-Opener-Policy", "value": "same-origin" },
-        { "key": "Cross-Origin-Embedder-Policy", "value": "credentialless" }
-      ]
-    },
     {
       "source": "/api/(.*)",
       "headers": [
