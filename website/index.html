@@ -13,540 +13,382 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@MEMEBACKEDCURR">
 <link rel="icon" href="assets/mbc-logo.jpg">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Anton&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
+/* ══════════════════════════════════════════════════════════════════════
+   PAINT VERSION. Everything here is deliberately wrong.
+   Palette is the actual MS Paint default swatch (#22B14C green, #FF7F27
+   orange, #ED1C24 red, #FFF200 yellow, #00A2E8 turquoise) so the brand
+   colours survive the joke. Type is Comic Sans with real fallbacks.
+   The crimes are cosmetic only: links, the contract address and the
+   disclaimer stay legible, because that part is not a joke.
+   ══════════════════════════════════════════════════════════════════════ */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#050705;--bg2:#0a0e0b;--panel:#0d120e;--line:#1c2a1f;--line2:#2a3d2e;
-  --green:#00e05f;--green-b:#5cff9e;--green-d:#0a8f42;--green-x:#04331d;
-  --orange:#ff6a00;--orange-b:#ff9d3d;--orange-d:#8f3800;--orange-x:#2b1204;
-  --white:#eef2ec;--text:#9dab9f;--dim:#5d6b60;--faint:#333f36;
-  --mono:'JetBrains Mono',ui-monospace,monospace;
-  --disp:'Archivo Black',system-ui,sans-serif;
-  --cond:'Anton',system-ui,sans-serif;
-  --body:'Inter',system-ui,sans-serif;
+  --ink:#000;--paper:#fff;
+  --grn:#22B14C;--org:#FF7F27;--red:#ED1C24;--yel:#FFF200;--turq:#00A2E8;
+  --gray:#C3C3C3;--dgray:#7F7F7F;--rose:#FFAEC9;--lime:#B5E61D;--gold:#FFC90E;
+  --comic:'Comic Sans MS','Comic Sans','Chalkboard SE','Segoe Print',cursive;
+  --sys:'Tahoma','MS Sans Serif','Geneva',sans-serif;
 }
 html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--text);font-family:var(--mono);font-size:15px;line-height:1.55;overflow-x:hidden;position:relative}
-::selection{background:var(--orange);color:#000}
+body{background:var(--paper);color:var(--ink);font-family:var(--comic);font-size:18px;line-height:1.5;
+  overflow-x:hidden;position:relative;
+  /* faint graph paper, like the canvas was never cleared properly */
+  background-image:linear-gradient(#eef4ee 1px,transparent 1px),linear-gradient(90deg,#eef4ee 1px,transparent 1px);
+  background-size:24px 24px}
 img{max-width:100%;display:block}
-a{color:inherit}
+a{color:#0000EE}
+svg{display:block;overflow:visible}
+.ink{fill:none;stroke:#000;stroke-width:4;stroke-linecap:round;stroke-linejoin:round}
+.ink.thin{stroke-width:3}
+.ink.fat{stroke-width:6}
+/* crispEdges kills antialiasing — this is what makes it read as *pixels* */
+.jag{shape-rendering:crispEdges}
 
-/* grain + scanlines: whole-page texture. Kept deliberately weak — at heavier
-   opacity the 1px scan band shreds fine artwork (the medallion engraving in
-   particular) and the noise muddies small type. Texture, not a filter. */
-body::after{content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:0.16;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E")}
-body::before{content:'';position:fixed;inset:0;z-index:9998;pointer-events:none;opacity:0.09;
-  background:repeating-linear-gradient(180deg,rgba(0,0,0,0) 0px,rgba(0,0,0,0) 4px,rgba(0,0,0,0.5) 5px,rgba(0,0,0,0) 6px)}
+/* ── the "toolbar", because of course there is one ── */
+.chrome{border-bottom:2px solid var(--ink);background:var(--gray);padding:3px 6px;
+  font-family:var(--sys);font-size:12px;display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.chrome .ttl{font-weight:700}
+.chrome .mnu{display:flex;gap:10px;color:#222}
+.chrome .mnu span{cursor:default}
+.chrome .mnu span u{text-decoration:underline}
+.chrome .win{margin-left:auto;display:flex;gap:3px}
+.chrome .win b{display:inline-block;width:18px;height:16px;border:2px outset #fff;background:var(--gray);
+  text-align:center;line-height:12px;font-weight:400}
 
-/* ============ TICKER BANDS ============ */
-.band{overflow:hidden;white-space:nowrap;border-bottom:1px solid var(--line);background:var(--bg2)}
-.band .run{display:inline-block;font-family:var(--mono);font-size:11.5px;font-weight:700;letter-spacing:2.5px;padding:6px 0}
-.band .run span{padding:0 14px}
-.band-a{background:var(--green);color:#001a09}
-.band-a .run{animation:runl 30s linear infinite}
-.band-b .run{animation:runr 44s linear infinite;color:var(--orange-b)}
-.band-b .run i{color:var(--faint);font-style:normal}
-@keyframes runl{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-@keyframes runr{from{transform:translateX(-50%)}to{transform:translateX(0)}}
+/* ── banner ── */
+.banner{background:var(--yel);border-bottom:3px solid var(--ink);overflow:hidden;white-space:nowrap}
+.banner .run{display:inline-block;padding:5px 0;font-family:var(--comic);font-size:16px;font-weight:700;
+  animation:slide 26s linear infinite}
+.banner .run span{padding:0 18px}
+.banner .run i{font-style:normal;color:var(--red)}
+@keyframes slide{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 
-/* ============ NAV ============ */
-nav{position:sticky;top:0;z-index:200;display:flex;align-items:center;justify-content:space-between;gap:16px;
-  padding:9px 22px;background:rgba(5,7,5,0.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line2)}
-.brand{display:flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0}
-/* art is 872x914 with a spiked rim touching every edge midpoint — never forced
-   square; inscribed-ellipse mask drops the flat corners, keeps the whole rim */
-.coin{-webkit-mask-image:radial-gradient(ellipse closest-side at 50% 50%,#000 93%,rgba(0,0,0,0) 100%);
-  mask-image:radial-gradient(ellipse closest-side at 50% 50%,#000 93%,rgba(0,0,0,0) 100%)}
-/* the artwork's own ground is a dark navy that nearly matches the page, so a
-   green bloom sits behind it to lift the medallion off the background */
-.brand .coin{width:38px;height:auto;filter:drop-shadow(0 0 7px rgba(0,224,95,0.55)) drop-shadow(0 0 14px rgba(0,224,95,0.25))}
-.brand .wm{font-family:var(--disp);font-size:17px;letter-spacing:-0.5px;color:var(--white)}
-.brand .wm em{color:var(--orange);font-style:normal}
-.navlinks{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
-/* fixed height + centred content: the bracketed [01] labels otherwise pull a
-   different font fallback and sit ~3px taller than the plain ones, which shows
-   up as mismatched hover borders */
-.navlinks a{display:inline-flex;align-items:center;height:28px;font-family:var(--mono);font-size:11px;
-  font-weight:700;letter-spacing:1.5px;text-decoration:none;color:var(--dim);padding:0 9px;
-  border:1px solid transparent;transition:all .12s}
-.navlinks a:hover{color:var(--green);border-color:var(--line2);background:var(--bg2)}
-.navlinks a.hot{color:#001a09;background:var(--green);border-color:var(--green)}
-.navlinks a.hot:hover{background:var(--green-b);color:#001a09}
-.navlinks a.alt{color:var(--orange-b);border-color:var(--orange-d)}
-.navlinks a.alt:hover{background:var(--orange-x);color:var(--orange-b)}
-.navlinks .sm{display:none}
+/* ── nav: hand drawn buttons, none of them aligned ── */
+nav{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 18px;
+  border-bottom:3px solid var(--ink);background:var(--paper)}
+.logo{display:flex;align-items:center;gap:9px;text-decoration:none;color:var(--ink)}
+.logo img{width:46px;height:auto;border:3px solid var(--ink);transform:rotate(-3deg)}
+.logo b{font-size:21px;letter-spacing:-.5px}
+.logo b i{font-style:normal;color:var(--org)}
+.nl{display:flex;gap:7px;flex-wrap:wrap;margin-left:auto;align-items:center}
+.btn{position:relative;display:inline-block;font-family:var(--comic);font-size:15px;font-weight:700;
+  text-decoration:none;color:var(--ink);padding:7px 15px;background:var(--paper);cursor:pointer;
+  border:none;line-height:1.2}
+/* the "border" is a drawn box stretched to fit — the wobble distorts, which is the point */
+.btn::before{content:'';position:absolute;inset:0;background:no-repeat center/100% 100%;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 330 102' preserveAspectRatio='none'%3E%3Cpath d='M5 4 L22 5 L35 1 L50 1 L71 4 L82 2 L102 7 L116 5 L129 5 L151 6 L162 5 L178 4 L198 4 L212 6 L229 5 L242 7 L257 2 L273 7 L291 3 L308 2 L326 6 L322 5 L327 17 L321 33 L322 49 L322 71 L323 84 L321 96 L326 95 L310 99 L294 97 L273 93 L263 94 L242 98 L231 99 L209 99 L196 95 L178 99 L167 99 L148 96 L129 93 L116 93 L99 93 L81 99 L70 94 L50 99 L38 95 L21 96 L4 96 L4 98 L6 80 L7 64 L5 49 L1 33 L7 16 Z' fill='none' stroke='%23000' stroke-width='5'/%3E%3C/svg%3E")}
+.btn:hover{background:var(--yel)}
+.btn.grn{background:var(--grn);color:#fff}
+.btn.grn:hover{background:var(--lime);color:#000}
+.btn.org{background:var(--org)}
+.btn.org:hover{background:var(--gold)}
+.btn.big{font-size:20px;padding:12px 24px}
+.tilt1{transform:rotate(-1.6deg)}
+.tilt2{transform:rotate(1.9deg)}
+.tilt3{transform:rotate(-2.7deg)}
 
-/* ============ SHELL ============ */
-.wrap{max-width:1180px;margin:0 auto;padding:0 22px}
-.rule{height:1px;background:var(--line);margin:0}
-.tag{font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:2.5px;color:var(--orange);text-transform:uppercase}
-.tag b{color:var(--faint);font-weight:400}
-.lede{font-family:var(--body);font-size:17px;line-height:1.72;color:var(--text);max-width:62ch}
-.lede + .lede{margin-top:13px}
-.lede b{color:var(--white);font-weight:600}
-.lede .g{color:var(--green)}
-.lede .o{color:var(--orange-b)}
-.h2{font-family:var(--disp);font-size:clamp(30px,4.6vw,58px);line-height:0.94;letter-spacing:-1.5px;color:var(--white);margin:10px 0 20px}
-.h2 em{font-style:normal;color:var(--orange)}
-.h2 .out{color:transparent;-webkit-text-stroke:1.5px var(--green-d)}
+/* ── layout ── */
+.wrap{max-width:1080px;margin:0 auto;padding:0 18px}
+section{padding:46px 0;position:relative}
+h1,h2,h3{font-family:var(--comic);font-weight:700;line-height:1.05}
+h1{font-size:clamp(34px,7vw,74px);letter-spacing:-1px}
+h2{font-size:clamp(26px,4.4vw,46px);margin-bottom:6px}
+h3{font-size:22px}
+p{margin-bottom:12px}
+.big-txt{font-size:20px}
+/* WordArt, if WordArt had given up */
+.wordart{color:var(--grn);text-shadow:3px 3px 0 var(--ink),6px 6px 0 var(--gray);
+  -webkit-text-stroke:1px #000}
+.wordart.o{color:var(--org)}
+.wordart.r{color:var(--red)}
+.scribl{display:block;width:100%;max-width:440px;height:22px;margin:2px 0 14px}
+.hand{font-size:15px;color:var(--dgray);transform:rotate(-1.4deg);display:inline-block}
 
-/* section chrome: every block is numbered and stamped like a document page */
-.sec{padding:76px 0;position:relative}
-.sechead{display:grid;grid-template-columns:74px 1fr;gap:18px;align-items:start}
-.secno{font-family:var(--cond);font-size:60px;line-height:0.8;color:transparent;-webkit-text-stroke:1px var(--line2);letter-spacing:-2px}
-.stamp{position:absolute;right:22px;top:76px;font-family:var(--mono);font-size:10px;letter-spacing:2px;
-  color:var(--faint);text-align:right;line-height:1.7;border-right:1px solid var(--line);padding-right:10px}
+/* ── hero ── */
+.hero{display:grid;grid-template-columns:1.15fr .85fr;gap:26px;align-items:center;padding-top:34px}
+.coinbox{position:relative;text-align:center}
+.coinbox img{width:min(74%,270px);margin:0 auto;border:4px solid var(--ink)}
+/* the classic badly-cropped-out selection rectangle */
+.marquee{position:absolute;inset:2% 8% 12% 8%;border:2px dashed var(--ink);pointer-events:none}
+.cap-scribble{font-size:14px;color:var(--dgray);margin-top:8px}
 
-/* ============ HERO ============ */
-.hero{position:relative;padding:54px 0 64px;overflow:hidden}
-.hero::before{content:'';position:absolute;inset:0;pointer-events:none;
-  background-image:linear-gradient(rgba(0,224,95,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(0,224,95,.05) 1px,transparent 1px);
-  background-size:38px 38px;
-  -webkit-mask-image:radial-gradient(ellipse at 32% 42%,#000 5%,transparent 72%);
-  mask-image:radial-gradient(ellipse at 32% 42%,#000 5%,transparent 72%)}
-.herogrid{position:relative;display:grid;grid-template-columns:1fr 330px;gap:40px;align-items:center}
+.arrow-note{display:inline-block;margin-top:2px;font-size:14px;color:var(--red);transform:rotate(-2.5deg);
+  line-height:1.3;text-align:left}
 
-.stack{font-family:var(--disp);line-height:0.83;letter-spacing:-3px;color:var(--white)}
-.stack .l1{font-size:clamp(44px,8.4vw,104px);display:block}
-.stack .l2{font-size:clamp(44px,8.4vw,104px);display:block;color:var(--orange);margin-left:clamp(10px,3.5vw,52px)}
-.stack .l3{font-size:clamp(38px,7.1vw,88px);display:block;color:transparent;-webkit-text-stroke:2px var(--green)}
-.glitch{position:relative;display:inline-block}
-.glitch.on::before,.glitch.on::after{content:attr(data-t);position:absolute;left:0;top:0;width:100%;overflow:hidden}
-.glitch.on::before{color:var(--green);transform:translate(-3px,1px);clip-path:inset(4% 0 62% 0)}
-.glitch.on::after{color:var(--orange);transform:translate(3px,-1px);clip-path:inset(58% 0 8% 0)}
+.badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.badge{font-size:14px;border:3px solid var(--ink);padding:4px 10px;background:var(--paper)}
+.badge.g{background:var(--grn);color:#fff}
+.badge.o{background:var(--org)}
+.badge.t{background:var(--turq);color:#fff}
 
-.forall{margin:22px 0 0;font-family:var(--cond);font-size:clamp(26px,4.4vw,54px);letter-spacing:0.5px;color:var(--dim);line-height:1}
-.forall b{color:var(--white);font-weight:400}
-.forall .slot{color:var(--green);border-bottom:3px solid var(--orange);padding:0 3px;display:inline-block;min-width:3.2ch}
+/* ── generic paint panel ── */
+.panel{position:relative;border:4px solid var(--ink);background:var(--paper);padding:20px 18px;margin-top:16px}
+.panel.grn{background:#EAFBEF}
+.panel.org{background:#FFF3E8}
+.panel.yel{background:#FFFDE3}
+.pin{position:absolute;top:-14px;left:16px;background:var(--yel);border:3px solid var(--ink);
+  padding:1px 9px;font-size:14px;font-weight:700;transform:rotate(-2deg)}
 
-.herosub{margin-top:22px;max-width:58ch;font-family:var(--body);font-size:16.5px;line-height:1.7;color:var(--text)}
-.herosub b{color:var(--white);font-weight:600}
-.herosub .g{color:var(--green)}
-.herosub .o{color:var(--orange-b)}
+/* ── the numbered list ── */
+ol.crude{list-style:none;counter-reset:c;margin-top:10px}
+ol.crude li{counter-increment:c;position:relative;padding:9px 0 9px 46px;font-size:17px;
+  border-bottom:2px dashed var(--gray)}
+ol.crude li::before{content:counter(c);position:absolute;left:0;top:7px;width:32px;height:32px;
+  border:3px solid var(--ink);border-radius:50%;text-align:center;line-height:26px;font-weight:700;
+  font-size:16px;background:var(--yel);transform:rotate(-4deg)}
+ol.crude li s{color:var(--dgray)}
+ol.crude li b{background:var(--lime);padding:0 3px}
 
-.acts{display:flex;gap:9px;margin-top:26px;flex-wrap:wrap}
-.bt{display:inline-flex;align-items:center;font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:1.6px;text-decoration:none;padding:12px 20px;border:1px solid var(--line2);color:var(--text);transition:all .13s;white-space:nowrap}
-.bt:hover{transform:translate(-2px,-2px);box-shadow:3px 3px 0 var(--green-x)}
-.bt.p{background:var(--green);border-color:var(--green);color:#001a09}
-.bt.p:hover{background:var(--green-b);box-shadow:3px 3px 0 var(--orange-d)}
-.bt.o{border-color:var(--orange-d);color:var(--orange-b)}
-.bt.o:hover{background:var(--orange-x);box-shadow:3px 3px 0 var(--orange-d)}
+/* ── fee diagram ── */
+.flow{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:8px;align-items:center;margin-top:10px}
+.node{border:4px solid var(--ink);padding:12px 10px;text-align:center;background:var(--paper)}
+.node.a{background:#EAF6FF;transform:rotate(-1.2deg)}
+.node.b{background:var(--paper);transform:rotate(.9deg)}
+.node.c{background:var(--grn);color:#fff;transform:rotate(-1.7deg)}
+.node h3{font-size:19px;margin-bottom:3px}
+.node p{font-size:14px;margin:0}
+.node svg{margin:0 auto 6px}
+.flowarrow svg{width:74px;height:44px}
 
-/* specimen plate: coin framed like a catalogued exhibit */
-.plate{position:relative;border:1px solid var(--line2);background:
-  linear-gradient(160deg,rgba(0,224,95,.05),rgba(255,106,0,.04));padding:26px 20px 16px}
-.plate .cross{position:absolute;inset:0;pointer-events:none;
-  background:linear-gradient(var(--line2),var(--line2)) center/1px 100% no-repeat,
-             linear-gradient(var(--line2),var(--line2)) center/100% 1px no-repeat;opacity:.35}
-.plate .coinwrap{position:relative;width:90%;margin:0 auto}
-.plate .coinwrap::before{content:'';position:absolute;inset:-22%;
-  background:radial-gradient(circle,rgba(0,224,95,.34),rgba(255,106,0,.16) 45%,transparent 70%)}
-.plate .coin{position:relative;width:100%;height:auto;
-  filter:drop-shadow(0 0 18px rgba(0,224,95,0.3)) drop-shadow(0 0 40px rgba(255,106,0,0.14))}
-.plate .cnr{position:absolute;width:13px;height:13px;border:1px solid var(--orange)}
-.plate .c1{top:7px;left:7px;border-right:0;border-bottom:0}
-.plate .c2{top:7px;right:7px;border-left:0;border-bottom:0}
-.plate .c3{bottom:7px;left:7px;border-right:0;border-top:0}
-.plate .c4{bottom:7px;right:7px;border-left:0;border-top:0}
-.plate .cap{margin-top:16px;font-size:10px;letter-spacing:1.6px;color:var(--dim);line-height:1.85;border-top:1px solid var(--line);padding-top:9px}
-.plate .cap b{color:var(--green);font-weight:400}
-.plate .cap i{color:var(--orange-b);font-style:normal}
+/* ── facts table, ruled by hand ── */
+.facts{width:100%;border-collapse:collapse;margin-top:8px;font-size:16px}
+.facts td{border-bottom:3px solid var(--ink);padding:9px 6px;vertical-align:top}
+.facts td:first-child{color:var(--dgray);white-space:nowrap;width:1%;padding-right:18px}
+.facts td:last-child{font-weight:700;text-align:right}
+.facts .g{color:var(--grn)}
+.facts .o{color:var(--org)}
+.facts .ca{font-family:'Courier New',monospace;font-size:13px;font-weight:700;word-break:break-all;
+  text-align:right;letter-spacing:0}
 
-/* free-floating annotations — jittered by JS, decorative only */
-.note{position:absolute;font-family:var(--mono);font-size:9.5px;letter-spacing:1.4px;color:var(--faint);
-  border-left:1px solid var(--orange-d);padding-left:6px;pointer-events:none;z-index:3;max-width:170px;line-height:1.6}
-.note.g{border-left-color:var(--green-d);color:var(--dim)}
+/* ── steps ── */
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:12px}
+.step{border:4px solid var(--ink);padding:12px;background:var(--paper);position:relative}
+.step:nth-child(odd){transform:rotate(-1.1deg)}
+.step:nth-child(even){transform:rotate(1.3deg)}
+.step .n{font-size:34px;font-weight:700;color:var(--org);line-height:1;-webkit-text-stroke:1px #000}
+.step h3{font-size:17px;margin:2px 0 4px}
+.step p{font-size:14px;margin:0}
 
-/* terminal log */
-.term{margin-top:34px;border:1px solid var(--line2);background:#040604}
-.term .bar{display:flex;justify-content:space-between;gap:10px;padding:6px 11px;border-bottom:1px solid var(--line);
-  font-size:10px;letter-spacing:2px;color:var(--dim);background:var(--bg2)}
-.term .bar b{color:var(--green);font-weight:400}
-.term .body{padding:11px 13px;font-size:11.5px;line-height:1.85;min-height:112px;color:var(--dim)}
-.term .body div span{color:var(--green-d)}
-.term .body div u{color:var(--orange-b);text-decoration:none}
-.term .cur{display:inline-block;width:7px;height:12px;background:var(--green);vertical-align:-1px;animation:blink 1s steps(2) infinite}
-@keyframes blink{50%{opacity:0}}
+/* ── contract address: the one thing that must stay readable ── */
+.cabox{border:4px solid var(--ink);background:var(--yel);padding:14px 16px;margin-top:18px;
+  transform:rotate(-.5deg)}
+.cabox .lbl{font-size:14px;font-weight:700;margin-bottom:5px}
+#ca{font-family:'Courier New',monospace;font-size:15px;font-weight:700;word-break:break-all;
+  cursor:pointer;background:#fff;border:2px solid var(--ink);padding:7px 9px;line-height:1.5}
+#ca:hover{background:var(--lime)}
+.cabox .hint{font-size:13px;margin-top:6px;color:#333}
 
-/* ============ DECLARATION CLAUSES ============ */
-.clauses{margin-top:34px;border-top:1px solid var(--line)}
-.cl{display:grid;grid-template-columns:70px 1fr;gap:18px;padding:17px 0;border-bottom:1px solid var(--line);align-items:start}
-.cl:hover{background:var(--bg2)}
-.cl .k{font-family:var(--mono);font-size:10.5px;letter-spacing:1.6px;color:var(--orange);padding-top:3px}
-.cl .v{font-family:var(--body);font-size:16px;line-height:1.62;color:var(--text)}
-.cl .v b{color:var(--white);font-weight:600}
-.cl .v s{color:var(--faint);text-decoration-color:var(--orange-d)}
-.cl .v mark{background:var(--green-x);color:var(--green-b);padding:0 4px}
-.cl.void .v{color:var(--faint)}
+/* ── cta ── */
+.cta{border-top:4px solid var(--ink);border-bottom:4px solid var(--ink);background:var(--rose);
+  padding:40px 0;text-align:center;margin-top:30px}
+.cta .acts{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:16px}
 
-/* ============ FEE SCHEMATIC ============ */
-.schem{margin-top:30px;border:1px solid var(--line2);background:var(--panel);padding:26px 20px 16px;position:relative;overflow:hidden}
-.schem svg{width:100%;height:auto;display:block}
-/* wide schematic collapses to unreadable label sizes on phones, so a stacked
-   variant carries the same three nodes below 760px */
-.schem .narrow{display:none}
-@media(max-width:760px){
-  .schem .wide{display:none}
-  .schem .narrow{display:block}
-}
-.schem .foot{margin-top:14px;border-top:1px solid var(--line);padding-top:10px;font-size:10.5px;letter-spacing:1.3px;color:var(--dim);line-height:1.9}
-.schem .foot b{color:var(--green);font-weight:400}
-.schem .foot i{color:var(--orange-b);font-style:normal}
+/* ── footer ── */
+footer{padding:30px 18px 44px;text-align:center}
+footer img{width:88px;margin:0 auto 10px;border:3px solid var(--ink);
+  transform:rotate(2deg)}
+footer .ln{font-size:15px;margin-top:8px}
+footer .dis{max-width:70ch;margin:16px auto 0;font-family:var(--sys);font-size:12px;line-height:1.6;
+  color:#333}
+.sig{font-size:13px;color:var(--dgray);margin-top:14px;transform:rotate(-1deg);display:inline-block}
 
-/* ============ SPEC SHEET ============ */
-.spec{margin-top:30px;border:1px solid var(--line2)}
-.sr{display:flex;align-items:baseline;gap:10px;padding:13px 16px;border-bottom:1px solid var(--line);font-size:12.5px;letter-spacing:1.2px}
-.sr:last-child{border-bottom:0}
-.sr:nth-child(odd){background:var(--bg2)}
-.sr .k{color:var(--dim);white-space:nowrap;font-size:11px;letter-spacing:1.8px}
-.sr .dots{flex:1;border-bottom:1px dotted var(--faint);transform:translateY(-3px)}
-.sr .v{color:var(--white);white-space:nowrap;font-weight:700}
-.sr .v.g{color:var(--green)}
-.sr .v.o{color:var(--orange-b)}
-.sr .v.q{color:var(--dim);font-weight:400}
-.sr .v.mono-ca{font-size:11px;letter-spacing:0.3px;white-space:normal;word-break:break-all;text-align:right}
-.lnk{color:var(--green);text-decoration:underline;text-underline-offset:2px}
-.lnk:hover{color:var(--green-b)}
-
-/* ============ ACQUISITION ============ */
-.steps{margin-top:30px;border:1px solid var(--line2);background:#040604}
-.st{display:grid;grid-template-columns:40px 1fr;gap:14px;padding:15px 17px;border-bottom:1px solid var(--line)}
-.st:last-child{border-bottom:0}
-.st .n{font-family:var(--mono);font-size:11px;color:var(--orange);letter-spacing:1.4px;padding-top:2px}
-.st h4{font-family:var(--mono);font-size:13px;font-weight:700;letter-spacing:1.4px;color:var(--green);margin-bottom:4px}
-.st p{font-family:var(--body);font-size:14.5px;line-height:1.6;color:var(--text)}
-.ca{margin-top:22px;border:1px solid var(--orange-d);background:var(--orange-x);padding:15px 17px}
-.ca .k{font-size:10px;letter-spacing:2.2px;color:var(--orange-b);margin-bottom:6px}
-#ca{font-size:14px;color:var(--white);word-break:break-all;cursor:pointer;letter-spacing:1px}
-.ca .h{font-size:10px;letter-spacing:1.2px;color:var(--dim);margin-top:7px;line-height:1.7}
-
-/* ============ CTA / FOOTER ============ */
-.cta{border-top:1px solid var(--line2);border-bottom:1px solid var(--line2);background:var(--bg2);padding:62px 0;text-align:center;position:relative;overflow:hidden}
-.cta .big{font-family:var(--disp);font-size:clamp(28px,5.4vw,62px);line-height:0.94;letter-spacing:-1.8px;color:var(--white)}
-.cta .big em{font-style:normal;color:transparent;-webkit-text-stroke:1.5px var(--orange)}
-.cta .acts{justify-content:center}
-footer{padding:44px 22px 54px;text-align:center}
-footer .coin{width:72px;height:auto;margin:0 auto 14px;filter:drop-shadow(0 0 14px rgba(0,224,95,.4))}
-footer .wm{font-family:var(--disp);font-size:20px;color:var(--white);letter-spacing:-0.5px}
-footer .wm em{color:var(--orange);font-style:normal}
-footer .ln{margin-top:9px;font-size:11px;letter-spacing:1.8px;color:var(--dim)}
-footer .ln a{color:var(--green-d);text-decoration:none}
-footer .ln a:hover{color:var(--green)}
-footer .dis{max-width:70ch;margin:20px auto 0;font-size:10.5px;line-height:1.85;color:var(--faint);letter-spacing:.5px}
-
-@media(prefers-reduced-motion:reduce){
-  *{animation:none!important;transition:none!important}
-}
-@media(max-width:1000px){
-  .herogrid{grid-template-columns:1fr;gap:30px}
-  /* stacked, the plate would land below the fold — put the medallion first so
-     the logo is the first thing on screen */
-  .plate{order:-1;max-width:300px;margin:0 auto;width:100%}
-  .note{display:none}
-  .stamp{display:none}
-}
-/* section links wrap the sticky bar onto 3 rows before this width — drop them
-   and keep brand + the three destinations that matter */
+@media(prefers-reduced-motion:reduce){*{animation:none!important}}
 @media(max-width:900px){
-  .navlinks a.doc{display:none}
+  .hero{grid-template-columns:1fr;gap:18px}
+  .coinbox{order:-1}
+  .flow{grid-template-columns:1fr}
+  .flowarrow{transform:rotate(90deg);margin:0 auto}
+  .steps{grid-template-columns:1fr 1fr}
 }
-@media(max-width:700px){
-  nav{padding:8px 14px;gap:9px}
-  .brand .wm{font-size:15px}
-  .navlinks a{padding:5px 7px;font-size:10px;letter-spacing:1.1px}
-  .wrap{padding:0 14px}
-  .sec{padding:54px 0}
-  .sechead{grid-template-columns:1fr;gap:6px}
-  .secno{font-size:40px}
-  .cl{grid-template-columns:1fr;gap:5px}
-  .stack{letter-spacing:-1.5px}
-  .sr{flex-wrap:wrap}
-  .sr .dots{display:none}
-}
-/* below this the remaining three still wrap to a second row — shorten the label
-   and tighten the bar so the sticky nav stays a single row on a phone */
-@media(max-width:480px){
-  nav{gap:6px;padding:7px 11px}
-  .brand{gap:7px}
-  .brand .coin{width:28px}
-  .brand .wm{font-size:13px}
-  .navlinks{gap:2px}
-  .navlinks a{height:24px;padding:0 6px;font-size:9.5px;letter-spacing:0.7px}
-  .navlinks .lg{display:none}
-  .navlinks .sm{display:inline}
+@media(max-width:520px){
+  body{font-size:17px}
+  nav{padding:10px 12px;gap:7px}
+  .nl{margin-left:0;width:100%}
+  .btn{font-size:13px;padding:6px 11px}
+  .steps{grid-template-columns:1fr}
+  .chrome .mnu{display:none}
+  .facts td:first-child{white-space:normal}
 }
 </style>
 </head>
 <body>
 
-<!-- ══ BANDS ══ -->
-<div class="band band-a"><div class="run" id="runA"></div></div>
-<div class="band band-b"><div class="run" id="runB"></div></div>
+<!-- the application window it was allegedly drawn in -->
+<div class="chrome">
+  <span class="ttl">memebackedcurrency.bmp - Paint</span>
+  <span class="mnu"><span><u>F</u>ile</span><span><u>E</u>dit</span><span><u>V</u>iew</span><span><u>I</u>mage</span><span><u>H</u>elp</span></span>
+  <span class="win"><b>_</b><b>□</b><b>×</b></span>
+</div>
 
-<!-- ══ NAV ══ -->
+<div class="banner"><div class="run" id="run"></div></div>
+
 <nav>
-  <a href="#top" class="brand">
-    <img src="assets/mbc-logo.jpg" alt="Meme Backed Currency" class="coin">
-    <span class="wm">MEME<em>/</em>BACKED</span>
+  <a href="#top" class="logo">
+    <img src="assets/mbc-logo.jpg" alt="Meme Backed Currency">
+    <b>MEME<i>/</i>BACKED</b>
   </a>
-  <div class="navlinks">
-    <a class="doc" href="#decl">[01]&nbsp;DECLARATION</a>
-    <a class="doc" href="#fee">[02]&nbsp;FEES</a>
-    <a class="doc" href="#spec">[03]&nbsp;SPEC</a>
-    <a class="doc" href="gallery.html">RESERVE</a>
-    <a href="https://discord.gg/d7dpbghrwy" target="_blank" rel="noopener">DISCORD</a>
-    <a href="https://x.com/MEMEBACKEDCURR" target="_blank" rel="noopener" class="alt">X</a>
-    <a href="https://www.ponsfamily.com/launchpad/0x8DeC1E310634CC83a1999a9Ccb567FF0eDF9a8bA" target="_blank" rel="noopener" class="hot"><span class="lg">BUY&nbsp;ON&nbsp;PONS</span><span class="sm">BUY&nbsp;$MEME</span></a>
+  <div class="nl">
+    <a href="#what" class="btn tilt1">what is it</a>
+    <a href="#fees" class="btn tilt2">fees</a>
+    <a href="gallery.html" class="btn tilt1">memes</a>
+    <a href="https://discord.gg/d7dpbghrwy" target="_blank" rel="noopener" class="btn tilt3">discord</a>
+    <a href="https://x.com/MEMEBACKEDCURR" target="_blank" rel="noopener" class="btn org tilt1">X</a>
+    <a href="https://www.ponsfamily.com/launchpad/0x8DeC1E310634CC83a1999a9Ccb567FF0eDF9a8bA" target="_blank" rel="noopener" class="btn grn tilt2">BUY IT</a>
   </div>
 </nav>
 
-<!-- ══ HERO ══ -->
 <div class="wrap" id="top">
+
+<!-- ══ HERO ══ -->
 <section class="hero">
-  <span class="note g" style="top:8%;right:36%">FIG. 1 — SUBJECT AT REST<br>NO FIXED MASCOT ASSIGNED</span>
-  <span class="note" style="bottom:20%;left:2%">TICKER RESERVED: MEME<br>CLASS: CURRENCY, MEME-BACKED</span>
+  <div>
+    <h1><span class="wordart">MEME</span> <span class="wordart o">BACKED</span><br><span class="wordart r">CURRENCY</span></h1>
+    <svg class="scribl" viewBox="0 0 430 22" aria-hidden="true"><path class="ink thin" d="M3 12 L46 13 L93 11 L139 12 L188 15 L233 11 L280 15 L328 16 L378 13 L419 16 M424 9 L376 15 L330 14 L282 12 L234 12 L187 10 L139 13 L92 12 L47 13 L4 11"/></svg>
 
-  <div class="herogrid">
-    <div>
-      <div class="tag">MEME BACKED CURRENCY <b>// EST. INTERNET // TICKER: MEME</b></div>
+    <p class="big-txt">its a meme for <b>all</b> the memes. not one frog. ALL of them.</p>
+    <p class="big-txt">$MEME is live on <b>Pons</b> on <b>Robinhood Chain</b> and the creator fees
+    go <span style="background:var(--lime)">back to the holders</span> instead of some guys wallet.</p>
 
-      <h1 class="stack">
-        <span class="l1 glitch" data-t="MEME" id="gl1">MEME</span>
-        <span class="l2">BACKED</span>
-        <span class="l3">CURRENCY</span>
-      </h1>
-
-      <p class="forall"><b>A MEME FOR</b> <span class="slot" id="slot">ALL</span></p>
-
-      <p class="herosub">Every meme is collateral. No single mascot, no in-group, no house frog.
-      <b>$MEME</b> is <b class="g">live on Pons</b> on <b>Robinhood Chain</b>, and the creator fees
-      route <span class="g">back to holders</span> instead of into a dev wallet.</p>
-
-      <div class="acts">
-        <a href="https://www.ponsfamily.com/launchpad/0x8DeC1E310634CC83a1999a9Ccb567FF0eDF9a8bA" target="_blank" rel="noopener" class="bt p">BUY ON PONS &rarr;</a>
-        <a href="#buy" class="bt">HOW TO BUY</a>
-        <a href="https://discord.gg/d7dpbghrwy" target="_blank" rel="noopener" class="bt">DISCORD</a>
-        <a href="https://x.com/MEMEBACKEDCURR" target="_blank" rel="noopener" class="bt o">X / @MEMEBACKEDCURR</a>
-      </div>
+    <div class="badges">
+      <span class="badge g">ticker: MEME</span>
+      <span class="badge">Robinhood Chain</span>
+      <span class="badge o">on Pons</span>
+      <span class="badge t">fees → u</span>
     </div>
 
-    <div class="plate">
-      <span class="cross"></span>
-      <span class="cnr c1"></span><span class="cnr c2"></span><span class="cnr c3"></span><span class="cnr c4"></span>
-      <div class="coinwrap"><img src="assets/mbc-logo.jpg" alt="Meme Backed Currency medallion" class="coin"></div>
-      <div class="cap">
-        SPECIMEN <b>MBC-000</b> / THE EMPEROR<br>
-        STATUS <i>LOAD-BEARING</i> / RIM INTACT<br>
-        BACKING <b>ALL MEMES</b>, NO EXCEPTIONS<br>
-        STATUS <i>LIVE ON PONS</i>
-      </div>
+    <div class="badges" style="margin-top:16px">
+      <a href="https://www.ponsfamily.com/launchpad/0x8DeC1E310634CC83a1999a9Ccb567FF0eDF9a8bA" target="_blank" rel="noopener" class="btn grn big tilt1">BUY ON PONS</a>
+      <a href="#how" class="btn big tilt2">how???</a>
     </div>
   </div>
 
-  <div class="term">
-    <div class="bar"><span>MBC://TREASURY.LOG</span><span><b>LIVE</b> — TAIL -F</span></div>
-    <div class="body" id="log"></div>
+  <div class="coinbox">
+    <img src="assets/mbc-logo.jpg" alt="the meme backed currency coin">
+    <span class="marquee"></span>
+    <p class="cap-scribble">fig 1. the coin (i drew this)</p>
+    <p class="arrow-note">↖ this is him. he is load bearing</p>
   </div>
 </section>
-</div>
 
-<div class="band band-b" style="border-top:1px solid var(--line)"><div class="run" id="runC"></div></div>
+<!-- ══ WHAT ══ -->
+<section id="what">
+  <h2><span class="wordart">what even is this</span></h2>
+  <svg class="scribl" viewBox="0 0 190 22" aria-hidden="true"><path class="ink thin" d="M4 11 L23 9 L45 7 L60 9 L82 6 L104 9 L122 11 L143 6 L164 9 L185 5 M185 18 L163 14 L144 12 L121 15 L101 15 L76 13 L56 13 L37 18 L17 15 L-1 17"/></svg>
 
-<!-- ══ 01 DECLARATION ══ -->
-<div class="wrap">
-<section class="sec" id="decl">
-  <div class="stamp">DOC 01/04<br>REV. &mdash;<br>UNAUDITED<br>NON-BINDING</div>
-  <div class="sechead">
-    <div class="secno">01</div>
-    <div>
-      <div class="tag">DECLARATION <b>// what this actually is</b></div>
-      <h2 class="h2">EVERY CURRENCY NEEDS BACKING.<br><em>OURS IS BACKED BY ALL OF THEM.</em></h2>
-      <p class="lede">Most meme coins pick one joke and ride it into the ground. This one doesn't pick.
-      Frogs, dogs, cats, wojaks, brainrot, rage comics, cursed AI output &mdash; if it made someone laugh
-      on the internet, it is collateral here. That is the entire thesis: <b class="o">a meme for all</b>.</p>
+  <p class="big-txt">every other coin picks ONE joke and rides it til it dies. this one doesnt pick.
+  frogs, dogs, cats, wojaks, brainrot, rage comics, cursed ai pictures with 7 fingers — if it made
+  somebody laugh online its collateral. thats it. thats the whole thing.</p>
 
-      <div class="clauses">
-        <div class="cl"><div class="k">CL. 001</div><div class="v"><b>No mascot.</b> The medallion is a specimen, not a monarch. Nothing on the roster outranks anything else on it.</div></div>
-        <div class="cl"><div class="k">CL. 002</div><div class="v"><b>No gate.</b> No whitelist, no tiers, no allocation round nobody can see. <mark>Everyone stands in the same room.</mark></div></div>
-        <div class="cl"><div class="k">CL. 003</div><div class="v"><b>Fees leave the building.</b> Creator fees are directed to holders. Not the team, not a treasury with one signer.</div></div>
-        <div class="cl"><div class="k">CL. 004</div><div class="v"><b>Robinhood Chain, via Pons.</b> Live on rails ordinary people already have open on their phone.</div></div>
-        <div class="cl void"><div class="k">CL. 005</div><div class="v"><s>Roadmap, four phases, Q3 partnership pipeline, ecosystem fund, DAO transition.</s> &mdash; struck. There is no roadmap.</div></div>
-        <div class="cl void"><div class="k">CL. 006</div><div class="v"><s>Utility layer, staking vault, launchpad, AI agent, L3 appchain.</s> &mdash; struck. There is no product.</div></div>
-        <div class="cl"><div class="k">CL. 007</div><div class="v">What is left after the strikethroughs is the honest part: <b>a ticker the whole internet can point at</b>, and fees that go back to the people holding it.</div></div>
-      </div>
-    </div>
+  <div class="panel grn">
+    <span class="pin">the rules (there are 4)</span>
+    <ol class="crude">
+      <li><b>no mascot.</b> the frog is a guy, not a king. nothing outranks anything.</li>
+      <li><b>no gate.</b> no whitelist no tiers no secret allocation round. everyone is just here.</li>
+      <li><b>fees leave the building.</b> creator fees go to holders. not the team.</li>
+      <li><s>roadmap phase 1 phase 2 ecosystem fund DAO transition Q3 partnership pipeline</s> — nope. crossed out. there isnt one.</li>
+    </ol>
   </div>
 </section>
-</div>
 
-<div class="rule"></div>
+<!-- ══ FEES ══ -->
+<section id="fees">
+  <h2><span class="wordart o">the fees go to YOU</span></h2>
+  <p class="big-txt">theres one actual mechanic on this whole website and this is it. i drew a diagram:</p>
 
-<!-- ══ 02 FEE MECHANISM ══ -->
-<div class="wrap">
-<section class="sec" id="fee">
-  <div class="stamp">DOC 02/04<br>MECHANISM<br>SINGLE PATH<br>NO BRANCHES</div>
-  <div class="sechead">
-    <div class="secno">02</div>
-    <div>
-      <div class="tag">FEE MECHANISM <b>// the one real moving part</b></div>
-      <h2 class="h2">CREATOR FEES GO TO <span class="out">HOLDERS</span></h2>
-      <p class="lede">There is one mechanic on this entire site and this is it. Trading generates creator
-      fees; those fees are directed back out to the people holding <span class="g">$MEME</span>. One path,
-      no branches, nothing clever hiding in the middle.</p>
-
-      <div class="schem">
-        <svg class="wide" viewBox="0 0 900 210" role="img" aria-label="Schematic: trading on Pons generates creator fees, which route back to MEME holders">
-          <defs>
-            <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
-              <path d="M0,0 L10,5 L0,10 z" fill="#ff6a00"/>
-            </marker>
-            <marker id="ag" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
-              <path d="M0,0 L10,5 L0,10 z" fill="#00e05f"/>
-            </marker>
-          </defs>
-          <g font-family="JetBrains Mono, monospace" font-size="11" letter-spacing="1.6">
-            <!-- node A -->
-            <rect x="8" y="46" width="228" height="84" fill="#0a0e0b" stroke="#2a3d2e"/>
-            <text x="20" y="68" fill="#5d6b60">NODE A</text>
-            <text x="20" y="92" fill="#eef2ec" font-size="17" letter-spacing="0.5">TRADE OCCURS</text>
-            <text x="20" y="112" fill="#5d6b60">BUY / SELL ON PONS</text>
-            <!-- A -> B -->
-            <line x1="240" y1="88" x2="316" y2="88" stroke="#ff6a00" stroke-width="1.4" stroke-dasharray="5 4" marker-end="url(#ar)"/>
-            <text x="248" y="78" fill="#ff9d3d" font-size="9.5">EMITS FEE</text>
-            <!-- node B -->
-            <rect x="322" y="46" width="228" height="84" fill="#0a0e0b" stroke="#2a3d2e"/>
-            <text x="334" y="68" fill="#5d6b60">NODE B</text>
-            <text x="334" y="92" fill="#eef2ec" font-size="17" letter-spacing="0.5">FEE ACCRUES</text>
-            <text x="334" y="112" fill="#5d6b60">TO CREATOR ACCOUNT</text>
-            <!-- B -> C -->
-            <line x1="554" y1="88" x2="630" y2="88" stroke="#00e05f" stroke-width="1.4" stroke-dasharray="5 4" marker-end="url(#ag)"/>
-            <text x="560" y="78" fill="#5cff9e" font-size="9.5">ROUTED OUT</text>
-            <!-- node C -->
-            <rect x="636" y="42" width="256" height="92" fill="#04331d" stroke="#00e05f"/>
-            <text x="650" y="66" fill="#0a8f42">NODE C — TERMINAL</text>
-            <text x="650" y="92" fill="#5cff9e" font-size="19" letter-spacing="0.5">HOLDERS PAID</text>
-            <text x="650" y="114" fill="#0a8f42">YOU, IF YOU ARE HOLDING</text>
-            <!-- feedback loop -->
-            <path d="M764,140 L764,176 L124,176 L124,136" fill="none" stroke="#2a3d2e" stroke-width="1.2" stroke-dasharray="3 5" marker-end="url(#ar)"/>
-            <text x="366" y="171" fill="#5d6b60" font-size="9.5">PAID HOLDERS POST MORE MEMES — LOOP REPEATS</text>
-            <!-- margin ticks -->
-            <text x="8" y="24" fill="#333f36" font-size="9">SCHEMATIC 02.1 — FEE PATH, SIMPLIFIED</text>
-            <text x="892" y="24" fill="#333f36" font-size="9" text-anchor="end">NOT TO SCALE</text>
-            <text x="892" y="200" fill="#333f36" font-size="9" text-anchor="end">MECHANISM PER LAUNCH PLATFORM</text>
+  <div class="panel yel">
+    <span class="pin">diagram (not to scale)</span>
+    <div class="flow">
+      <div class="node a">
+        <svg viewBox="0 0 210 145" width="120" height="83" aria-hidden="true">
+          <path class="ink jag" d="M14 128 L44 112 L62 120 L92 78 L118 92 L150 40 L176 52 L196 16"/>
+          <path class="ink thin" d="M10 10 L11 134 L200 136"/>
+        </svg>
+        <h3>1. people trade it</h3>
+        <p>buying and selling on Pons makes a creator fee</p>
+      </div>
+      <div class="flowarrow">
+        <svg viewBox="0 0 160 84" aria-hidden="true">
+          <path class="ink fat" d="M9 42 L24 42 L37 43 L46 41 L55 39 L68 41 L78 43 L93 41 L103 39 L118 41 L128 40 L137 39 L152 39"/>
+          <path d="M150 42 L122 20 L128 42 L120 63 Z" fill="#ED1C24" stroke="#000" stroke-width="4" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="node b">
+        <svg viewBox="0 0 130 150" width="86" height="99" aria-hidden="true">
+          <path d="M30 60 L24 96 L30 124 L52 136 L82 134 L100 120 L103 92 L96 62 L74 52 L48 54 Z" fill="#FFC90E" stroke="#000" stroke-width="4" stroke-linejoin="round"/>
+          <path d="M50 52 L44 34 L58 26 L78 28 L86 38 L80 54 Z" fill="#B97A57" stroke="#000" stroke-width="4" stroke-linejoin="round"/>
+          <text x="52" y="106" font-family="Comic Sans MS,cursive" font-size="34" font-weight="700" text-anchor="middle">$</text>
+        </svg>
+        <h3>2. fee goes in the bag</h3>
+        <p>it piles up in the creator account</p>
+      </div>
+      <div class="flowarrow">
+        <svg viewBox="0 0 160 84" aria-hidden="true">
+          <path class="ink fat" d="M9 42 L24 42 L37 43 L46 41 L55 39 L68 41 L78 43 L93 41 L103 39 L118 41 L128 40 L137 39 L152 39"/>
+          <path d="M150 42 L122 20 L128 42 L120 63 Z" fill="#22B14C" stroke="#000" stroke-width="4" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="node c">
+        <svg viewBox="0 0 90 150" width="66" height="110" aria-hidden="true">
+          <g stroke="#000" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M58 26 L60 34 L53 39 L47 43 L40 45 L33 42 L27 39 L21 34 L19 26 L20 18 L27 13 L33 8 L40 5 L49 5 L55 11 L61 17 Z" fill="#fff"/>
+            <path d="M38 48 L40 55 L41 61 L40 68 L43 75 L38 81 L42 88 L39 96"/>
+            <path d="M42 58 L33 55 L30 58 L23 55 L22 50 L18 48 L7 45"/>
+            <path d="M43 57 L45 54 L52 56 L57 54 L63 51 L66 43 L71 40"/>
+            <path d="M40 96 L35 100 L34 110 L25 111 L23 117 L22 129 L19 134"/>
+            <path d="M43 96 L45 99 L48 111 L57 116 L56 121 L59 130 L67 133"/>
+            <path d="M31 24 L34 27 M46 24 L49 27" stroke-width="3"/>
+            <path d="M32 33 L40 36 L48 32" stroke-width="3"/>
           </g>
         </svg>
-
-        <svg class="narrow" viewBox="0 0 360 470" role="img" aria-label="Schematic: trading on Pons generates creator fees, which route back to MEME holders">
-          <defs>
-            <marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
-              <path d="M0,0 L10,5 L0,10 z" fill="#ff6a00"/>
-            </marker>
-            <marker id="ag2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
-              <path d="M0,0 L10,5 L0,10 z" fill="#00e05f"/>
-            </marker>
-          </defs>
-          <g font-family="JetBrains Mono, monospace" font-size="10" letter-spacing="1.4">
-            <text x="4" y="14" fill="#333f36" font-size="9">SCHEMATIC 02.1 — FEE PATH</text>
-            <!-- node A -->
-            <rect x="42" y="28" width="314" height="86" fill="#0a0e0b" stroke="#2a3d2e"/>
-            <text x="56" y="50" fill="#5d6b60">NODE A</text>
-            <text x="56" y="74" fill="#eef2ec" font-size="17" letter-spacing="0.5">TRADE OCCURS</text>
-            <text x="56" y="95" fill="#5d6b60">BUY / SELL ON PONS</text>
-            <line x1="199" y1="118" x2="199" y2="152" stroke="#ff6a00" stroke-width="1.4" stroke-dasharray="5 4" marker-end="url(#ar2)"/>
-            <text x="210" y="140" fill="#ff9d3d" font-size="9.5">EMITS FEE</text>
-            <!-- node B -->
-            <rect x="42" y="158" width="314" height="86" fill="#0a0e0b" stroke="#2a3d2e"/>
-            <text x="56" y="180" fill="#5d6b60">NODE B</text>
-            <text x="56" y="204" fill="#eef2ec" font-size="17" letter-spacing="0.5">FEE ACCRUES</text>
-            <text x="56" y="225" fill="#5d6b60">TO CREATOR ACCOUNT</text>
-            <line x1="199" y1="248" x2="199" y2="282" stroke="#00e05f" stroke-width="1.4" stroke-dasharray="5 4" marker-end="url(#ag2)"/>
-            <text x="210" y="270" fill="#5cff9e" font-size="9.5">ROUTED OUT</text>
-            <!-- node C -->
-            <rect x="42" y="288" width="314" height="94" fill="#04331d" stroke="#00e05f"/>
-            <text x="56" y="310" fill="#0a8f42">NODE C — TERMINAL</text>
-            <text x="56" y="336" fill="#5cff9e" font-size="18" letter-spacing="0.5">HOLDERS PAID</text>
-            <text x="56" y="358" fill="#0a8f42">YOU, IF YOU ARE HOLDING</text>
-            <!-- feedback loop down the left margin -->
-            <path d="M42,354 L16,354 L16,74 L38,74" fill="none" stroke="#2a3d2e" stroke-width="1.2" stroke-dasharray="3 5" marker-end="url(#ar2)"/>
-            <text x="4" y="410" fill="#5d6b60" font-size="9">PAID HOLDERS POST MORE MEMES —</text>
-            <text x="4" y="424" fill="#5d6b60" font-size="9">LOOP REPEATS</text>
-            <text x="4" y="450" fill="#333f36" font-size="9">NOT TO SCALE / PER LAUNCH PLATFORM</text>
+        </svg>
+          <g stroke="#000" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round">
           </g>
         </svg>
-        <div class="foot">
-          <b>READ:</b> the louder the memes, the more it trades &mdash; the more it trades, the more comes back to <i>you</i>.<br>
-          <b>NOTE:</b> fee routing follows whatever the launch platform supports. It is a mechanism, <i>not a yield promise</i>.
-        </div>
+        <h3>3. YOU get it</h3>
+        <p>if you are holding, thats you. hello</p>
       </div>
     </div>
+    <p style="margin:14px 0 0;font-size:16px">the louder the memes → the more it trades → the more comes back.
+    <span class="hand">(fee stuff works however Pons does it. its a mechanic not a promise ok)</span></p>
   </div>
 </section>
-</div>
 
-<div class="rule"></div>
-
-<!-- ══ 03 SPEC ══ -->
-<div class="wrap">
-<section class="sec" id="spec">
-  <div class="stamp">DOC 03/04<br>SPEC SHEET<br>NO VESTING<br>NO UNLOCKS</div>
-  <div class="sechead">
-    <div class="secno">03</div>
-    <div>
-      <div class="tag">SPECIFICATION <b>// the whole sheet, nothing withheld</b></div>
-      <h2 class="h2">THE FACTS, SUCH AS THEY ARE</h2>
-      <p class="lede">No vesting maze, no unlock cliff at three in the morning, no sixty-page whitepaper
-      with a stock photo of a handshake. Fields marked <span class="o">PENDING</span> are pending because
-      they are not decided yet &mdash; not because they are hidden.</p>
-
-      <div class="spec">
-        <div class="sr"><span class="k">TOKEN NAME</span><span class="dots"></span><span class="v">MEME BACKED CURRENCY</span></div>
-        <div class="sr"><span class="k">TICKER</span><span class="dots"></span><span class="v g">$MEME</span></div>
-        <div class="sr"><span class="k">CHAIN</span><span class="dots"></span><span class="v">ROBINHOOD CHAIN</span></div>
-        <div class="sr"><span class="k">LAUNCH VENUE</span><span class="dots"></span><span class="v o">PONS &mdash; LIVE</span></div>
-        <div class="sr"><span class="k">CREATOR FEES</span><span class="dots"></span><span class="v g">ROUTED TO HOLDERS</span></div>
-        <div class="sr"><span class="k">BACKED BY</span><span class="dots"></span><span class="v">EVERY MEME, NO EXCEPTIONS</span></div>
-        <div class="sr"><span class="k">MASCOT</span><span class="dots"></span><span class="v q">NONE — DELIBERATELY</span></div>
-        <div class="sr"><span class="k">ROADMAP</span><span class="dots"></span><span class="v q">NONE — SEE CL. 005</span></div>
-        <div class="sr"><span class="k">UTILITY</span><span class="dots"></span><span class="v q">NONE — SEE CL. 006</span></div>
-        <div class="sr"><span class="k">STATUS</span><span class="dots"></span><span class="v g">LIVE &mdash; TRADING OPEN</span></div>
-        <div class="sr"><span class="k">CONTRACT</span><span class="dots"></span><span class="v g mono-ca">0x8DeC1E310634CC83a1999a9Ccb567FF0eDF9a8bA</span></div>
-      </div>
-    </div>
+<!-- ══ FACTS ══ -->
+<section id="facts">
+  <h2><span class="wordart">the facts</span></h2>
+  <p class="big-txt">no 60 page whitepaper with a stock photo of two guys shaking hands. its this:</p>
+  <div class="panel">
+    <span class="pin">everything, honest</span>
+    <table class="facts">
+      <tr><td>name</td><td>MEME BACKED CURRENCY</td></tr>
+      <tr><td>ticker</td><td class="g">$MEME</td></tr>
+      <tr><td>chain</td><td>Robinhood Chain</td></tr>
+      <tr><td>where</td><td class="o">Pons — its live</td></tr>
+      <tr><td>creator fees</td><td class="g">→ holders</td></tr>
+      <tr><td>backed by</td><td>every meme, no exceptions</td></tr>
+      <tr><td>mascot</td><td style="color:#7F7F7F">none. on purpose</td></tr>
+      <tr><td>roadmap</td><td style="color:#7F7F7F">also none</td></tr>
+      <tr><td>contract</td><td class="ca">0x8DeC1E310634CC83a1999a9Ccb567FF0eDF9a8bA</td></tr>
+    </table>
   </div>
 </section>
-</div>
 
-<div class="rule"></div>
+<!-- ══ HOW ══ -->
+<section id="how">
+  <h2><span class="wordart r">how do i buy it</span></h2>
+  <div class="steps">
+    <div class="step"><div class="n">1</div><h3>get a wallet</h3><p>one that does Robinhood Chain. write the seed phrase on PAPER. nobody real will ever ask you for it.</p></div>
+    <div class="step"><div class="n">2</div><h3>put money in it</h3><p>bridge or deposit onto Robinhood Chain so theres gas</p></div>
+    <div class="step"><div class="n">3</div><h3>go to Pons</h3><p>use <a href="https://www.ponsfamily.com/launchpad/0x8DeC1E310634CC83a1999a9Ccb567FF0eDF9a8bA" target="_blank" rel="noopener">this exact link</a>. check the address matches. never trust one from a DM.</p></div>
+    <div class="step"><div class="n">4</div><h3>swap + hold</h3><p>buy it, hold it, post memes. thats the entire job</p></div>
+  </div>
 
-<!-- ══ 04 ACQUISITION ══ -->
-<div class="wrap">
-<section class="sec" id="buy">
-  <div class="stamp">DOC 04/04<br>PROCEDURE<br>FOUR STEPS<br>DO NOT SKIP</div>
-  <div class="sechead">
-    <div class="secno">04</div>
-    <div>
-      <div class="tag">ACQUISITION <b>// procedure</b></div>
-      <h2 class="h2">HOW TO GET <span class="out">$MEME</span></h2>
-      <p class="lede">Four steps. If a step feels like it is missing, it is because it is not there.</p>
-
-      <div class="steps">
-        <div class="st"><div class="n">01</div><div><h4>OBTAIN WALLET</h4><p>Set up a wallet that supports Robinhood Chain. Write the seed phrase on paper. Nobody legitimate will ever ask you for it.</p></div></div>
-        <div class="st"><div class="n">02</div><div><h4>FUND IT</h4><p>Bridge or deposit onto Robinhood Chain so there is gas in the account to transact with.</p></div></div>
-        <div class="st"><div class="n">03</div><div><h4>OPEN PONS</h4><p>Go to the <a class="lnk" href="https://www.ponsfamily.com/launchpad/0x8DeC1E310634CC83a1999a9Ccb567FF0eDF9a8bA" target="_blank" rel="noopener">official $MEME page on Pons</a> and connect your wallet. Check the address in the bar matches the one below &mdash; never one sent to you in a DM.</p></div></div>
-        <div class="st"><div class="n">04</div><div><h4>SWAP AND HOLD</h4><p>Buy, hold, post memes. Creator fees find their way back to holders. That is the whole procedure.</p></div></div>
-      </div>
-
-      <div class="ca">
-        <div class="k">OFFICIAL CONTRACT ADDRESS &mdash; ROBINHOOD CHAIN</div>
-        <div id="ca">0x8DeC1E310634CC83a1999a9Ccb567FF0eDF9a8bA</div>
-        <div class="h">CLICK TO COPY. VERIFY THIS EXACT STRING AGAINST OUR X AND DISCORD BEFORE SENDING ANYTHING. IMPERSONATORS ARE GUARANTEED.</div>
-        <a class="bt p" style="margin-top:13px" href="https://www.ponsfamily.com/launchpad/0x8DeC1E310634CC83a1999a9Ccb567FF0eDF9a8bA" target="_blank" rel="noopener">OPEN ON PONS &rarr;</a>
-      </div>
-    </div>
+  <div class="cabox">
+    <div class="lbl">the real contract address (click it to copy)</div>
+    <div id="ca">0x8DeC1E310634CC83a1999a9Ccb567FF0eDF9a8bA</div>
+    <div class="hint">check this against our X and discord before you send anything anywhere.
+    there WILL be fake ones. there always are.</div>
   </div>
 </section>
 </div>
@@ -554,25 +396,24 @@ footer .dis{max-width:70ch;margin:20px auto 0;font-size:10.5px;line-height:1.85;
 <!-- ══ CTA ══ -->
 <section class="cta">
   <div class="wrap">
-    <div class="tag" style="margin-bottom:12px">FINAL NOTICE <b>// there is no step six</b></div>
-    <p class="big">THE MEMES WON'T<br><em>POST THEMSELVES</em></p>
+    <h2><span class="wordart">the memes wont post themselves</span></h2>
+    <p class="big-txt">come hang out. bring your worst ones.</p>
     <div class="acts">
-      <a href="https://discord.gg/d7dpbghrwy" target="_blank" rel="noopener" class="bt p">JOIN THE DISCORD</a>
-      <a href="https://x.com/MEMEBACKEDCURR" target="_blank" rel="noopener" class="bt o">X / @MEMEBACKEDCURR</a>
+      <a href="https://discord.gg/d7dpbghrwy" target="_blank" rel="noopener" class="btn grn big tilt1">JOIN DISCORD</a>
+      <a href="https://x.com/MEMEBACKEDCURR" target="_blank" rel="noopener" class="btn org big tilt3">we are on X</a>
+      <a href="gallery.html" class="btn big tilt2">see the memes</a>
     </div>
   </div>
 </section>
 
-<div class="band band-a"><div class="run" id="runD"></div></div>
-
-<!-- ══ FOOTER ══ -->
 <footer>
-  <img src="assets/mbc-logo.jpg" alt="Meme Backed Currency" class="coin">
-  <p class="wm">MEME<em>/</em>BACKED<em>/</em>CURRENCY</p>
-  <p class="ln">A MEME FOR ALL &nbsp;//&nbsp;
-    <a href="gallery.html">THE RESERVE</a> &nbsp;//&nbsp;
-    <a href="https://x.com/MEMEBACKEDCURR" target="_blank" rel="noopener">X</a> &nbsp;//&nbsp;
-    <a href="https://discord.gg/d7dpbghrwy" target="_blank" rel="noopener">DISCORD</a></p>
+  <img src="assets/mbc-logo.jpg" alt="Meme Backed Currency">
+  <p><b style="font-size:20px">MEME BACKED CURRENCY</b></p>
+  <p class="ln">a meme for all &nbsp;·&nbsp;
+    <a href="https://x.com/MEMEBACKEDCURR" target="_blank" rel="noopener">X</a> &nbsp;·&nbsp;
+    <a href="https://discord.gg/d7dpbghrwy" target="_blank" rel="noopener">discord</a> &nbsp;·&nbsp;
+    <a href="gallery.html">the memes</a></p>
+  <p class="sig">drawn with a mouse. no undo was used.</p>
   <p class="dis">$MEME is a meme coin with no intrinsic value and no expectation of financial return. It exists
   for entertainment. Creator fee distribution follows whatever the launch platform supports and is not a
   guarantee of profit, yield or income. Nothing on this page is financial advice. Do not spend more than you
@@ -582,113 +423,21 @@ footer .dis{max-width:70ch;margin:20px auto 0;font-size:10.5px;line-height:1.85;
 <script>
 (function(){
 "use strict";
-var reduce = window.matchMedia('(prefers-reduced-motion:reduce)').matches;
-function rnd(a,b){ return a + Math.random()*(b-a); }
-function pick(a){ return a[Math.floor(Math.random()*a.length)]; }
-
-/* ---- ticker bands: built in JS so the strings stay editable in one place ---- */
-var A = ['$MEME','A MEME FOR ALL','CREATOR FEES → HOLDERS','LIVE ON PONS','ROBINHOOD CHAIN','NO MASCOT','NO ROADMAP','EVERY MEME IS COLLATERAL'];
-var B = ['NOW LIVE ON PONS','INTAKE OPEN','NO SUBMISSION REJECTED','SPECIMEN MBC-000 STABLE','RIM INTACT','TICKER: MEME','FEE PATH: ONE, NO BRANCHES','THE BACKING IS YOUR CAMERA ROLL'];
-function band(el, items, sep){
-  if(!el) return;
-  var one = items.map(function(t){ return '<span>'+t+'</span><i>'+sep+'</i>'; }).join('');
-  el.innerHTML = one + one; /* doubled: the -50% keyframe makes the seam invisible */
+var items=['$MEME','a meme for all','fees go to holders','live on Pons','Robinhood Chain','no roadmap','no mascot','every meme is collateral'];
+var el=document.getElementById('run');
+if(el){
+  var one=items.map(function(t){return '<span>'+t+'</span><i>★</i>';}).join('');
+  el.innerHTML=one+one;
 }
-band(document.getElementById('runA'), A, '◆');
-band(document.getElementById('runB'), B, '//');
-band(document.getElementById('runC'), B.slice().reverse(), '//');
-band(document.getElementById('runD'), A.slice().reverse(), '◆');
-
-/* ---- "A MEME FOR ___" : random, never the same word twice running ---- */
-(function(){
-  var el = document.getElementById('slot');
-  if(!el || reduce) return;
-  var words = ['ALL','YOU','US','EVERYONE','FROGS','DOGS','CATS','WOJAKS','ANONS','THE TIMELINE','THE GROUP CHAT','NORMIES TOO'];
-  var last = 'ALL';
-  el.style.transition = 'opacity .14s linear';
-  setInterval(function(){
-    var w = last; while(w === last){ w = pick(words); } last = w;
-    el.style.opacity = '0';
-    setTimeout(function(){ el.textContent = w; el.style.opacity = '1'; }, 140);
-  }, 2000);
-})();
-
-/* ---- annotation jitter: decorative, off for reduced-motion ---- */
-if(!reduce){
-  Array.prototype.forEach.call(document.querySelectorAll('.note'), function(n){
-    n.style.transform = 'rotate(' + rnd(-1.6,1.6).toFixed(2) + 'deg)';
-  });
-}
-
-/* ---- treasury log: random lines, typed out ---- */
-(function(){
-  var out = document.getElementById('log');
-  if(!out) return;
-  var lines = [
-    'intake: specimen accepted — <u>no submission rejected</u>',
-    'audit: searched for roadmap — <span>0 results</span>',
-    'audit: searched for utility — <span>0 results</span>',
-    'fee path: TRADE → ACCRUE → <u>HOLDERS</u> — 1 path, 0 branches',
-    'check: mascot slot — <span>deliberately empty</span>',
-    'backing: collateral located in <u>your camera roll</u>',
-    'venue: PONS on ROBINHOOD CHAIN — <span>live, trading open</span>',
-    'contract: <u>0x8DeC1E31…F9a8bA</u> — verify in full before sending',
-    'notice: impersonators are guaranteed — <span>assume the DM is fake</span>',
-    'status: rim intact / specimen MBC-000 <span>load-bearing</span>',
-    'thesis: a meme for all — <u>still holding</u>'
-  ];
-  var pool = lines.slice(), shown = [];
-  function next(){
-    if(!pool.length) pool = lines.slice();
-    var line = pool.splice(Math.floor(Math.random()*pool.length),1)[0];
-    shown.push('<div>&gt; ' + line + '</div>');
-    if(shown.length > 5) shown.shift();
-    out.innerHTML = shown.join('') + '<div>&gt; <span class="cur"></span></div>';
-  }
-  next(); next(); next();
-  if(!reduce) setInterval(next, 2600);
-})();
-
-/* ---- headline glitch: short random bursts, not a constant loop ---- */
-if(!reduce){
-  var gl = document.getElementById('gl1');
-  (function burst(){
-    setTimeout(function(){
-      if(gl){ gl.classList.add('on'); setTimeout(function(){ gl.classList.remove('on'); }, rnd(90,220)); }
-      burst();
-    }, rnd(2600, 7000));
-  })();
-}
-
-/* ---- contract copy ---- */
-var caEl = document.getElementById('ca');
-if(caEl) caEl.addEventListener('click', function(){
-  var txt = this.textContent.trim();
-  if(txt === 'COPIED') return;
-  navigator.clipboard.writeText(txt);
-  var self = this;
-  self.textContent = 'COPIED';
-  setTimeout(function(){ self.textContent = txt; }, 1200);
+var ca=document.getElementById('ca');
+if(ca) ca.addEventListener('click',function(){
+  var t=this.textContent.trim();
+  if(t==='COPIED!!') return;
+  navigator.clipboard.writeText(t);
+  var self=this;
+  self.textContent='COPIED!!';
+  setTimeout(function(){ self.textContent=t; },1100);
 });
-
-/* ---- reveal on scroll ---- */
-if('IntersectionObserver' in window && !reduce){
-  var obs = new IntersectionObserver(function(es){
-    es.forEach(function(e){
-      if(e.isIntersecting){
-        e.target.style.opacity = '1';
-        e.target.style.transform = 'none';
-        obs.unobserve(e.target);
-      }
-    });
-  }, {threshold:0.08});
-  Array.prototype.forEach.call(document.querySelectorAll('.cl, .st, .sr'), function(el, i){
-    el.style.opacity = '0';
-    el.style.transform = 'translateY(10px)';
-    el.style.transition = 'opacity .34s ease ' + ((i % 8) * 0.03) + 's, transform .34s ease ' + ((i % 8) * 0.03) + 's';
-    obs.observe(el);
-  });
-}
 })();
 </script>
 </body>

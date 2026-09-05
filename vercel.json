@@ -3,23 +3,79 @@
   "installCommand": "npm install",
   "framework": null,
   "redirects": [
-    { "source": "/game.html", "destination": "/", "permanent": true },
-    { "source": "/lore.html", "destination": "/", "permanent": true },
-    { "source": "/play.html", "destination": "/", "permanent": true },
-    { "source": "/verify.html", "destination": "/", "permanent": true },
-    { "source": "/game", "destination": "/", "permanent": true },
-    { "source": "/lore", "destination": "/", "permanent": true },
-    { "source": "/play", "destination": "/", "permanent": true },
-    { "source": "/verify", "destination": "/", "permanent": true },
-    { "source": "/game-web", "destination": "/", "permanent": true },
-    { "source": "/game-web/:path*", "destination": "/", "permanent": true }
+    {
+      "source": "/game.html",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/lore.html",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/play.html",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/verify.html",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/game",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/lore",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/play",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/verify",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/game-web",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/game-web/:path*",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/paint.html",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/paint",
+      "destination": "/",
+      "permanent": true
+    }
   ],
   "headers": [
     {
       "source": "/api/(.*)",
       "headers": [
-        { "key": "Access-Control-Allow-Origin", "value": "*" },
-        { "key": "Access-Control-Allow-Methods", "value": "GET, POST, OPTIONS" }
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, POST, OPTIONS"
+        }
       ]
     }
   ]

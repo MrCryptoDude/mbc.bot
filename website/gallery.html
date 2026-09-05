@@ -3,256 +3,216 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Reserve — $MEME | Meme Backed Currency</title>
-<meta name="description" content="The Reserve — the collateral behind $MEME. Every meme backing Meme Backed Currency, catalogued.">
-<meta property="og:title" content="The Reserve — $MEME">
-<meta property="og:description" content="The collateral behind Meme Backed Currency. Every genre, every era, all of it on file.">
+<title>the memes — $MEME | Meme Backed Currency</title>
+<meta name="description" content="The memes backing $MEME. Every genre, every era, all of it collateral.">
+<meta property="og:title" content="the memes — $MEME">
+<meta property="og:description" content="The collateral behind Meme Backed Currency. Every genre, every era, all of it.">
 <meta property="og:image" content="https://memebackedcurrency.com/assets/mbc-logo.jpg">
-<meta property="og:url" content="https://memebackedcurrency.com/">
+<meta property="og:url" content="https://memebackedcurrency.com/gallery.html">
 <meta property="og:type" content="website">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@MEMEBACKEDCURR">
 <link rel="icon" href="assets/mbc-logo.jpg">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Anton&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
+/* Paint version — matches index.html. MS Paint default palette, Comic Sans,
+   nothing quite aligned. The memes themselves are never degraded. */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#050705;--bg2:#0a0e0b;--panel:#0d120e;--line:#1c2a1f;--line2:#2a3d2e;
-  --green:#00e05f;--green-b:#5cff9e;--green-d:#0a8f42;--green-x:#04331d;
-  --orange:#ff6a00;--orange-b:#ff9d3d;--orange-d:#8f3800;--orange-x:#2b1204;
-  --white:#eef2ec;--text:#9dab9f;--dim:#5d6b60;--faint:#333f36;
-  --mono:'JetBrains Mono',ui-monospace,monospace;
-  --disp:'Archivo Black',system-ui,sans-serif;
-  --cond:'Anton',system-ui,sans-serif;
-  --body:'Inter',system-ui,sans-serif;
+  --ink:#000;--paper:#fff;
+  --grn:#22B14C;--org:#FF7F27;--red:#ED1C24;--yel:#FFF200;--turq:#00A2E8;
+  --gray:#C3C3C3;--dgray:#7F7F7F;--rose:#FFAEC9;--lime:#B5E61D;--gold:#FFC90E;
+  --comic:'Comic Sans MS','Comic Sans','Chalkboard SE','Segoe Print',cursive;
+  --sys:'Tahoma','MS Sans Serif','Geneva',sans-serif;
 }
 html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--text);font-family:var(--mono);font-size:15px;line-height:1.55;overflow-x:hidden;position:relative}
-::selection{background:var(--orange);color:#000}
+body{background:var(--paper);color:var(--ink);font-family:var(--comic);font-size:18px;line-height:1.5;
+  overflow-x:hidden;position:relative;
+  background-image:linear-gradient(#eef4ee 1px,transparent 1px),linear-gradient(90deg,#eef4ee 1px,transparent 1px);
+  background-size:24px 24px}
 img{max-width:100%;display:block}
-a{color:inherit}
+a{color:#0000EE}
 
-/* texture — matched to index.html, deliberately weak so artwork stays crisp */
-body::after{content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:0.16;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E")}
-body::before{content:'';position:fixed;inset:0;z-index:9998;pointer-events:none;opacity:0.09;
-  background:repeating-linear-gradient(180deg,rgba(0,0,0,0) 0px,rgba(0,0,0,0) 4px,rgba(0,0,0,0.5) 5px,rgba(0,0,0,0) 6px)}
+.chrome{border-bottom:2px solid var(--ink);background:var(--gray);padding:3px 6px;
+  font-family:var(--sys);font-size:12px;display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.chrome .ttl{font-weight:700}
+.chrome .mnu{display:flex;gap:10px;color:#222}
+.chrome .win{margin-left:auto;display:flex;gap:3px}
+.chrome .win b{display:inline-block;width:18px;height:16px;border:2px outset #fff;background:var(--gray);
+  text-align:center;line-height:12px;font-weight:400}
 
-/* ============ BANDS ============ */
-.band{overflow:hidden;white-space:nowrap;border-bottom:1px solid var(--line);background:var(--bg2)}
-.band .run{display:inline-block;font-family:var(--mono);font-size:11.5px;font-weight:700;letter-spacing:2.5px;padding:6px 0}
-.band .run span{padding:0 14px}
-.band-a{background:var(--green);color:#001a09}
-.band-a .run{animation:runl 30s linear infinite}
-.band-b .run{animation:runr 44s linear infinite;color:var(--orange-b)}
-.band-b .run i{color:var(--faint);font-style:normal}
-@keyframes runl{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-@keyframes runr{from{transform:translateX(-50%)}to{transform:translateX(0)}}
+.banner{background:var(--yel);border-bottom:3px solid var(--ink);overflow:hidden;white-space:nowrap}
+.banner .run{display:inline-block;padding:5px 0;font-family:var(--comic);font-size:16px;font-weight:700;
+  animation:slide 26s linear infinite}
+.banner .run span{padding:0 18px}
+.banner .run i{font-style:normal;color:var(--red)}
+@keyframes slide{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 
-/* ============ NAV ============ */
-nav{position:sticky;top:0;z-index:200;display:flex;align-items:center;justify-content:space-between;gap:16px;
-  padding:9px 22px;background:rgba(5,7,5,0.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line2)}
-.brand{display:flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0}
-.coin{-webkit-mask-image:radial-gradient(ellipse closest-side at 50% 50%,#000 93%,rgba(0,0,0,0) 100%);
-  mask-image:radial-gradient(ellipse closest-side at 50% 50%,#000 93%,rgba(0,0,0,0) 100%)}
-.brand .coin{width:38px;height:auto;filter:drop-shadow(0 0 7px rgba(0,224,95,0.55)) drop-shadow(0 0 14px rgba(0,224,95,0.25))}
-.brand .wm{font-family:var(--disp);font-size:17px;letter-spacing:-0.5px;color:var(--white)}
-.brand .wm em{color:var(--orange);font-style:normal}
-.navlinks{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
-.navlinks a{display:inline-flex;align-items:center;height:28px;font-family:var(--mono);font-size:11px;
-  font-weight:700;letter-spacing:1.5px;text-decoration:none;color:var(--dim);padding:0 9px;
-  border:1px solid transparent;transition:all .12s}
-.navlinks a:hover{color:var(--green);border-color:var(--line2);background:var(--bg2)}
-.navlinks a.on{color:var(--green);border-color:var(--green-d)}
-.navlinks a.hot{color:#001a09;background:var(--green);border-color:var(--green)}
-.navlinks a.hot:hover{background:var(--green-b);color:#001a09}
-.navlinks a.alt{color:var(--orange-b);border-color:var(--orange-d)}
-.navlinks a.alt:hover{background:var(--orange-x);color:var(--orange-b)}
-.navlinks .sm{display:none}
+nav{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 18px;
+  border-bottom:3px solid var(--ink);background:var(--paper)}
+.logo{display:flex;align-items:center;gap:9px;text-decoration:none;color:var(--ink)}
+.logo img{width:46px;height:auto;border:3px solid var(--ink);transform:rotate(-3deg)}
+.logo b{font-size:21px;letter-spacing:-.5px}
+.logo b i{font-style:normal;color:var(--org)}
+.nl{display:flex;gap:7px;flex-wrap:wrap;margin-left:auto;align-items:center}
+.btn{position:relative;display:inline-block;font-family:var(--comic);font-size:15px;font-weight:700;
+  text-decoration:none;color:var(--ink);padding:7px 15px;background:var(--paper);cursor:pointer;
+  border:none;line-height:1.2}
+.btn::before{content:'';position:absolute;inset:0;background:no-repeat center/100% 100%;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 330 102' preserveAspectRatio='none'%3E%3Cpath d='M5 4 L22 5 L35 1 L50 1 L71 4 L82 2 L102 7 L116 5 L129 5 L151 6 L162 5 L178 4 L198 4 L212 6 L229 5 L242 7 L257 2 L273 7 L291 3 L308 2 L326 6 L322 5 L327 17 L321 33 L322 49 L322 71 L323 84 L321 96 L326 95 L310 99 L294 97 L273 93 L263 94 L242 98 L231 99 L209 99 L196 95 L178 99 L167 99 L148 96 L129 93 L116 93 L99 93 L81 99 L70 94 L50 99 L38 95 L21 96 L4 96 L4 98 L6 80 L7 64 L5 49 L1 33 L7 16 Z' fill='none' stroke='%23000' stroke-width='5'/%3E%3C/svg%3E")}
+.btn:hover{background:var(--yel)}
+.btn.grn{background:var(--grn);color:#fff}
+.btn.grn:hover{background:var(--lime);color:#000}
+.btn.org{background:var(--org)}
+.btn.org:hover{background:var(--gold)}
+.btn.on{background:var(--turq);color:#fff}
+.tilt1{transform:rotate(-1.6deg)}
+.tilt2{transform:rotate(1.9deg)}
+.tilt3{transform:rotate(-2.7deg)}
 
-/* ============ SHELL ============ */
-.wrap{max-width:1180px;margin:0 auto;padding:0 22px}
-.tag{font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:2.5px;color:var(--orange);text-transform:uppercase}
-.tag b{color:var(--faint);font-weight:400}
-.lede{font-family:var(--body);font-size:17px;line-height:1.72;color:var(--text);max-width:62ch}
-.lede b{color:var(--white);font-weight:600}
-.h2{font-family:var(--disp);font-size:clamp(30px,4.6vw,58px);line-height:0.94;letter-spacing:-1.5px;color:var(--white);margin:10px 0 20px}
-.h2 em{font-style:normal;color:var(--orange)}
-.sec{padding:62px 0 76px;position:relative}
-.sechead{display:grid;grid-template-columns:74px 1fr;gap:18px;align-items:start}
-.secno{font-family:var(--cond);font-size:60px;line-height:0.8;color:transparent;-webkit-text-stroke:1px var(--line2);letter-spacing:-2px}
-.stamp{position:absolute;right:22px;top:62px;font-family:var(--mono);font-size:10px;letter-spacing:2px;
-  color:var(--faint);text-align:right;line-height:1.7;border-right:1px solid var(--line);padding-right:10px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 18px}
+section{padding:34px 0 46px;position:relative}
+h1{font-family:var(--comic);font-weight:700;line-height:1.05;font-size:clamp(32px,6vw,60px)}
+p{margin-bottom:12px}
+.big-txt{font-size:20px}
+.wordart{color:var(--grn);text-shadow:3px 3px 0 var(--ink),6px 6px 0 var(--gray);-webkit-text-stroke:1px #000}
+.scribl{display:block;width:100%;max-width:440px;height:22px;margin:2px 0 14px}
+.ink{fill:none;stroke:#000;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
 
-/* ============ CONTROL BAR ============ */
+/* ── control bar ── */
 .ctrl{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
-  margin-top:28px;padding:11px 14px;border:1px solid var(--line2);background:var(--bg2)}
-.ctrl .count{font-size:11px;letter-spacing:1.8px;color:var(--dim)}
-.ctrl .count b{color:var(--green);font-weight:400}
-.ctrl .btns{display:flex;gap:6px;flex-wrap:wrap}
-.ctrl button{font-family:var(--mono);font-size:10.5px;font-weight:700;letter-spacing:1.4px;color:var(--dim);
-  background:transparent;border:1px solid var(--line2);padding:7px 12px;cursor:pointer;transition:all .12s}
-.ctrl button:hover{color:var(--green);border-color:var(--green-d)}
-.ctrl button.on{color:#001a09;background:var(--green);border-color:var(--green)}
+  border:4px solid var(--ink);background:var(--yel);padding:10px 14px;margin-bottom:20px;transform:rotate(-.4deg)}
+.ctrl .count{font-size:17px;font-weight:700}
+.ctrl .btns{display:flex;gap:7px;flex-wrap:wrap}
+.ctrl button{font-family:var(--comic);font-size:14px;font-weight:700;color:var(--ink);
+  background:var(--paper);border:3px solid var(--ink);padding:5px 12px;cursor:pointer}
+.ctrl button:hover{background:var(--lime)}
+.ctrl button.on{background:var(--grn);color:#fff}
 
-/* ============ GRID ============ */
-.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:0;
-  border-left:1px solid var(--line);border-top:1px solid var(--line)}
-.cell{border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--bg);
-  position:relative;cursor:zoom-in;transition:background .12s;padding:0;border-top:0;border-left:0}
-.cell:hover{background:var(--bg2);z-index:2}
-.cell .shot{aspect-ratio:1;overflow:hidden;background:var(--panel);position:relative}
-.cell .shot img{width:100%;height:100%;object-fit:cover;transition:transform .3s ease,filter .2s}
-.cell:hover .shot img{transform:scale(1.04);filter:brightness(1.08)}
-.cell .meta{padding:10px 12px 12px;border-top:1px solid var(--line)}
-.cell .id{font-size:9.5px;letter-spacing:1.6px;color:var(--faint)}
-.cell .cap{font-family:var(--mono);font-size:11px;line-height:1.5;color:var(--dim);margin-top:4px;
+/* ── the wall: every tile pinned up slightly crooked ── */
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.cell{border:4px solid var(--ink);background:var(--paper);padding:7px 7px 0;cursor:zoom-in;position:relative}
+.cell:nth-child(4n+1){transform:rotate(-1.1deg)}
+.cell:nth-child(4n+2){transform:rotate(.9deg)}
+.cell:nth-child(4n+3){transform:rotate(-.6deg)}
+.cell:nth-child(4n){transform:rotate(1.4deg)}
+.cell:hover,.cell:focus-visible{background:var(--yel);z-index:3;outline:none}
+.cell .shot{aspect-ratio:1;overflow:hidden;border:3px solid var(--ink);background:var(--gray)}
+.cell .shot img{width:100%;height:100%;object-fit:cover}
+.cell .meta{padding:7px 2px 9px}
+.cell .id{font-size:12px;color:var(--dgray)}
+.cell .cap{font-size:14px;line-height:1.35;margin-top:1px;
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.cell:hover .cap{color:var(--text)}
-.cell .zoom{position:absolute;top:9px;right:9px;font-size:9px;letter-spacing:1.4px;color:var(--orange-d);
-  background:rgba(5,7,5,.82);border:1px solid var(--orange-d);padding:3px 6px;opacity:0;transition:opacity .15s}
-.cell:hover .zoom{opacity:1}
 
-.gridfoot{border:1px solid var(--line);border-top:0;padding:13px 15px;font-size:10.5px;letter-spacing:1.6px;
-  color:var(--dim);display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;background:var(--bg2)}
-.gridfoot b{color:var(--green);font-weight:400}
+.gridfoot{border:4px solid var(--ink);background:var(--rose);padding:11px 14px;font-size:15px;
+  display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-top:20px}
 
-/* states */
-.state{border:1px solid var(--line2);background:var(--bg2);padding:46px 24px;text-align:center;margin-top:0}
-.state .big{font-family:var(--cond);font-size:30px;color:var(--white);letter-spacing:1px;margin-bottom:8px}
-.state p{font-size:12px;letter-spacing:1.2px;color:var(--dim);line-height:1.8;max-width:56ch;margin:0 auto}
-.state .k{color:var(--orange-b)}
+.state{border:4px solid var(--ink);background:var(--paper);padding:44px 22px;text-align:center}
+.state .big{font-family:var(--comic);font-size:28px;font-weight:700;margin-bottom:8px}
+.state p{font-size:16px;max-width:56ch;margin:0 auto}
+.state .k{background:var(--yel);padding:0 4px;font-family:'Courier New',monospace;font-size:14px}
 
-/* ============ LIGHTBOX ============ */
-.lb{position:fixed;inset:0;z-index:10000;background:rgba(3,5,3,.96);display:none;
-  align-items:center;justify-content:center;padding:56px 20px 20px}
+/* ── lightbox ── */
+.lb{position:fixed;inset:0;z-index:10000;background:rgba(255,255,255,.97);display:none;
+  align-items:center;justify-content:center;padding:60px 18px 18px}
 .lb.open{display:flex}
-.lb .stagewrap{max-width:1100px;width:100%;max-height:100%;display:flex;flex-direction:column;align-items:center}
-.lb img{max-width:100%;max-height:74vh;width:auto;height:auto;border:1px solid var(--line2);object-fit:contain}
-.lb .info{margin-top:13px;text-align:center;max-width:70ch}
-.lb .info .id{font-size:10px;letter-spacing:2px;color:var(--orange)}
-.lb .info .cap{font-family:var(--body);font-size:15px;color:var(--text);margin-top:5px;line-height:1.6}
-.lb .x{position:absolute;top:14px;right:16px;font-family:var(--mono);font-size:12px;letter-spacing:1.6px;
-  color:var(--dim);background:transparent;border:1px solid var(--line2);padding:8px 13px;cursor:pointer}
-.lb .x:hover{color:var(--orange-b);border-color:var(--orange-d)}
-.lb .nav{position:absolute;top:50%;transform:translateY(-50%);font-family:var(--mono);font-size:20px;
-  color:var(--dim);background:rgba(10,14,11,.8);border:1px solid var(--line2);padding:14px 16px;cursor:pointer;line-height:1}
-.lb .nav:hover{color:var(--green);border-color:var(--green-d)}
+.lb .stagewrap{max-width:1000px;width:100%;text-align:center}
+.lb img{max-width:100%;max-height:70vh;width:auto;margin:0 auto;border:5px solid var(--ink);background:#fff}
+.lb .info{margin-top:12px}
+.lb .info .id{font-size:14px;color:var(--dgray)}
+.lb .info .cap{font-size:19px;margin-top:3px}
+.lb .x{position:absolute;top:14px;right:16px;font-family:var(--comic);font-size:15px;font-weight:700;
+  background:var(--red);color:#fff;border:3px solid var(--ink);padding:6px 14px;cursor:pointer}
+.lb .x:hover{background:var(--org);color:#000}
+.lb .nav{position:absolute;top:50%;transform:translateY(-50%);font-family:var(--comic);font-size:26px;
+  font-weight:700;background:var(--paper);border:3px solid var(--ink);padding:10px 15px;cursor:pointer;line-height:1}
+.lb .nav:hover{background:var(--lime)}
 .lb .prev{left:14px}
 .lb .next{right:14px}
-.lb .pos{position:absolute;top:18px;left:18px;font-size:10px;letter-spacing:2px;color:var(--faint)}
+.lb .pos{position:absolute;top:18px;left:18px;font-size:14px;color:var(--dgray)}
 
-/* ============ FOOTER ============ */
-footer{border-top:1px solid var(--line2);padding:44px 22px 54px;text-align:center;margin-top:0}
-footer .coin{width:72px;height:auto;margin:0 auto 14px;filter:drop-shadow(0 0 14px rgba(0,224,95,.4))}
-footer .wm{font-family:var(--disp);font-size:20px;color:var(--white);letter-spacing:-0.5px}
-footer .wm em{color:var(--orange);font-style:normal}
-footer .ln{margin-top:9px;font-size:11px;letter-spacing:1.8px;color:var(--dim)}
-footer .ln a{color:var(--green-d);text-decoration:none}
-footer .ln a:hover{color:var(--green)}
-footer .dis{max-width:70ch;margin:20px auto 0;font-size:10.5px;line-height:1.85;color:var(--faint);letter-spacing:.5px}
+footer{padding:30px 18px 44px;text-align:center;border-top:4px solid var(--ink);margin-top:20px}
+footer img{width:88px;margin:0 auto 10px;border:3px solid var(--ink);transform:rotate(2deg)}
+footer .ln{font-size:15px;margin-top:8px}
+footer .dis{max-width:70ch;margin:16px auto 0;font-family:var(--sys);font-size:12px;line-height:1.6;color:#333}
+.sig{font-size:13px;color:var(--dgray);margin-top:14px;display:inline-block;transform:rotate(-1deg)}
 
-@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
-@media(max-width:1000px){
-  .grid{grid-template-columns:repeat(3,1fr)}
-  .stamp{display:none}
-}
-@media(max-width:900px){.navlinks a.doc{display:none}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}}
+@media(max-width:900px){.grid{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:700px){
-  nav{padding:8px 14px;gap:9px}
-  .brand .wm{font-size:15px}
-  .navlinks a{padding:0 7px;font-size:10px;letter-spacing:1.1px}
-  .wrap{padding:0 14px}
-  .sec{padding:44px 0 54px}
-  .sechead{grid-template-columns:1fr;gap:6px}
-  .secno{font-size:40px}
-  .grid{grid-template-columns:repeat(2,1fr)}
-  .lb{padding:52px 10px 14px}
-  .lb .nav{padding:11px 12px;font-size:17px}
-}
-@media(max-width:480px){
-  nav{gap:6px;padding:7px 11px}
-  .brand{gap:7px}
-  .brand .coin{width:28px}
-  .brand .wm{font-size:13px}
-  .navlinks{gap:2px}
-  .navlinks a{height:24px;padding:0 6px;font-size:9.5px;letter-spacing:0.7px}
-  .navlinks .lg{display:none}
-  .navlinks .sm{display:inline}
+  nav{padding:10px 12px;gap:7px}
+  .nl{margin-left:0;width:100%}
+  .btn{font-size:13px;padding:6px 11px}
+  .wrap{padding:0 12px}
+  .grid{grid-template-columns:repeat(2,1fr);gap:12px}
+  .chrome .mnu{display:none}
+  .lb{padding:54px 10px 12px}
+  .lb .nav{padding:8px 11px;font-size:20px}
 }
 </style>
 </head>
 <body>
 
-<div class="band band-a"><div class="run" id="runA"></div></div>
-<div class="band band-b"><div class="run" id="runB"></div></div>
+<div class="chrome">
+  <span class="ttl">the_memes.bmp - Paint</span>
+  <span class="mnu"><span>File</span><span>Edit</span><span>View</span><span>Image</span><span>Help</span></span>
+  <span class="win"><b>_</b><b>□</b><b>×</b></span>
+</div>
+
+<div class="banner"><div class="run" id="run"></div></div>
 
 <nav>
-  <a href="index.html" class="brand">
-    <img src="assets/mbc-logo.jpg" alt="Meme Backed Currency" class="coin">
-    <span class="wm">MEME<em>/</em>BACKED</span>
+  <a href="index.html" class="logo">
+    <img src="assets/mbc-logo.jpg" alt="Meme Backed Currency">
+    <b>MEME<i>/</i>BACKED</b>
   </a>
-  <div class="navlinks">
-    <a class="doc" href="index.html#decl">[01]&nbsp;DECLARATION</a>
-    <a class="doc" href="index.html#fee">[02]&nbsp;FEES</a>
-    <a class="doc" href="index.html#spec">[03]&nbsp;SPEC</a>
-    <a class="doc on" href="gallery.html">RESERVE</a>
-    <a href="https://discord.gg/d7dpbghrwy" target="_blank" rel="noopener">DISCORD</a>
-    <a href="https://x.com/MEMEBACKEDCURR" target="_blank" rel="noopener" class="alt">X</a>
-    <a href="https://www.ponsfamily.com/launchpad/0x8DeC1E310634CC83a1999a9Ccb567FF0eDF9a8bA" target="_blank" rel="noopener" class="hot"><span class="lg">BUY&nbsp;ON&nbsp;PONS</span><span class="sm">BUY&nbsp;$MEME</span></a>
+  <div class="nl">
+    <a href="index.html#what" class="btn tilt1">what is it</a>
+    <a href="index.html#fees" class="btn tilt2">fees</a>
+    <a href="gallery.html" class="btn on tilt1">the memes</a>
+    <a href="https://discord.gg/d7dpbghrwy" target="_blank" rel="noopener" class="btn tilt3">discord</a>
+    <a href="https://x.com/MEMEBACKEDCURR" target="_blank" rel="noopener" class="btn org tilt1">X</a>
+    <a href="https://www.ponsfamily.com/launchpad/0x8DeC1E310634CC83a1999a9Ccb567FF0eDF9a8bA" target="_blank" rel="noopener" class="btn grn tilt2">BUY IT</a>
   </div>
 </nav>
 
 <div class="wrap">
-<section class="sec">
-  <div class="stamp">THE RESERVE<br>INTAKE: CLOSED<br>VIEWING: OPEN<br>NO SUBMISSION REJECTED</div>
-  <div class="sechead">
-    <div class="secno">R</div>
-    <div>
-      <div class="tag">THE RESERVE <b>// collateral inventory</b></div>
-      <h2 class="h2">GOLD SITS IN A VAULT.<br><em>OURS SITS RIGHT HERE.</em></h2>
-      <p class="lede">The actual backing. Every genre, every era, nothing ranked above anything else &mdash;
-      this is what <b>$MEME</b> is collateralised by. Click any specimen to view it at full size.</p>
+<section>
+  <h1><span class="wordart">the memes</span></h1>
+  <svg class="scribl" viewBox="0 0 430 22" aria-hidden="true"><path class="ink" d="M3 12 L46 13 L93 11 L139 12 L188 15 L233 11 L280 15 L328 16 L378 13 L419 16 M424 9 L376 15 L330 14 L282 12 L234 12 L187 10 L139 13 L92 12 L47 13 L4 11"/></svg>
+  <p class="big-txt">gold sits in a vault. ours sits right here. this is the actual stuff the coin
+  is backed by. click one to make it big.</p>
 
-      <div class="ctrl">
-        <div class="count"><b id="count">&mdash;</b> SPECIMENS ON FILE</div>
-        <div class="btns">
-          <button id="bNew" class="on">ORDER: NEWEST</button>
-          <button id="bRnd">ORDER: RANDOM</button>
-        </div>
-      </div>
-
-      <div id="mount"></div>
+  <div class="ctrl">
+    <div class="count"><span id="count">&mdash;</span> memes so far</div>
+    <div class="btns">
+      <button id="bNew" class="on">newest first</button>
+      <button id="bRnd">shuffle em</button>
     </div>
   </div>
+
+  <div id="mount"></div>
 </section>
 </div>
 
-<!-- LIGHTBOX -->
-<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Specimen viewer">
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="meme viewer">
   <div class="pos" id="lbPos"></div>
-  <button class="x" id="lbX" aria-label="Close viewer">ESC / CLOSE</button>
-  <button class="nav prev" id="lbPrev" aria-label="Previous specimen">&larr;</button>
-  <button class="nav next" id="lbNext" aria-label="Next specimen">&rarr;</button>
+  <button class="x" id="lbX" aria-label="Close">ESC / close</button>
+  <button class="nav prev" id="lbPrev" aria-label="Previous">&larr;</button>
+  <button class="nav next" id="lbNext" aria-label="Next">&rarr;</button>
   <div class="stagewrap">
-    <img id="lbImg" src="" alt="">
-    <div class="info">
-      <div class="id" id="lbId"></div>
-      <div class="cap" id="lbCap"></div>
-    </div>
+    <img id="lbImg" alt="">
+    <div class="info"><div class="id" id="lbId"></div><div class="cap" id="lbCap"></div></div>
   </div>
 </div>
 
 <footer>
-  <img src="assets/mbc-logo.jpg" alt="Meme Backed Currency" class="coin">
-  <p class="wm">MEME<em>/</em>BACKED<em>/</em>CURRENCY</p>
-  <p class="ln">A MEME FOR ALL &nbsp;//&nbsp;
-    <a href="index.html">HOME</a> &nbsp;//&nbsp;
-    <a href="gallery.html">THE RESERVE</a> &nbsp;//&nbsp;
-    <a href="https://x.com/MEMEBACKEDCURR" target="_blank" rel="noopener">X</a> &nbsp;//&nbsp;
-    <a href="https://discord.gg/d7dpbghrwy" target="_blank" rel="noopener">DISCORD</a></p>
+  <img src="assets/mbc-logo.jpg" alt="Meme Backed Currency">
+  <p><b style="font-size:20px">MEME BACKED CURRENCY</b></p>
+  <p class="ln">a meme for all &nbsp;&middot;&nbsp;
+    <a href="index.html">home</a> &nbsp;&middot;&nbsp;
+    <a href="https://x.com/MEMEBACKEDCURR" target="_blank" rel="noopener">X</a> &nbsp;&middot;&nbsp;
+    <a href="https://discord.gg/d7dpbghrwy" target="_blank" rel="noopener">discord</a></p>
+  <p class="sig">drawn with a mouse. no undo was used.</p>
   <p class="dis">$MEME is a meme coin with no intrinsic value and no expectation of financial return. It exists
   for entertainment. Creator fee distribution follows whatever the launch platform supports and is not a
   guarantee of profit, yield or income. Nothing on this page is financial advice. Do not spend more than you
@@ -262,22 +222,13 @@ footer .dis{max-width:70ch;margin:20px auto 0;font-size:10.5px;line-height:1.85;
 <script>
 (function(){
 "use strict";
-var reduce = window.matchMedia('(prefers-reduced-motion:reduce)').matches;
 
-/* ---- ticker bands ---- */
-var A=['$MEME','A MEME FOR ALL','THE RESERVE','CREATOR FEES → HOLDERS','LIVE ON PONS','ROBINHOOD CHAIN'];
-var B=['COLLATERAL ON FILE','NO SUBMISSION REJECTED','EVERY GENRE, EVERY ERA','TICKER: MEME','THE BACKING IS REAL'];
-function band(el,items,sep){
-  if(!el) return;
-  var one=items.map(function(t){return '<span>'+t+'</span><i>'+sep+'</i>';}).join('');
-  el.innerHTML=one+one;
-}
-band(document.getElementById('runA'),A,'◆');
-band(document.getElementById('runB'),B,'//');
+var B=['the memes','every genre every era','no submission rejected','$MEME','a meme for all','this is the collateral'];
+var runEl=document.getElementById('run');
+if(runEl){var one=B.map(function(t){return '<span>'+t+'</span><i>&#9733;</i>';}).join('');runEl.innerHTML=one+one;}
 
-/* ---- state ---- */
 var mount=document.getElementById('mount'), countEl=document.getElementById('count');
-var items=[], view=[], mode='new';
+var items=[], view=[];
 
 function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){
   return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
@@ -285,44 +236,40 @@ function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){
 function url(name,sub){ return 'assets/memes/'+(sub?sub+'/':'')+encodeURIComponent(name); }
 function full(m){ return url(m.file); }
 function thumb(m){ return m.thumb ? url(m.thumb,'thumbs') : url(m.file); }
-
 function pad(n){ return (n<100?('00'+n).slice(-3):String(n)); }
 
 function render(){
   if(!view.length){
-    mount.innerHTML='<div class="state"><div class="big">NO SPECIMENS ON FILE</div>'+
-      '<p>The vault is built and empty. Drop images into <span class="k">website/assets/memes/</span>, '+
-      'run <span class="k">npm run memes</span>, and they appear here.</p></div>';
+    mount.innerHTML='<div class="state"><div class="big">no memes in here yet</div>'+
+      '<p>put images in <span class="k">website/assets/memes/</span>, run <span class="k">npm run memes</span>, '+
+      'and they turn up here.</p></div>';
     return;
   }
   var h='<div class="grid">';
   view.forEach(function(m,i){
-    h+='<div class="cell" data-i="'+i+'" tabindex="0" role="button" aria-label="View '+esc(m.id)+'">'+
-         '<span class="zoom">VIEW</span>'+
+    h+='<div class="cell" data-i="'+i+'" tabindex="0" role="button" aria-label="view '+esc(m.id)+'">'+
          '<div class="shot"><img loading="lazy" decoding="async" src="'+esc(thumb(m))+'" alt="'+esc(m.caption||m.id)+'"></div>'+
          '<div class="meta"><div class="id">'+esc(m.id)+'</div>'+
          (m.caption?'<div class="cap">'+esc(m.caption)+'</div>':'')+'</div>'+
        '</div>';
   });
-  h+='</div><div class="gridfoot"><span>INTAKE STATUS: <b>OPEN</b> — NO SUBMISSION REJECTED</span>'+
-     '<span>PARTIAL LISTING / THE REST IS IN YOUR SAVED FOLDER</span></div>';
+  h+='</div><div class="gridfoot"><span>everything gets in. nothing is rejected.</span>'+
+     '<span>the rest are in your saved folder</span></div>';
   mount.innerHTML=h;
 }
 
 function setMode(m){
-  mode=m;
   document.getElementById('bNew').classList.toggle('on', m==='new');
   document.getElementById('bRnd').classList.toggle('on', m==='rnd');
   view=items.slice();
   if(m==='rnd'){
-    for(var i=view.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=view[i]; view[i]=view[j]; view[j]=t; }
+    for(var i=view.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=view[i];view[i]=view[j];view[j]=t;}
   }
   render();
 }
 document.getElementById('bNew').addEventListener('click',function(){setMode('new');});
 document.getElementById('bRnd').addEventListener('click',function(){setMode('rnd');});
 
-/* ---- lightbox ---- */
 var lb=document.getElementById('lb'), lbImg=document.getElementById('lbImg'),
     lbId=document.getElementById('lbId'), lbCap=document.getElementById('lbCap'),
     lbPos=document.getElementById('lbPos'), cur=-1, lastFocus=null;
@@ -331,10 +278,8 @@ function show(i){
   if(!view.length) return;
   cur=(i+view.length)%view.length;
   var m=view[cur];
-  lbImg.src=full(m);
-  lbImg.alt=m.caption||m.id;
-  lbId.textContent=m.id;
-  lbCap.textContent=m.caption||'';
+  lbImg.src=full(m); lbImg.alt=m.caption||m.id;
+  lbId.textContent=m.id; lbCap.textContent=m.caption||'';
   lbPos.textContent=(cur+1)+' / '+view.length;
   if(!lb.classList.contains('open')){
     lastFocus=document.activeElement;
@@ -346,15 +291,13 @@ function show(i){
 function close(){
   lb.classList.remove('open');
   document.body.style.overflow='';
-  lbImg.src='';
-  if(lastFocus && lastFocus.focus) lastFocus.focus();
+  lbImg.removeAttribute('src');
+  if(lastFocus&&lastFocus.focus) lastFocus.focus();
 }
-mount.addEventListener('click',function(e){
-  var c=e.target.closest('.cell'); if(c) show(+c.dataset.i);
-});
+mount.addEventListener('click',function(e){var c=e.target.closest('.cell'); if(c) show(+c.dataset.i);});
 mount.addEventListener('keydown',function(e){
-  if(e.key!=='Enter' && e.key!==' ') return;
-  var c=e.target.closest('.cell'); if(c){ e.preventDefault(); show(+c.dataset.i); }
+  if(e.key!=='Enter'&&e.key!==' ') return;
+  var c=e.target.closest('.cell'); if(c){e.preventDefault();show(+c.dataset.i);}
 });
 document.getElementById('lbX').addEventListener('click',close);
 document.getElementById('lbPrev').addEventListener('click',function(e){e.stopPropagation();show(cur-1);});
@@ -367,11 +310,10 @@ document.addEventListener('keydown',function(e){
   else if(e.key==='ArrowRight') show(cur+1);
 });
 
-/* ---- load manifest ---- */
 fetch('assets/memes/manifest.json',{cache:'no-cache'})
   .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
   .then(function(d){
-    var list=(d && d.memes) ? d.memes : [];
+    var list=(d&&d.memes)?d.memes:[];
     items=list.map(function(m,i){
       return {file:m.file, thumb:m.thumb||'', caption:m.caption||'', id:m.id||('MBC-'+pad(list.length-i))};
     });
@@ -380,10 +322,9 @@ fetch('assets/memes/manifest.json',{cache:'no-cache'})
   })
   .catch(function(err){
     countEl.textContent='0';
-    mount.innerHTML='<div class="state"><div class="big">INVENTORY UNREACHABLE</div>'+
-      '<p>Could not load <span class="k">assets/memes/manifest.json</span> ('+esc(err.message)+'). '+
-      'If you are opening this file directly from disk, serve it over HTTP instead &mdash; '+
-      'browsers block local fetch requests.</p></div>';
+    mount.innerHTML='<div class="state"><div class="big">cant find the memes</div>'+
+      '<p>could not load <span class="k">assets/memes/manifest.json</span> ('+esc(err.message)+'). '+
+      'if you opened this file straight off your disk, serve it over http instead.</p></div>';
   });
 })();
 </script>
