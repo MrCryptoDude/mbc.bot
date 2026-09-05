@@ -280,6 +280,10 @@ var items=[], view=[], mode='new';
 
 function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){
   return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+/* filenames carry spaces and parens, so encode before they become a URL */
+function url(name,sub){ return 'assets/memes/'+(sub?sub+'/':'')+encodeURIComponent(name); }
+function full(m){ return url(m.file); }
+function thumb(m){ return m.thumb ? url(m.thumb,'thumbs') : url(m.file); }
 
 function pad(n){ return (n<100?('00'+n).slice(-3):String(n)); }
 
@@ -294,7 +298,7 @@ function render(){
   view.forEach(function(m,i){
     h+='<div class="cell" data-i="'+i+'" tabindex="0" role="button" aria-label="View '+esc(m.id)+'">'+
          '<span class="zoom">VIEW</span>'+
-         '<div class="shot"><img loading="lazy" decoding="async" src="assets/memes/'+esc(m.file)+'" alt="'+esc(m.caption||m.id)+'"></div>'+
+         '<div class="shot"><img loading="lazy" decoding="async" src="'+esc(thumb(m))+'" alt="'+esc(m.caption||m.id)+'"></div>'+
          '<div class="meta"><div class="id">'+esc(m.id)+'</div>'+
          (m.caption?'<div class="cap">'+esc(m.caption)+'</div>':'')+'</div>'+
        '</div>';
@@ -326,7 +330,7 @@ function show(i){
   if(!view.length) return;
   cur=(i+view.length)%view.length;
   var m=view[cur];
-  lbImg.src='assets/memes/'+m.file;
+  lbImg.src=full(m);
   lbImg.alt=m.caption||m.id;
   lbId.textContent=m.id;
   lbCap.textContent=m.caption||'';
@@ -368,7 +372,7 @@ fetch('assets/memes/manifest.json',{cache:'no-cache'})
   .then(function(d){
     var list=(d && d.memes) ? d.memes : [];
     items=list.map(function(m,i){
-      return {file:m.file, caption:m.caption||'', id:m.id||('MBC-'+pad(list.length-i))};
+      return {file:m.file, thumb:m.thumb||'', caption:m.caption||'', id:m.id||('MBC-'+pad(list.length-i))};
     });
     countEl.textContent=items.length;
     setMode('new');

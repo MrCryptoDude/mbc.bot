@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
  * Rebuilds website/assets/memes/manifest.json from whatever image files are in
- * that folder. Captions you have already written are preserved and matched by
- * filename, so this is safe to re-run any time.
+ * that folder, generating grid thumbnails first. Captions you have already
+ * written are preserved and matched by filename, so this is safe to re-run.
  *
  *   npm run memes
  *
@@ -11,17 +11,28 @@
  * number, so existing ids stay put as you add more.
  */
 import { readdirSync, statSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
 import { join, extname, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const DIR = join(ROOT, 'website', 'assets', 'memes');
+const THUMBS = join(DIR, 'thumbs');
 const MANIFEST = join(DIR, 'manifest.json');
 const EXT = new Set(['.jpg', '.jpeg', '.png', '.gif', '.webp', '.avif']);
 
 if (!existsSync(DIR)) {
   console.error(`No such folder: ${DIR}`);
   process.exit(1);
+}
+
+// Thumbnails first, best effort. Without Python/Pillow this is skipped and the
+// gallery falls back to full-size images — slower, but not broken.
+const py = spawnSync(process.platform === 'win32' ? 'python' : 'python3', [join(ROOT, 'scripts', 'thumbs.py')], {
+  stdio: 'inherit',
+});
+if (py.error) {
+  console.warn('Could not run scripts/thumbs.py — gallery will use full-size images.');
 }
 
 // keep captions from the current manifest, keyed by filename
@@ -41,19 +52,26 @@ const files = readdirSync(DIR)
   .sort((a, b) => b.mtime - a.mtime); // newest first
 
 const total = files.length;
-const memes = files.map((f, i) => ({
-  file: f.file,
-  id: `MBC-${String(total - i).padStart(3, '0')}`,
-  caption: existing.get(f.file) || '',
-}));
+const memes = files.map((f, i) => {
+  const thumb = f.file.replace(/\.[^.]+$/, '') + '.webp';
+  const entry = {
+    file: f.file,
+    id: `MBC-${String(total - i).padStart(3, '0')}`,
+    caption: existing.get(f.file) || '',
+  };
+  // only reference a thumb that actually exists; the gallery falls back to the
+  // full image when this is absent
+  if (existsSync(join(THUMBS, thumb))) entry.thumb = thumb;
+  return entry;
+});
 
 writeFileSync(MANIFEST, JSON.stringify({ memes }, null, 2) + '\n');
 
 const missing = memes.filter((m) => !m.caption).length;
+const nothumb = memes.filter((m) => !m.thumb).length;
 console.log(`Wrote ${total} specimen${total === 1 ? '' : 's'} to assets/memes/manifest.json`);
+if (nothumb) console.log(`${nothumb} without a thumbnail — the grid will load those full size.`);
 if (missing) {
   console.log(`${missing} still ${missing === 1 ? 'has' : 'have'} no caption — add them in the manifest, they survive re-runs.`);
 }
-if (total) {
-  console.log(`Newest: ${memes[0].id} (${memes[0].file})`);
-}
+if (total) console.log(`Newest: ${memes[0].id} (${memes[0].file})`);
